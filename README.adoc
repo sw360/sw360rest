@@ -1,5 +1,8 @@
 = sw360 REST
 
+image:https://travis-ci.org/sw360/sw360rest.svg?branch=master["Build Status", link="https://travis-ci.org/sw360/sw360rest"]
+image:http://img.shields.io/badge/license-EPL-blue.svg["EPL", link="http://www.eclipse.org/legal/epl-v10.html"]
+
 == Disclaimer
 
 This project is in a very early stage, mainly starting a proof of concept for a possible REST API for the sw360 portal.
