@@ -1,0 +1,25 @@
+apply plugin: 'org.springframework.boot'
+
+jar {
+	baseName = 'sw360-rest-authorization-server'
+	version = '0.0.1'
+}
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter-web')
+	compile('org.springframework.boot:spring-boot-starter-security')
+	compile('org.springframework.security.oauth:spring-security-oauth2')
+	compile('org.springframework.security:spring-security-jwt')
+
+	runtime('org.springframework.boot:spring-boot-devtools')
+
+	compileOnly('org.projectlombok:lombok:1.16.12')
+
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+	testCompile('org.springframework.restdocs:spring-restdocs-mockmvc')
+}
+
+task printAccessToken(type:JavaExec) {
+    main = "org.eclipse.sw360.rest.authserver.AccessTokenPrinter"
+    classpath = sourceSets.test.runtimeClasspath
+}

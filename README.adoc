@@ -1,0 +1,82 @@
+= sw360 REST
+
+== Disclaimer
+
+This project is in a very early stage, mainly starting a proof of concept for a possible REST API for the sw360 portal.
+
+Please stay tuned...
+
+== Overview
+
+This project provides REST infrastructure for sw360, including
+
+* OAuth2 authorisation server (subproject authorization-server)
+** This is just for having an oauth2 provider for tests
+** Might be replaced in the future
+* REST API gateway (subproject resource-server)
+** Currently in experimental phase to find out what the best mapping to the existing sw360 domain model would be
+* Demo client application (subproject demo-app)
+** Not started yet
+** It is planned to provide blueprints for common use cases here
+
+== Getting Started
+
+Before you can build and run all the tests, make sure that you have
+
+* Java 8 SDK installed
+* Build the sw360 portal project locally
+** datahandler-1.6.0-SNAPSHOT.jar has to be in your local maven repository
+
+To build an run all tests open a console and type
+
+* Linux/Mac: ./gradlew build
+* Windows: gradlew build
+
+In the following description I use "./gradlew", Windows users always just have to type "gradlew" instead.
+
+== Browsing the sw360 REST API
+
+This is currently work in progress and will be easier in the future.
+
+The precondition for browsing the real sw360 data using the REST API is that you
+have all the sw360 Thrift services running on http://localhost:8080.
+Furthermore you need to configure the hardcoded sw360 user id in
+the authorization server to match the id/email of an existing sw360 user.
+To do that, edit the values for sw360.test-user-id
+in subprojects/authorization-server/src/main/resources/application.yml. The defaults are:
+
+[source]
+sw360:
+  test-user-id: admin@sw360.com
+  test-user-password: sw360-admin-password
+
+Right now you have to start both the authorization server as well as the resource server in 2 separate console windows:
+
+* ./gradlew authorization-server:bootrun
+* ./gradlew resource-server:bootrun
+
+Then get an oauth2 token from the authorization server by running
+
+* ./gradlew printAccessToken
+
+At the end of the console output you will get something like:
+[source]
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic3czNjAtUkVTVC1BUEkiXSwidXNlcl9uYW1lIjoic3czNjAtdXNlciIsInNjb3BlIjpbInN3MzYwLnJlYWQiLCJzdzM2MC53cml0ZSJdLCJleHAiOjE0ODE2MjQyOTYsImF1dGhvcml0aWVzIjpbIlJPTEVfU1czNjBfVVNFUiJdLCJqdGkiOiIzMDgyMDM5ZS0xY2ViLTQ5ZDktYWM1My0xMzIxMTNhMWQwMDQiLCJjbGllbnRfaWQiOiJ0cnVzdGVkLXN3MzYwLWNsaWVudCJ9.Exm2Yc-XaTff6FrGRTL4lXhBvbAD05XH8sTFC1kPRuqPkWqW2T0IgMgOs7iNDFwREvnqhAP4ZkCEFWYy-kiGU63HDlobDntJkJqvZjLTBlv4jOlXXJQ0TZWm6c-ochNWMkKI2tYO8EeDLqHj0jW1DWQ1I3o6cVtYdJ-etwOuIAP0uC9sykHlJkL_-TjvGpxpPXj_gTzeuvvOtqqhgF10uOpN-BBq5nLyRP4Zgrd1NhE-E6osb8xZrzn0WjtHA5ja62lmJ-a40sQ2kaXP8pik4pq3hmv2yNDK0TExjvvDXS_aEEavUv1p2-LmlyTua2UizHHxLxFjqptE2FqMZlmqkQ
+
+Then open the following URL in a web browser:
+[source]
+http://localhost:8091/api/browser/index.html#/api
+
+Now you should see an API browser (Hal-Browser), but you are not authorized yet.
+Copy the whole token (including "Authorization: Bearer") into the "Custom Request Headers" field in the HAL-Browser and click on the "Go!" button.
+
+Now you are authorized and can use the HAL-Browser to navigate through the API.
+
+== License
+
+SPDX Short Identifier: http://spdx.org/licenses/EPL-1.0
+
+All rights reserved. This program and the accompanying materials
+are made available under the terms of the Eclipse Public License v1.0
+which accompanies this distribution, and is available at
+http://www.eclipse.org/legal/epl-v10.html

@@ -1,0 +1,10 @@
+build
+out
+classes
+*.iml
+*.ipr
+*.iws
+.idea
+.gradle
+test.log
+

@@ -1,0 +1,11 @@
+include 'authorization-server'
+include 'resource-server'
+include 'demo-app'
+
+rootProject.name = 'sw360REST'
+rootProject.children.each { project ->
+    String fileBaseName = project.name
+    String projectDirName = "subprojects/$fileBaseName"
+    project.projectDir = new File(settingsDir, projectDirName)
+    assert project.projectDir.isDirectory()
+}

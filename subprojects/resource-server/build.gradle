@@ -1,0 +1,27 @@
+apply plugin: 'org.springframework.boot'
+
+jar {
+	baseName = 'sw360-rest-authorization-server'
+	version = '0.0.1'
+}
+
+dependencies {
+	compile 'org.springframework.boot:spring-boot-starter-web'
+	compile 'org.springframework.boot:spring-boot-starter-security'
+    compile 'org.springframework.boot:spring-boot-starter-data-rest'
+	compile 'org.springframework.data:spring-data-rest-hal-browser'
+	compile 'org.springframework.security.oauth:spring-security-oauth2'
+	compile 'org.springframework.security:spring-security-jwt'
+
+	compile 'org.apache.thrift:libthrift:0.9.3'
+	compile ("org.eclipse.sw360:datahandler:1.6.0-SNAPSHOT") {
+        exclude group:"org.slf4j"
+    }
+
+	runtime 'org.springframework.boot:spring-boot-devtools'
+
+	compileOnly 'org.projectlombok:lombok:1.16.12'
+
+	testCompile 'org.springframework.boot:spring-boot-starter-test'
+	testCompile 'org.springframework.restdocs:spring-restdocs-mockmvc'
+}
