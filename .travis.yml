@@ -9,7 +9,7 @@ services:
   - docker
 
 before_install:
-  - curl http://toedter.com/download/sw360/datahandler-1.6.0-SNAPSHOT.jar
+  - curl -o datahandler-1.6.0-SNAPSHOT.jar http://toedter.com/download/sw360/datahandler-1.6.0-SNAPSHOT.jar
   - mvn install:install-file -Dfile=datahandler-1.6.0-SNAPSHOT.jar
 
 script:
