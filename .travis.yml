@@ -28,5 +28,5 @@ addons:
   artifacts:
     # ...
     paths:
-    - $HOME/travis/build/sw360/sw360rest/subprojects/resource-server/build/reports
-    - $HOME/travis/build/sw360/sw360rest/subprojects/resource-server/build/asciidoc/html5
+    - $HOME/build/sw360/sw360rest/subprojects/resource-server/build/reports
+    - $HOME/build/sw360/sw360rest/subprojects/resource-server/build/asciidoc/html5
