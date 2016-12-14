@@ -11,7 +11,7 @@ include 'authorization-server'
 include 'resource-server'
 include 'demo-app'
 
-rootProject.name = 'sw360REST'
+rootProject.name = 'sw360rest'
 rootProject.children.each { project ->
     String fileBaseName = project.name
     String projectDirName = "subprojects/$fileBaseName"
