@@ -43,7 +43,7 @@ The API provides Hypermedia using http://stateless.co/hal_specification.html[HAL
 The following examples only show some ideas, not the actual (final) API:
 
 API root:
-[source]
+[source, json]
 {
   "_links": {
     "sw360:components": {
@@ -66,7 +66,7 @@ API root:
 }
 
 A sw360 project
-[source]
+[source, json]
 {
   "type": "project",
   "projectType": "PRODUCT",
@@ -87,7 +87,7 @@ The precondition for browsing the real sw360 data using the REST API is that you
 have all the sw360 Thrift services running. You could change the Thrift services URL by editing
 subprojects/resource-server/src/main/resources/application.yml. The default configuration is:
 
-[source]
+[source, yml]
 sw360:
   thrift-server-url: http://localhost:8080
 
@@ -96,7 +96,7 @@ the authorization server to match the id/email of an existing sw360 user.
 To do that, edit the values for sw360.test-user-id
 in subprojects/authorization-server/src/main/resources/application.yml. The defaults are:
 
-[source]
+[source, yml]
 sw360:
   test-user-id: admin@sw360.com
   test-user-password: sw360-admin-password
