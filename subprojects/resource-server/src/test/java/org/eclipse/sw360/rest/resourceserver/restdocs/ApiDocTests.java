@@ -106,7 +106,7 @@ public class ApiDocTests {
                 .requestAttr(RequestDispatcher.ERROR_REQUEST_URI,
                         "/user")
                 .requestAttr(RequestDispatcher.ERROR_MESSAGE,
-                        "The tag 'http://localhost:8080/users/123' does not exist"))
+                        "The tag 'http://localhost:8091/api/users/123' does not exist"))
 
                 .andDo(print()).andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", is("Bad Request")))
