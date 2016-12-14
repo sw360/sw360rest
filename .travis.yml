@@ -26,7 +26,11 @@ script:
 
 addons:
   artifacts:
-    # ...
+    debug: true
+    target_paths: $TRAVIS_BUILD_NUMBER
+    working_dir: WORKING_DIR
+    bucket: sw360rest
+    s3_region: Frankfurt
     paths:
-    - $HOME/build/sw360/sw360rest/subprojects/resource-server/build/reports
+#    - $HOME/build/sw360/sw360rest/subprojects/resource-server/build/reports
     - $HOME/build/sw360/sw360rest/subprojects/resource-server/build/asciidoc/html5
