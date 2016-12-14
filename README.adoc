@@ -37,12 +37,60 @@ To build an run all tests open a console and type
 
 In the following description I use "./gradlew", Windows users always just have to type "gradlew" instead.
 
+== API Design Principles
+
+The API provides Hypermedia using http://stateless.co/hal_specification.html[HAL] (Hypertext Application Language).
+The following examples only show some ideas, not the actual (final) API:
+
+API root:
+[source]
+{
+  "_links": {
+    "sw360:components": {
+      "href": "http://localhost:8091/api/components"
+    },
+    "sw360:projects": {
+      "href": "http://localhost:8091/api/projects"
+    },
+    "sw360:users": {
+      "href": "http://localhost:8091/api/users"
+    },
+    "curies": [
+      {
+        "href": "http://localhost:8091/docs/html5/{rel}.html",
+        "name": "sw360",
+        "templated": true
+      }
+    ]
+  }
+}
+
+A sw360 project
+[source]
+{
+  "type": "project",
+  "projectType": "PRODUCT",
+  "name": "MyIAM",
+  "description": "The IAM is a multi tenant identity management service",
+  "_links": {
+     "self": {
+        "href": "http://localhost:8091/api/projects/f501de82a6e87a4faf9451b13100216e"
+      }
+  }
+}
+
 == Browsing the sw360 REST API
 
 This is currently work in progress and will be easier in the future.
 
 The precondition for browsing the real sw360 data using the REST API is that you
-have all the sw360 Thrift services running on http://localhost:8080.
+have all the sw360 Thrift services running. You could change the Thrift services URL by editing
+subprojects/resource-server/src/main/resources/application.yml. The default configuration is:
+
+[source]
+sw360:
+  thrift-server-url: http://localhost:8080
+
 Furthermore you need to configure the hardcoded sw360 user id in
 the authorization server to match the id/email of an existing sw360 user.
 To do that, edit the values for sw360.test-user-id
@@ -67,7 +115,6 @@ At the end of the console output you will get something like:
 Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic3czNjAtUkVTVC1BUEkiXSwidXNlcl9uYW1lIjoic3czNjAtdXNlciIsInNjb3BlIjpbInN3MzYwLnJlYWQiLCJzdzM2MC53cml0ZSJdLCJleHAiOjE0ODE2MjQyOTYsImF1dGhvcml0aWVzIjpbIlJPTEVfU1czNjBfVVNFUiJdLCJqdGkiOiIzMDgyMDM5ZS0xY2ViLTQ5ZDktYWM1My0xMzIxMTNhMWQwMDQiLCJjbGllbnRfaWQiOiJ0cnVzdGVkLXN3MzYwLWNsaWVudCJ9.Exm2Yc-XaTff6FrGRTL4lXhBvbAD05XH8sTFC1kPRuqPkWqW2T0IgMgOs7iNDFwREvnqhAP4ZkCEFWYy-kiGU63HDlobDntJkJqvZjLTBlv4jOlXXJQ0TZWm6c-ochNWMkKI2tYO8EeDLqHj0jW1DWQ1I3o6cVtYdJ-etwOuIAP0uC9sykHlJkL_-TjvGpxpPXj_gTzeuvvOtqqhgF10uOpN-BBq5nLyRP4Zgrd1NhE-E6osb8xZrzn0WjtHA5ja62lmJ-a40sQ2kaXP8pik4pq3hmv2yNDK0TExjvvDXS_aEEavUv1p2-LmlyTua2UizHHxLxFjqptE2FqMZlmqkQ
 
 Then open the following URL in a web browser:
-[source]
 http://localhost:8091/api/browser/index.html#/api
 
 Now you should see an API browser (Hal-Browser), but you are not authorized yet.
