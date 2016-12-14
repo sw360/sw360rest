@@ -1,4 +1,13 @@
 /*
+ * Copyright Siemens AG, 2016. Part of the SW360 Portal Project.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+
+/*
  * Copyright Siemens AG, 2016. Part of the SW360 Portal Component.
  *
  * All rights reserved. This program and the accompanying materials
@@ -7,10 +16,11 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.sw360.rest.resourceserver;
+package org.eclipse.sw360.rest.resourceserver.integration;
 
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.rest.resourceserver.TestHelper;
 import org.eclipse.sw360.rest.resourceserver.component.Sw360ComponentService;
 import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.junit.Before;
@@ -67,7 +77,7 @@ public class ComponentTest extends IntegrationTestBase {
                         String.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        checkResponse(response, "components", 1);
+        TestHelper.checkResponse(response.getBody(), "components", 1);
     }
 
 }

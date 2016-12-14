@@ -59,6 +59,17 @@ public class Sw360ComponentService {
         return null;
     }
 
+    public Component createComponent(Component component, String userId) {
+        try {
+            ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
+            User sw360User = sw360UserService.getUserById(userId);
+            sw360ComponentClient.updateComponent(component, sw360User);
+        } catch (TException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     private ComponentService.Iface getThriftComponentClient() throws TTransportException {
         THttpClient thriftClient = new THttpClient(thriftServerUrl + "/components/thrift");
         TProtocol protocol = new TCompactProtocol(thriftClient);

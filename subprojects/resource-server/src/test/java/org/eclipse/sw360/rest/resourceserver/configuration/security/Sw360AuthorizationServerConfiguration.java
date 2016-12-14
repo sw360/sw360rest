@@ -18,6 +18,7 @@
 
 package org.eclipse.sw360.rest.resourceserver.configuration.security;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,24 +36,15 @@ import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFacto
 
 @Configuration
 @EnableAuthorizationServer
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class Sw360AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    public Sw360AuthorizationServerConfiguration(AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
-    }
-
-    @Bean
-    public JwtAccessTokenConverter accessTokenConverter() {
-        return new JwtAccessTokenConverter();
-    }
+    private final AuthenticationManager authenticationManager;
 
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
         endpoints
                 .tokenStore(tokenStore())
-                .tokenEnhancer(jwtTokenEnhancer())
+                .tokenEnhancer(jwtAccessTokenConverter())
                 .authenticationManager(authenticationManager);
     }
 
@@ -64,9 +56,7 @@ public class Sw360AuthorizationServerConfiguration extends AuthorizationServerCo
 
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-        // TODO Kai Tödter 2016-12-04
-        // Externalize those config parameters in the application.yml
-        clients.inMemory()
+         clients.inMemory()
             .withClient("trusted-sw360-client")
                 .authorizedGrantTypes("client_credentials", "password")
                 .authorities("ROLE_TRUSTED_SW360_CLIENT")
@@ -78,15 +68,15 @@ public class Sw360AuthorizationServerConfiguration extends AuthorizationServerCo
 
     @Bean
     public TokenStore tokenStore() {
-        return new JwtTokenStore(jwtTokenEnhancer());
+        return new JwtTokenStore(jwtAccessTokenConverter());
     }
 
     @Bean
-    protected JwtAccessTokenConverter jwtTokenEnhancer() {
+    protected JwtAccessTokenConverter jwtAccessTokenConverter() {
         KeyStoreKeyFactory keyStoreKeyFactory =
                 new KeyStoreKeyFactory(new ClassPathResource("jwt-keystore.jks"), "sw360SecretKey".toCharArray());
-        JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-        converter.setKeyPair(keyStoreKeyFactory.getKeyPair("jwt"));
-        return converter;
+        JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
+        jwtAccessTokenConverter.setKeyPair(keyStoreKeyFactory.getKeyPair("jwt"));
+        return jwtAccessTokenConverter;
     }
 }

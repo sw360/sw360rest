@@ -7,10 +7,20 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.sw360.rest.resourceserver;
+/*
+ * Copyright Siemens AG, 2016. Part of the SW360 Portal Project.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+
+package org.eclipse.sw360.rest.resourceserver.integration;
 
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.rest.resourceserver.TestHelper;
 import org.eclipse.sw360.rest.resourceserver.project.Sw360ProjectService;
 import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.junit.Before;
@@ -67,7 +77,7 @@ public class ProjectTest extends IntegrationTestBase {
                         String.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        checkResponse(response, "projects", 1);
+        TestHelper.checkResponse(response.getBody(), "projects", 1);
     }
 
 }

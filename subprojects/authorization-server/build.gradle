@@ -25,7 +25,8 @@ dependencies {
 	compileOnly('org.projectlombok:lombok:1.16.12')
 
 	testCompile('org.springframework.boot:spring-boot-starter-test')
-	testCompile('org.springframework.restdocs:spring-restdocs-mockmvc')
+	testCompile "org.springframework.restdocs:spring-restdocs-core:${springRestdocsVersion}"
+	testCompile "org.springframework.restdocs:spring-restdocs-mockmvc:${springRestdocsVersion}"
 }
 
 task printAccessToken(type:JavaExec) {

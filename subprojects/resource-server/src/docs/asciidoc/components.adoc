@@ -1,0 +1,44 @@
+[[resources-components]]
+=== Components
+
+The Components resource is used to create and list components.
+
+
+[[resources-components-list]]
+==== Listing components
+
+A `GET` request will list all of the service's components.
+
+===== Response structure
+
+include::{snippets}/should_document_components/response-fields.adoc[]
+
+===== Example request
+
+include::{snippets}/should_document_components/curl-request.adoc[]
+
+===== Example response
+
+include::{snippets}/should_document_components/http-response.adoc[]
+
+===== Links
+
+include::{snippets}/should_document_components/links.adoc[]
+
+
+[[resources-components-create]]
+==== Creating a component
+
+A `POST` request is used to create a component
+
+===== Request structure
+
+include::{snippets}/should_document_component_creation/request-fields.adoc[]
+
+===== Example request
+
+include::{snippets}/should_document_component_creation/curl-request.adoc[]
+
+===== Example response
+
+include::{snippets}/should_document_component_creation/http-response.adoc[]
