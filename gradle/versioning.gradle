@@ -7,7 +7,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-import org.eclipse.sw360.rest.build.ProjectVersion
+import org.eclipse.sw360.rest.ProjectVersion
 
 
 allprojects {
