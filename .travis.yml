@@ -23,3 +23,10 @@ before_install:
 
 script:
   - ./gradlew clean build asciidoc
+
+addons:
+  artifacts:
+    # ...
+    paths:
+    - $HOME/travis/build/sw360/sw360rest/subprojects/resource-server/build/reports
+    - $HOME/travis/build/sw360/sw360rest/subprojects/resource-server/build/asciidoc/html5
