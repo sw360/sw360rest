@@ -95,6 +95,7 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
         projectResource.setDescription(sw360Project.getDescription());
         projectResource.setCreatedBy(sw360Project.getCreatedBy());
         projectResource.setCreatedOn(sw360Project.getCreatedOn());
+        projectResource.setModerators(sw360Project.getModerators());
 
         String projectUUID = sw360Project.getId();
         Link selfLink = linkTo(ProjectController.class).slash("api" + PROJECTS_URL + "/" + projectUUID).withSelfRel();

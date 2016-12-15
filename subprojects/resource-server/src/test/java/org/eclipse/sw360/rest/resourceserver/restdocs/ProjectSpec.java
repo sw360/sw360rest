@@ -10,11 +10,11 @@
 package org.eclipse.sw360.rest.resourceserver.restdocs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.eclipse.sw360.datahandler.thrift.components.Component;
-import org.eclipse.sw360.datahandler.thrift.components.ComponentType;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectType;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.rest.resourceserver.TestHelper;
-import org.eclipse.sw360.rest.resourceserver.component.Sw360ComponentService;
+import org.eclipse.sw360.rest.resourceserver.project.Sw360ProjectService;
 import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,24 +32,26 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.*;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
-import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
-public class ComponentDocTests {
+public class ProjectSpec {
 
     @Autowired
     WebApplicationContext context;
@@ -60,36 +62,37 @@ public class ComponentDocTests {
     @Autowired
     private ObjectMapper objectMapper;
 
+    MockMvc mockMvc;
+
     @Rule
     public final JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation("build/generated-snippets");
 
     private RestDocumentationResultHandler documentationHandler;
 
-    MockMvc mockMvc;
-
     @MockBean
     private Sw360UserService userServiceMock;
 
     @MockBean
-    private Sw360ComponentService componentServiceMock;
+    private Sw360ProjectService projectServiceMock;
+
+    private Project project;
 
     @Before
     public void before() {
-        List<Component> componentList = new ArrayList<>();
-        Component component = new Component();
-        component.setId("17653524");
-        component.setName("Angular");
-        component.setDescription("Angular is a development platform for building mobile and desktop web applications.");
-        component.setCreatedOn("2016-12-15");
-        component.setCreatedBy("kai.toedter@siemens.com");
-        component.setComponentType(ComponentType.OSS);
-        component.setVendorNames(new HashSet<>(Arrays.asList("Google")));
-        component.setModerators(new HashSet<>(Arrays.asList("kai.toedter@siemens.com", "michael.c.jaeger@siemens.com")));
+        List<Project> projectList = new ArrayList<>();
+        project = new Project();
+        project.setId("376576");
+        project.setName("Emerald Web");
+        project.setType("project");
+        project.setProjectType(ProjectType.PRODUCT);
+        project.setDescription("Emerald Web provides a suite of components for Critical Infrastructures.");
+        project.setCreatedOn("2016-12-15");
+        project.setCreatedBy("kai.toedter@siemens.com");
+        project.setModerators(new HashSet<>(Arrays.asList("kai.toedter@siemens.com", "michael.c.jaeger@siemens.com")));
+        projectList.add(project);
 
-        componentList.add(component);
-
-        given(this.componentServiceMock.getComponentsForUser(anyObject())).willReturn(componentList);
-        given(this.componentServiceMock.getComponentForUserById(eq("17653524"), anyObject())).willReturn(component);
+        given(this.projectServiceMock.getProjectsForUser(anyObject())).willReturn(projectList);
+        given(this.projectServiceMock.getProjectForUserById(eq("376576"), anyString())).willReturn(project);
 
         User user = new User();
         user.setId("admin@sw360.com");
@@ -110,9 +113,9 @@ public class ComponentDocTests {
     }
 
     @Test
-    public void should_document_get_components() throws Exception {
+    public void should_document_get_projects()  throws Exception {
         String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.com", "sw360-password");
-        mockMvc.perform(get("/api/components")
+        mockMvc.perform(get("/api/projects")
                 .header("Authorization", "Bearer " + accessToken)
                 .accept(MediaTypes.HAL_JSON))
                 .andExpect(status().isOk())
@@ -121,52 +124,31 @@ public class ComponentDocTests {
                                 linkWithRel("curies").description("Curies are used for online documentation")
                         ),
                         responseFields(
-                                fieldWithPath("_embedded.sw360:components").description("An array of <<resources-component, Component resources>>"),
+                                fieldWithPath("_embedded.sw360:projects").description("An array of <<resources-project, Project resources>>"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));
     }
 
     @Test
-    public void should_document_get_component() throws Exception {
+    public void should_document_get_project() throws Exception {
         String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.com", "sw360-password");
-        mockMvc.perform(get("/api/components/17653524")
+        mockMvc.perform(get("/api/projects/376576")
                 .header("Authorization", "Bearer " + accessToken)
                 .accept(MediaTypes.HAL_JSON))
                 .andExpect(status().isOk())
                 .andDo(this.documentationHandler.document(
                         links(
-                                linkWithRel("self").description("The <<resources-component,Component resource>>")
+                                linkWithRel("self").description("The <<resources-project,Component resource>>")
                         ),
                         responseFields(
-                                fieldWithPath("name").description("The name of the component"),
-                                fieldWithPath("description").description("The component description"),
-                                fieldWithPath("createdBy").description("The user who created this component"),
-                                fieldWithPath("createdOn").description("The date the component was created"),
-                                fieldWithPath("type").description("is always 'component'."),
-                                fieldWithPath("componentType").description("The component type, possible values are: " + Arrays.asList(ComponentType.values())),
-                                fieldWithPath("vendorNames").description("All vendors of this component"),
-                                fieldWithPath("moderators").description("All moderators of this component"),
+                                fieldWithPath("name").description("The name of the project"),
+                                fieldWithPath("description").description("The project description"),
+                                fieldWithPath("createdBy").description("The user who created this project"),
+                                fieldWithPath("createdOn").description("The date the project was created"),
+                                fieldWithPath("type").description("is always 'project'."),
+                                fieldWithPath("projectType").description("The project type, possible values are: " + Arrays.asList(ProjectType.values())),
+                                fieldWithPath("moderators").description("All moderators of this project"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));
-    }
-
-    @Test
-    public void should_document_create_component() throws Exception {
-        Map<String, String> component = new HashMap<>();
-        component.put("type", "component");
-        component.put("componentType", "OSS");
-        component.put("name", "Test Component");
-
-        String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.com", "sw360-password");
-        this.mockMvc.perform(
-                post("/api/components").contentType(MediaTypes.HAL_JSON)
-                        .content(this.objectMapper.writeValueAsString(component))
-                        .header("Authorization", "Bearer " + accessToken))
-                .andExpect(status().isCreated())
-                .andDo(this.documentationHandler.document(
-                        requestFields(
-                                fieldWithPath("type").description("is always 'component'."),
-                                fieldWithPath("componentType").description("The component type, possible values are: " + Arrays.asList(ComponentType.values())),
-                                fieldWithPath("name").description("The name of the component"))));
     }
 }
