@@ -113,6 +113,9 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
         componentResource.setDescription(sw360Component.getDescription());
         componentResource.setCreatedBy(sw360Component.getCreatedBy());
         componentResource.setCreatedOn(sw360Component.getCreatedOn());
+        componentResource.setModerators(sw360Component.getModerators());
+        componentResource.setReleaseIds(sw360Component.getReleaseIds());
+        componentResource.setVendorNames(sw360Component.getVendorNames());
 
         String componentUUID = sw360Component.getId();
         Link selfLink = linkTo(ComponentController.class).slash("api/components/" + componentUUID).withSelfRel();

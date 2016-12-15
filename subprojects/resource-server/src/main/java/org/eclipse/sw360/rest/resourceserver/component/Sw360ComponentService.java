@@ -40,7 +40,7 @@ public class Sw360ComponentService {
         try {
             User sw360User = sw360UserService.getUserById(userId);
             ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
-            List<Component> components = sw360ComponentClient.getMyComponents(sw360User);
+            List<Component> components = sw360ComponentClient.getComponentSummary(sw360User);
             return components;
         } catch (TException e) {
             e.printStackTrace();

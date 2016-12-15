@@ -11,20 +11,40 @@ A `GET` request will list all of the service's components.
 
 ===== Response structure
 
-include::{snippets}/should_document_components/response-fields.adoc[]
+include::{snippets}/should_document_get_components/response-fields.adoc[]
 
 ===== Example request
 
-include::{snippets}/should_document_components/curl-request.adoc[]
+include::{snippets}/should_document_get_components/curl-request.adoc[]
 
 ===== Example response
 
-include::{snippets}/should_document_components/http-response.adoc[]
+include::{snippets}/should_document_get_components/http-response.adoc[]
 
 ===== Links
 
-include::{snippets}/should_document_components/links.adoc[]
+include::{snippets}/should_document_get_components/links.adoc[]
 
+[[resources-component-get]]
+==== Get a single component
+
+A `GET` request will get a single component.
+
+===== Response structure
+
+include::{snippets}/should_document_get_component/response-fields.adoc[]
+
+===== Example request
+
+include::{snippets}/should_document_get_component/curl-request.adoc[]
+
+===== Example response
+
+include::{snippets}/should_document_get_component/http-response.adoc[]
+
+===== Links
+
+include::{snippets}/should_document_get_component/links.adoc[]
 
 [[resources-components-create]]
 ==== Creating a component
@@ -33,12 +53,12 @@ A `POST` request is used to create a component
 
 ===== Request structure
 
-include::{snippets}/should_document_component_creation/request-fields.adoc[]
+include::{snippets}/should_document_create_component/request-fields.adoc[]
 
 ===== Example request
 
-include::{snippets}/should_document_component_creation/curl-request.adoc[]
+include::{snippets}/should_document_create_component/curl-request.adoc[]
 
 ===== Example response
 
-include::{snippets}/should_document_component_creation/http-response.adoc[]
+include::{snippets}/should_document_create_component/http-response.adoc[]

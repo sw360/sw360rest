@@ -17,6 +17,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.core.Relation;
 
+import java.util.Set;
+
 @Data
 @EqualsAndHashCode(callSuper=false)
 @AllArgsConstructor
@@ -25,9 +27,12 @@ import org.springframework.hateoas.core.Relation;
 @Relation(collectionRelation = "components")
 public class ComponentResource extends ResourceSupport {
     private String type;
-    private String componentType;
     private String name;
+    private String componentType;
     private String description;
-    private String createdOn;
     private String createdBy;
+    private String createdOn;
+    private Set<String> moderators; // should be a link
+    private Set<String> releaseIds; // should be a link
+    private Set<String> vendorNames; // should be a link
 }

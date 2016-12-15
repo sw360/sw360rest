@@ -10,6 +10,7 @@
 package org.eclipse.sw360.rest.resourceserver.restdocs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Sets;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentType;
 import org.eclipse.sw360.datahandler.thrift.users.User;
@@ -36,6 +37,7 @@ import java.util.*;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.eq;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -76,11 +78,19 @@ public class ComponentDocTests {
     public void before() {
         List<Component> componentList = new ArrayList<>();
         Component component = new Component();
-        component.setName("Component name");
-        component.setDescription("Component description");
+        component.setId("17653524");
+        component.setName("Angular");
+        component.setDescription("Angular is a development platform for building mobile and desktop web applications.");
+        component.setCreatedOn("2016-12-15");
+        component.setCreatedBy("kai.toedter@siemens.com");
+        component.setComponentType(ComponentType.OSS);
+        component.setVendorNames(Sets.newHashSet("Google"));
+        component.setModerators(Sets.newHashSet("kai.toedter@siemens.com", "michael.c.jaeger@siemens.com"));
+
         componentList.add(component);
 
         given(this.componentServiceMock.getComponentsForUser(anyObject())).willReturn(componentList);
+        given(this.componentServiceMock.getComponentForUserById(eq("17653524"), anyObject())).willReturn(component);
 
         User user = new User();
         user.setId("admin@sw360.com");
@@ -101,7 +111,7 @@ public class ComponentDocTests {
     }
 
     @Test
-    public void should_document_components() throws Exception {
+    public void should_document_get_components() throws Exception {
         String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.com", "sw360-password");
         mockMvc.perform(get("/api/components")
                 .header("Authorization", "Bearer " + accessToken)
@@ -109,8 +119,6 @@ public class ComponentDocTests {
                 .andExpect(status().isOk())
                 .andDo(this.documentationHandler.document(
                         links(
-//                                linkWithRel("self").description("The <<resources-users,Users resource>>"),
-//                                linkWithRel("profile").description("The profile describes the data structure of this resource"),
                                 linkWithRel("curies").description("Curies are used for online documentation")
                         ),
                         responseFields(
@@ -120,22 +128,46 @@ public class ComponentDocTests {
     }
 
     @Test
-    public void should_document_component_creation() throws Exception {
-        Map<String, String> user = new HashMap<>();
-        user.put("type", "component");
-        user.put("componentType", "OSS");
-        user.put("name", "Test Component");
+    public void should_document_get_component() throws Exception {
+        String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.com", "sw360-password");
+        mockMvc.perform(get("/api/components/17653524")
+                .header("Authorization", "Bearer " + accessToken)
+                .accept(MediaTypes.HAL_JSON))
+                .andExpect(status().isOk())
+                .andDo(this.documentationHandler.document(
+                        links(
+                                linkWithRel("self").description("The <<resources-component,Component resource>>")
+                        ),
+                        responseFields(
+                                fieldWithPath("name").description("The name of the component"),
+                                fieldWithPath("description").description("The component description"),
+                                fieldWithPath("createdBy").description("The user who created this component"),
+                                fieldWithPath("createdOn").description("The date the component was created"),
+                                fieldWithPath("type").description("is always 'component'."),
+                                fieldWithPath("componentType").description("The component type, possible values are: " + Arrays.asList(ComponentType.values())),
+                                fieldWithPath("vendorNames").description("All vendors of this component"),
+                                fieldWithPath("moderators").description("All moderators of this component"),
+                                fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
+                        )));
+    }
+
+    @Test
+    public void should_document_create_component() throws Exception {
+        Map<String, String> component = new HashMap<>();
+        component.put("type", "component");
+        component.put("componentType", "OSS");
+        component.put("name", "Test Component");
 
         String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.com", "sw360-password");
         this.mockMvc.perform(
                 post("/api/components").contentType(MediaTypes.HAL_JSON)
-                        .content(this.objectMapper.writeValueAsString(user))
+                        .content(this.objectMapper.writeValueAsString(component))
                         .header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isCreated())
                 .andDo(this.documentationHandler.document(
                         requestFields(
-                                fieldWithPath("type").description("The type of the component. , possible values are: " + Arrays.asList(ComponentType.values())),
-                                fieldWithPath("componentType").description("The full name of the component"),
-                                fieldWithPath("name").description("The name of the component. Must be unique."))));
+                                fieldWithPath("type").description("is always 'component'."),
+                                fieldWithPath("componentType").description("The component type, possible values are: " + Arrays.asList(ComponentType.values())),
+                                fieldWithPath("name").description("The name of the component"))));
     }
 }

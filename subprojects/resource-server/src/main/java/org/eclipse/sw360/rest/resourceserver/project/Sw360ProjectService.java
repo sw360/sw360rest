@@ -39,10 +39,8 @@ public class Sw360ProjectService {
     public List<Project> getProjectsForUser(String userId) {
         try {
             ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
-
-            // TODO Kai Toedter 2016-12-09
-            // It is inconsistent with componentClient.getMyComponents(User user)
-            List<Project> projects = sw360ProjectClient.getMyProjects(userId);
+            User sw360User = sw360UserService.getUserById(userId);
+            List<Project> projects = sw360ProjectClient.getAccessibleProjectsSummary(sw360User);
             return projects;
         } catch (TException e) {
             e.printStackTrace();

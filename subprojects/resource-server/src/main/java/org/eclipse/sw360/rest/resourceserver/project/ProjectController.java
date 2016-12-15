@@ -96,7 +96,7 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
         projectResource.setCreatedBy(sw360Project.getCreatedBy());
         projectResource.setCreatedOn(sw360Project.getCreatedOn());
 
-        String projectUUID = sw360Project.getId();
+        String projectUUID = sw360Project.getRevision();
         Link selfLink = linkTo(ProjectController.class).slash("api" + PROJECTS_URL + "/" + projectUUID).withSelfRel();
         projectResource.add(selfLink);
         return new HalResource(projectResource);
