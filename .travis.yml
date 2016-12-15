@@ -27,6 +27,8 @@ script:
 addons:
   artifacts:
     bucket: sw360restdoc
+    target-paths: doc
+    permissions: public
     s3_region: us-east-1
     paths:
 #    - $HOME/build/sw360/sw360rest/subprojects/resource-server/build/reports
