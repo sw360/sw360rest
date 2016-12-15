@@ -52,7 +52,8 @@ public class Sw360ComponentService {
         try {
             ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
             User sw360User = sw360UserService.getUserById(userId);
-            sw360ComponentClient.getComponentById(componentId, sw360User);
+            Component component = sw360ComponentClient.getComponentById(componentId, sw360User);
+            return component;
         } catch (TException e) {
             e.printStackTrace();
         }

@@ -52,7 +52,8 @@ public class Sw360ProjectService {
         try {
             ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
             User sw360User = sw360UserService.getUserById(userId);
-            sw360ProjectClient.getProjectById(projectId, sw360User);
+            Project project = sw360ProjectClient.getProjectById(projectId, sw360User);
+            return project;
         } catch (TException e) {
             e.printStackTrace();
         }
