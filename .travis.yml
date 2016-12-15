@@ -24,13 +24,10 @@ before_install:
 script:
   - ./gradlew clean build asciidoc
 
-addons:
-  artifacts:
-    bucket: sw360restdoc
-    permissions: public_read
-    acl: public_read
-    target_paths: html
-    s3_region: us-east-1
-    paths:
-      - $HOME/build/sw360/sw360rest/subprojects/resource-server/build/asciidoc/html5
-#      - $HOME/build/sw360/sw360rest/subprojects/resource-server/build/reports
+deploy:
+  provider: s3
+  access_key_id: "$ARTIFACTS_KEY"
+  secret_access_key: "$ARTIFACTS_SECRET"
+  bucket: "sw360restdoc"
+  skip_cleanup: true
+  local_dir: build/sw360/sw360rest/subprojects/resource-server/build/asciidoc/html5
