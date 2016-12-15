@@ -27,10 +27,8 @@ script:
 addons:
   artifacts:
     bucket: sw360restdoc
-    target_paths: $TRAVIS_BUILD_NUMBER
-    working_dir: WORKING_DIR
-    permissions: public
+#    permissions: public
     s3_region: us-east-1
     paths:
-#      - $HOME/build/sw360/sw360rest/subprojects/resource-server/build/reports
       - $HOME/build/sw360/sw360rest/subprojects/resource-server/build/asciidoc/html5
+#      - $HOME/build/sw360/sw360rest/subprojects/resource-server/build/reports
