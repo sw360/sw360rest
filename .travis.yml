@@ -30,4 +30,4 @@ deploy:
   secret_access_key: "$ARTIFACTS_SECRET"
   bucket: "sw360restdoc"
   skip_cleanup: true
-  local_dir: build/sw360/sw360rest/subprojects/resource-server/build/asciidoc/html5
+  local_dir: $HOME/build/sw360/sw360rest/subprojects/resource-server/build/asciidoc/html5
