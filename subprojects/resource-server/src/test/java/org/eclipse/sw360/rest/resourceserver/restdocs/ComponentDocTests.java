@@ -10,7 +10,6 @@
 package org.eclipse.sw360.rest.resourceserver.restdocs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Sets;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentType;
 import org.eclipse.sw360.datahandler.thrift.users.User;
@@ -84,8 +83,8 @@ public class ComponentDocTests {
         component.setCreatedOn("2016-12-15");
         component.setCreatedBy("kai.toedter@siemens.com");
         component.setComponentType(ComponentType.OSS);
-        component.setVendorNames(Sets.newHashSet("Google"));
-        component.setModerators(Sets.newHashSet("kai.toedter@siemens.com", "michael.c.jaeger@siemens.com"));
+        component.setVendorNames(new HashSet<>(Arrays.asList("Google")));
+        component.setModerators(new HashSet<>(Arrays.asList("kai.toedter@siemens.com", "michael.c.jaeger@siemens.com")));
 
         componentList.add(component);
 
