@@ -27,7 +27,8 @@ script:
 addons:
   artifacts:
     bucket: sw360restdoc
-#    permissions: public
+    cache_control: public
+    permissions: public
     target_paths: html
     s3_region: us-east-1
     paths:
