@@ -12,11 +12,13 @@ import org.springframework.data.rest.webmvc.RepositoryLinksResource;
 import org.springframework.hateoas.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -35,6 +37,8 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
 
     @NonNull
     private final Sw360UserService userService;
+
+    private final ShaPasswordEncoder shaPasswordEncoder = new ShaPasswordEncoder();
 
     // @PreAuthorize("hasRole('ROLE_SW360_USER')")
     @RequestMapping(USERS_URL)
@@ -62,7 +66,10 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
     public ResponseEntity<Resource> getUser(
             @PathVariable("id") String id) {
         try {
-            User sw360User = userService.getUserById(id);
+            byte[] base64decodedBytes = Base64.getDecoder().decode(id);
+            String decodedId = new String(base64decodedBytes, "utf-8");
+
+            User sw360User = userService.getUserById(decodedId);
             HalResource userHalResource = createHalUserResource(sw360User);
             return new ResponseEntity<>(userHalResource, HttpStatus.OK);
         } catch (Exception e) {
@@ -82,7 +89,7 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
 
         userResource.setType(sw360User.getType());
         userResource.setEmail(sw360User.getEmail());
-        if(sw360User.getUserGroup() != null) {
+        if (sw360User.getUserGroup() != null) {
             userResource.setUserGroup(sw360User.getUserGroup().toString());
         }
         userResource.setFullName(sw360User.getFullname());
@@ -90,12 +97,15 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
         userResource.setLastName(sw360User.getLastname());
         userResource.setDepartment(sw360User.getDepartment());
         userResource.setWantsMailNotification(sw360User.wantsMailNotification);
-
-        // we should not use the email directly as REST resource id,
-        // but we don't want to introduce a new persistence layer for that
-        String userUUID = userResource.getEmail();
-        Link selfLink = linkTo(UserController.class).slash("api/users/" + userUUID).withSelfRel();
-        userResource.add(selfLink);
+        try {
+            String userUUID = Base64.getEncoder().encodeToString(userResource.getEmail().getBytes("utf-8"));
+            System.out.println(userUUID);
+            Link selfLink = linkTo(UserController.class).slash("api/users/" + userUUID).withSelfRel();
+            userResource.add(selfLink);
+        } catch (Exception e) {
+            log.error("cannot create self link");
+            return null;
+        }
         return new HalResource(userResource);
     }
 }
