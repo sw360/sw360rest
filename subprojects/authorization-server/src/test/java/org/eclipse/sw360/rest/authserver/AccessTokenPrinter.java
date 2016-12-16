@@ -11,7 +11,9 @@ package org.eclipse.sw360.rest.authserver;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
@@ -20,13 +22,23 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class AccessTokenPrinter {
+    public static String getValueFromApplicationYml(String key) {
+        YamlPropertiesFactoryBean yamlPropertiesFactoryBean = new YamlPropertiesFactoryBean();
+        yamlPropertiesFactoryBean.setResources(new ClassPathResource("application.yml"));
+        return yamlPropertiesFactoryBean.getObject().get(key).toString();
+    }
+
     public static void main(String[] args) throws IOException {
         AccessTokenPrinter accessTokenPrinter = new AccessTokenPrinter();
         accessTokenPrinter.printAccessToken();
     }
 
     private void printAccessToken() throws IOException {
-        String url = "http://localhost:8090/oauth/token?grant_type=password&username=admin@sw360.com&password=sw360-admin-password";
+        String testUserId = getValueFromApplicationYml("sw360.test-user-id");
+        String testUserPassword = getValueFromApplicationYml("sw360.test-user-password");
+
+        String url = "http://localhost:8090/oauth/token?grant_type=password&username=" + testUserId + "&password=" + testUserPassword;
+
         ResponseEntity<String> responseEntity =  new TestRestTemplate(
                 "trusted-sw360-client",
                 "sw360-secret")
