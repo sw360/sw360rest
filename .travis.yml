@@ -18,7 +18,7 @@ services:
   - docker
 
 before_install:
-  - curl -o datahandler-1.6.0-SNAPSHOT.jar https://toedter.com/download/sw360/datahandler-1.6.0-SNAPSHOT.jar
+  - curl -o datahandler-1.6.0-SNAPSHOT.jar https://s3.amazonaws.com/sw360restdoc/datahandler-1.6.0-SNAPSHOT.jar
   - mvn install:install-file -Dfile=datahandler-1.6.0-SNAPSHOT.jar -DgroupId=org.eclipse.sw360 -DartifactId=datahandler -Dversion=1.6.0-SNAPSHOT -Dpackaging=jar
 
 script:
@@ -28,7 +28,7 @@ deploy:
   provider: s3
   access_key_id: "$ARTIFACTS_KEY"
   secret_access_key: "$ARTIFACTS_SECRET"
-  bucket: "sw360restdoc"
+  bucket: "$S3_BUCKET"
   skip_cleanup: true
   acl: public_read
   local_dir: $HOME/build/sw360/sw360rest/subprojects/resource-server/build/asciidoc/html5
