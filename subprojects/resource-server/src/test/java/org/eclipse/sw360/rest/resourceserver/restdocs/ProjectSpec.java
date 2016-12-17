@@ -54,12 +54,22 @@ public class ProjectSpec  extends RestDocsSpecBase {
         project.setProjectType(ProjectType.PRODUCT);
         project.setDescription("Emerald Web provides a suite of components for Critical Infrastructures.");
         project.setCreatedOn("2016-12-15");
-        project.setCreatedBy("kai.toedter@siemens.com");
-        project.setModerators(new HashSet<>(Arrays.asList("kai.toedter@siemens.com", "michael.c.jaeger@siemens.com")));
+        project.setCreatedBy("admin@sw360.org");
+        project.setModerators(new HashSet<>(Arrays.asList("admin@sw360.org", "jane@sw360.org")));
         projectList.add(project);
 
+        Project project2 = new Project();
+        project2.setId("376576");
+        project2.setName("Orange Web");
+        project2.setType("project");
+        project2.setProjectType(ProjectType.PRODUCT);
+        project2.setDescription("Orange Web provides a suite of components for documentation.");
+        project2.setCreatedOn("2016-12-17");
+        project2.setCreatedBy("john@sw360.org");
+        projectList.add(project2);
+
         given(this.projectServiceMock.getProjectsForUser(anyObject())).willReturn(projectList);
-        given(this.projectServiceMock.getProjectForUserById(eq("376576"), anyString())).willReturn(project);
+        given(this.projectServiceMock.getProjectForUserById(eq(project.getId()), anyString())).willReturn(project);
 
         User user = new User();
         user.setId("admin@sw360.org");
@@ -89,7 +99,7 @@ public class ProjectSpec  extends RestDocsSpecBase {
     @Test
     public void should_document_get_project() throws Exception {
         String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.org", "sw360-password");
-        mockMvc.perform(get("/api/projects/376576")
+        mockMvc.perform(get("/api/projects/" + project.getId())
                 .header("Authorization", "Bearer " + accessToken)
                 .accept(MediaTypes.HAL_JSON))
                 .andExpect(status().isOk())
@@ -104,8 +114,8 @@ public class ProjectSpec  extends RestDocsSpecBase {
                                 fieldWithPath("createdOn").description("The date the project was created"),
                                 fieldWithPath("type").description("is always 'project'"),
                                 fieldWithPath("projectType").description("The project type, possible values are: " + Arrays.asList(ProjectType.values())),
-                                fieldWithPath("moderators").description("All moderators of this project"),
-                                fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
+                                fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources"),
+                                fieldWithPath("_embedded.moderators").description("An array of all project moderators with email and link to their <<resources-user-get,User resource>>")
                         )));
     }
 }

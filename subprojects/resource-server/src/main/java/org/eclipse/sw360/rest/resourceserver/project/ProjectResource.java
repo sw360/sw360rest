@@ -17,8 +17,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.core.Relation;
 
-import java.util.Set;
-
 @Data
 @EqualsAndHashCode(callSuper=false)
 @AllArgsConstructor
@@ -32,5 +30,4 @@ public class ProjectResource extends ResourceSupport {
     private String description;
     private String createdOn;
     private String createdBy;
-    private Set<String> moderators; // should be a link
 }

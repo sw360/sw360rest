@@ -96,7 +96,7 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
         userResource.setGivenName(sw360User.getGivenname());
         userResource.setLastName(sw360User.getLastname());
         userResource.setDepartment(sw360User.getDepartment());
-        userResource.setWantsMailNotification(sw360User.wantsMailNotification);
+
         try {
             String userUUID = Base64.getEncoder().encodeToString(userResource.getEmail().getBytes("utf-8"));
             Link selfLink = linkTo(UserController.class).slash("api/users/" + userUUID).withSelfRel();

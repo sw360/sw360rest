@@ -32,5 +32,7 @@ public class UserResource extends ResourceSupport {
     private String givenName;
     private String lastName;
     private String department;
-    private boolean wantsMailNotification;
+
+    // TODO Kai Tödter 2016-12-17: should we expose this in a REST resource?
+    // private boolean wantsMailNotification;
 }

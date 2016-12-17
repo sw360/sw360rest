@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.rest.resourceserver.core.HalResource;
+import org.eclipse.sw360.rest.resourceserver.user.UserController;
+import org.eclipse.sw360.rest.resourceserver.user.UserResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -95,11 +98,28 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
         projectResource.setDescription(sw360Project.getDescription());
         projectResource.setCreatedBy(sw360Project.getCreatedBy());
         projectResource.setCreatedOn(sw360Project.getCreatedOn());
-        projectResource.setModerators(sw360Project.getModerators());
 
         String projectUUID = sw360Project.getId();
         Link selfLink = linkTo(ProjectController.class).slash("api" + PROJECTS_URL + "/" + projectUUID).withSelfRel();
         projectResource.add(selfLink);
-        return new HalResource(projectResource);
+
+        HalResource halProjectResource = new HalResource(projectResource);
+        if (sw360Project.getModerators() != null) {
+            for (String moderatorEmail : sw360Project.getModerators()) {
+                UserResource userResource = new UserResource();
+                userResource.setEmail(moderatorEmail);
+                try {
+                    String userUUID = Base64.getEncoder().encodeToString(moderatorEmail.getBytes("utf-8"));
+                    Link moderatorSelfLink = linkTo(UserController.class).slash("api/users/" + userUUID).withSelfRel();
+                    userResource.add(moderatorSelfLink);
+                } catch (Exception e) {
+                    log.error("cannot create self link for moderator with email: " + moderatorEmail);
+                }
+
+                halProjectResource.addEmbeddedItem("moderators", userResource);
+            }
+        }
+
+        return halProjectResource;
     }
 }

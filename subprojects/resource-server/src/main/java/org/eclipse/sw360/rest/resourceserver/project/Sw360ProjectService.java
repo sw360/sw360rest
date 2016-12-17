@@ -11,6 +11,7 @@ package org.eclipse.sw360.rest.resourceserver.project;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
@@ -24,10 +25,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class Sw360ProjectService {
     @Value("${sw360.thrift-server-url}")
@@ -43,9 +44,8 @@ public class Sw360ProjectService {
             List<Project> projects = sw360ProjectClient.getAccessibleProjectsSummary(sw360User);
             return projects;
         } catch (TException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return Collections.emptyList();
     }
 
     public Project getProjectForUserById(String projectId, String userId) {
@@ -55,9 +55,8 @@ public class Sw360ProjectService {
             Project project = sw360ProjectClient.getProjectById(projectId, sw360User);
             return project;
         } catch (TException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
     private ProjectService.Iface getThriftProjectClient() throws TTransportException {

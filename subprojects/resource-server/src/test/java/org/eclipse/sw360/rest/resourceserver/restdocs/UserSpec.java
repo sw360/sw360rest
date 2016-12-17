@@ -108,7 +108,6 @@ public class UserSpec  extends RestDocsSpecBase {
                                 fieldWithPath("givenName").description("The user's given name"),
                                 fieldWithPath("lastName").description("The user's last name"),
                                 fieldWithPath("department").description("The user's company department"),
-                                fieldWithPath("wantsMailNotification").description("true, if the user wants to get mail notifications"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));
     }
