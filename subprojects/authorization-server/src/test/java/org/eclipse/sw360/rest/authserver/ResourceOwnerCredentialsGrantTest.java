@@ -24,11 +24,18 @@ import static org.junit.Assert.assertThat;
 public class ResourceOwnerCredentialsGrantTest extends IntegrationTestBase {
     @Value("${local.server.port}")
     private int port;
+
+    @Value("${sw360.test-user-id}")
+    private String testUserId;
+
+    @Value("${sw360.test-user-password}")
+    private String testUserPassword;
+
     private ResponseEntity<String> responseEntity;
 
     @Before
     public void before() {
-        responseEntity = getTokenWithParameters("grant_type=password&username=admin@sw360.com&password=sw360-admin-password");
+        responseEntity = getTokenWithParameters("grant_type=password&username=" + testUserId + "&password=" + testUserPassword);
     }
 
     @Test
@@ -45,7 +52,7 @@ public class ResourceOwnerCredentialsGrantTest extends IntegrationTestBase {
     @Test
     public void should_get_expected_jwt_attributes() throws IOException {
         JsonNode jwtClaimsJsonNode = checkJwtClaims(responseEntity, "ROLE_SW360_USER");
-        assertThat(jwtClaimsJsonNode.get("user_name").asText(), is("admin@sw360.com"));
+        assertThat(jwtClaimsJsonNode.get("user_name").asText(), is(testUserId));
     }
 
 }

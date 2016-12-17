@@ -17,15 +17,16 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
+import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class AccessTokenPrinter {
-    public static String getValueFromApplicationYml(String key) {
+    public static Properties getPropertiesFromApplicationYml() {
         YamlPropertiesFactoryBean yamlPropertiesFactoryBean = new YamlPropertiesFactoryBean();
         yamlPropertiesFactoryBean.setResources(new ClassPathResource("application.yml"));
-        return yamlPropertiesFactoryBean.getObject().get(key).toString();
+        return yamlPropertiesFactoryBean.getObject();
     }
 
     public static void main(String[] args) throws IOException {
@@ -34,8 +35,9 @@ public class AccessTokenPrinter {
     }
 
     private void printAccessToken() throws IOException {
-        String testUserId = getValueFromApplicationYml("sw360.test-user-id");
-        String testUserPassword = getValueFromApplicationYml("sw360.test-user-password");
+        Properties properties = getPropertiesFromApplicationYml();
+        String testUserId = properties.get("sw360.test-user-id").toString();
+        String testUserPassword = properties.get("sw360.test-user-password").toString();
 
         String url = "http://localhost:8090/oauth/token?grant_type=password&username=" + testUserId + "&password=" + testUserPassword;
 
