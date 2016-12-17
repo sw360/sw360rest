@@ -48,10 +48,10 @@ public class ComponentSpec extends RestDocsSpecBase {
         component.setName("Angular");
         component.setDescription("Angular is a development platform for building mobile and desktop web applications.");
         component.setCreatedOn("2016-12-15");
-        component.setCreatedBy("kai.toedter@siemens.com");
+        component.setCreatedBy("admin@sw360.org");
         component.setComponentType(ComponentType.OSS);
         component.setVendorNames(new HashSet<>(Arrays.asList("Google")));
-        component.setModerators(new HashSet<>(Arrays.asList("kai.toedter@siemens.com", "michael.c.jaeger@siemens.com")));
+        component.setModerators(new HashSet<>(Arrays.asList("admin@sw360.org", "john@sw360.org")));
 
         componentList.add(component);
 
