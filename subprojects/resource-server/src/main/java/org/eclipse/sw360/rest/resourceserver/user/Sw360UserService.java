@@ -38,10 +38,10 @@ public class Sw360UserService {
         return Collections.emptyList();
     }
 
-    public User getUserById(String id) {
+    public User getUserByEmail(String email) {
         try {
             UserService.Iface sw360UserClient = getThriftUserClient();
-            User user = sw360UserClient.getByEmail(id);
+            User user = sw360UserClient.getByEmail(email);
             return user;
         } catch (TException e) {
             e.printStackTrace();

@@ -69,7 +69,7 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
             byte[] base64decodedBytes = Base64.getDecoder().decode(id);
             String decodedId = new String(base64decodedBytes, "utf-8");
 
-            User sw360User = userService.getUserById(decodedId);
+            User sw360User = userService.getUserByEmail(decodedId);
             HalResource userHalResource = createHalUserResource(sw360User);
             return new ResponseEntity<>(userHalResource, HttpStatus.OK);
         } catch (Exception e) {
@@ -99,7 +99,6 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
         userResource.setWantsMailNotification(sw360User.wantsMailNotification);
         try {
             String userUUID = Base64.getEncoder().encodeToString(userResource.getEmail().getBytes("utf-8"));
-            System.out.println(userUUID);
             Link selfLink = linkTo(UserController.class).slash("api/users/" + userUUID).withSelfRel();
             userResource.add(selfLink);
         } catch (Exception e) {

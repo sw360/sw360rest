@@ -42,7 +42,7 @@ abstract public class IntegrationTestBase {
     public HttpHeaders getHeaders(int port) throws IOException {
         ResponseEntity<String> response =
                 new TestRestTemplate("trusted-sw360-client", "sw360-secret")
-                        .postForEntity("http://localhost:" + port + "/oauth/token?grant_type=password&username=admin@sw360.com&password=sw360-password",
+                        .postForEntity("http://localhost:" + port + "/oauth/token?grant_type=password&username=admin@sw360.org&password=sw360-password",
                                 null,
                                 String.class);
 

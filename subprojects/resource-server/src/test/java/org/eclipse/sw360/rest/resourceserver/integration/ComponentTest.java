@@ -60,11 +60,11 @@ public class ComponentTest extends IntegrationTestBase {
         given(this.componentServiceMock.getComponentsForUser(anyObject())).willReturn(componentList);
 
         User user = new User();
-        user.setId("admin@sw360.com");
-        user.setEmail("admin@sw360.com");
+        user.setId("admin@sw360.org");
+        user.setEmail("admin@sw360.org");
         user.setFullname("John Doe");
 
-        given(this.userServiceMock.getUserById("admin@sw360.com")).willReturn(user);
+        given(this.userServiceMock.getUserByEmail("admin@sw360.org")).willReturn(user);
     }
 
     @Test

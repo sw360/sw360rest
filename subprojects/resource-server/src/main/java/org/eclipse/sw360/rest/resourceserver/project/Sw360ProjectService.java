@@ -39,7 +39,7 @@ public class Sw360ProjectService {
     public List<Project> getProjectsForUser(String userId) {
         try {
             ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
-            User sw360User = sw360UserService.getUserById(userId);
+            User sw360User = sw360UserService.getUserByEmail(userId);
             List<Project> projects = sw360ProjectClient.getAccessibleProjectsSummary(sw360User);
             return projects;
         } catch (TException e) {
@@ -51,7 +51,7 @@ public class Sw360ProjectService {
     public Project getProjectForUserById(String projectId, String userId) {
         try {
             ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
-            User sw360User = sw360UserService.getUserById(userId);
+            User sw360User = sw360UserService.getUserByEmail(userId);
             Project project = sw360ProjectClient.getProjectById(projectId, sw360User);
             return project;
         } catch (TException e) {

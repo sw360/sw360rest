@@ -38,7 +38,7 @@ public class Sw360AuthenticationProvider implements AuthenticationProvider {
         String password = authentication.getCredentials().toString();
 
         // For the tests we mock an existing sw360 user
-        if (name.equals("admin@sw360.com") && password.equals("sw360-password")) {
+        if (name.equals("admin@sw360.org") && password.equals("sw360-password")) {
             List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
             grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_SW360_USER"));
             return new UsernamePasswordAuthenticationToken(name, password, grantedAuthorities);

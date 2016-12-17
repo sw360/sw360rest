@@ -9,7 +9,6 @@
 
 package org.eclipse.sw360.rest.resourceserver.restdocs;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentType;
 import org.eclipse.sw360.datahandler.thrift.users.User;
@@ -17,20 +16,9 @@ import org.eclipse.sw360.rest.resourceserver.TestHelper;
 import org.eclipse.sw360.rest.resourceserver.component.Sw360ComponentService;
 import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
-import org.springframework.restdocs.JUnitRestDocumentation;
-import org.springframework.restdocs.mockmvc.RestDocumentationResultHandler;
-import org.springframework.security.web.FilterChainProxy;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.*;
 
@@ -39,33 +27,12 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
-import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest
-public class ComponentSpec {
-
-    @Autowired
-    WebApplicationContext context;
-
-    @Autowired
-    FilterChainProxy springSecurityFilterChain;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Rule
-    public final JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation("build/generated-snippets");
-
-    private RestDocumentationResultHandler documentationHandler;
-
-    MockMvc mockMvc;
+public class ComponentSpec extends RestDocsSpecBase {
 
     @MockBean
     private Sw360UserService userServiceMock;
@@ -92,26 +59,16 @@ public class ComponentSpec {
         given(this.componentServiceMock.getComponentForUserById(eq("17653524"), anyObject())).willReturn(component);
 
         User user = new User();
-        user.setId("admin@sw360.com");
-        user.setEmail("admin@sw360.com");
+        user.setId("admin@sw360.org");
+        user.setEmail("admin@sw360.org");
         user.setFullname("John Doe");
 
-        given(this.userServiceMock.getUserById("admin@sw360.com")).willReturn(user);
-
-        this.documentationHandler = document("{method-name}",
-                preprocessRequest(prettyPrint()),
-                preprocessResponse(prettyPrint()));
-
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context)
-                .addFilter(springSecurityFilterChain)
-                .apply(documentationConfiguration(this.restDocumentation))
-                .alwaysDo(this.documentationHandler)
-                .build();
+        given(this.userServiceMock.getUserByEmail("admin@sw360.org")).willReturn(user);
     }
 
     @Test
     public void should_document_get_components() throws Exception {
-        String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.com", "sw360-password");
+        String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.org", "sw360-password");
         mockMvc.perform(get("/api/components")
                 .header("Authorization", "Bearer " + accessToken)
                 .accept(MediaTypes.HAL_JSON))
@@ -128,7 +85,7 @@ public class ComponentSpec {
 
     @Test
     public void should_document_get_component() throws Exception {
-        String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.com", "sw360-password");
+        String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.org", "sw360-password");
         mockMvc.perform(get("/api/components/17653524")
                 .header("Authorization", "Bearer " + accessToken)
                 .accept(MediaTypes.HAL_JSON))
@@ -157,7 +114,7 @@ public class ComponentSpec {
         component.put("componentType", "OSS");
         component.put("name", "Test Component");
 
-        String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.com", "sw360-password");
+        String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.org", "sw360-password");
         this.mockMvc.perform(
                 post("/api/components")
                         .contentType(MediaTypes.HAL_JSON)

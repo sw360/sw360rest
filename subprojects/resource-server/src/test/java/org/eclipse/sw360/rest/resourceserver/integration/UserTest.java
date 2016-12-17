@@ -49,14 +49,14 @@ public class UserTest extends IntegrationTestBase {
 		List<User> userList = new ArrayList<>();
 
         User user = new User();
-        user.setId("admin@sw360.com");
-        user.setEmail("admin@sw360.com");
+        user.setId("admin@sw360.org");
+        user.setEmail("admin@sw360.org");
         user.setFullname("John Doe");
         userList.add(user);
 
         user = new User();
-        user.setId("jane@sw360.com");
-        user.setEmail("jane@sw360.com");
+        user.setId("jane@sw360.org");
+        user.setEmail("jane@sw360.org");
         user.setFullname("Jane Doe");
         userList.add(user);
 

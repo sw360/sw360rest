@@ -38,7 +38,7 @@ public class Sw360ComponentService {
 
     public List<Component> getComponentsForUser(String userId) {
         try {
-            User sw360User = sw360UserService.getUserById(userId);
+            User sw360User = sw360UserService.getUserByEmail(userId);
             ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
             List<Component> components = sw360ComponentClient.getComponentSummary(sw360User);
             return components;
@@ -51,7 +51,7 @@ public class Sw360ComponentService {
     public Component getComponentForUserById(String componentId, String userId) {
         try {
             ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
-            User sw360User = sw360UserService.getUserById(userId);
+            User sw360User = sw360UserService.getUserByEmail(userId);
             Component component = sw360ComponentClient.getComponentById(componentId, sw360User);
             return component;
         } catch (TException e) {
@@ -63,7 +63,7 @@ public class Sw360ComponentService {
     public Component createComponent(Component component, String userId) {
         try {
             ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
-            User sw360User = sw360UserService.getUserById(userId);
+            User sw360User = sw360UserService.getUserByEmail(userId);
             sw360ComponentClient.updateComponent(component, sw360User);
         } catch (TException e) {
             e.printStackTrace();

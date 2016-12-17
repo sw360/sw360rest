@@ -122,6 +122,8 @@ include::{snippets}/should_document_index/http-response.adoc[]
 
 include::{snippets}/should_document_index/links.adoc[]
 
+include::users.adoc[]
+
 include::projects.adoc[]
 
 include::components.adoc[]

@@ -60,11 +60,11 @@ public class ProjectTest extends IntegrationTestBase {
         given(this.projectServiceMock.getProjectsForUser(anyObject())).willReturn(projectList);
 
         User user = new User();
-        user.setId("admin@sw360.com");
-        user.setEmail("admin@sw360.com");
+        user.setId("admin@sw360.org");
+        user.setEmail("admin@sw360.org");
         user.setFullname("John Doe");
 
-        given(this.userServiceMock.getUserById("admin@sw360.com")).willReturn(user);
+        given(this.userServiceMock.getUserByEmail("admin@sw360.org")).willReturn(user);
     }
 
     @Test
