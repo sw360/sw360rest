@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentType;
 import org.eclipse.sw360.rest.resourceserver.core.HalResource;
+import org.eclipse.sw360.rest.resourceserver.user.UserController;
+import org.eclipse.sw360.rest.resourceserver.user.UserResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
@@ -26,6 +28,7 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -113,14 +116,31 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
         componentResource.setDescription(sw360Component.getDescription());
         componentResource.setCreatedBy(sw360Component.getCreatedBy());
         componentResource.setCreatedOn(sw360Component.getCreatedOn());
-        componentResource.setModerators(sw360Component.getModerators());
         componentResource.setReleaseIds(sw360Component.getReleaseIds());
         componentResource.setVendorNames(sw360Component.getVendorNames());
 
         String componentUUID = sw360Component.getId();
         Link selfLink = linkTo(ComponentController.class).slash("api/components/" + componentUUID).withSelfRel();
         componentResource.add(selfLink);
-        return new HalResource(componentResource);
+
+        HalResource halComponentResource = new HalResource(componentResource);
+        if (sw360Component.getModerators() != null) {
+            for (String moderatorEmail : sw360Component.getModerators()) {
+                UserResource userResource = new UserResource();
+                userResource.setEmail(moderatorEmail);
+                try {
+                    String userUUID = Base64.getEncoder().encodeToString(moderatorEmail.getBytes("utf-8"));
+                    Link moderatorSelfLink = linkTo(UserController.class).slash("api/users/" + userUUID).withSelfRel();
+                    userResource.add(moderatorSelfLink);
+                } catch (Exception e) {
+                    log.error("cannot create self link for moderator with email: " + moderatorEmail);
+                }
+
+                halComponentResource.addEmbeddedItem("moderators", userResource);
+            }
+        }
+
+        return halComponentResource;
     }
 
     private Component createComponentFromResource(ComponentResource componentResource) {

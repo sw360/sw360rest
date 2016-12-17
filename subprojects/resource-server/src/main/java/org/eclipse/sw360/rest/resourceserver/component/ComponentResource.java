@@ -32,7 +32,6 @@ public class ComponentResource extends ResourceSupport {
     private String description;
     private String createdBy;
     private String createdOn;
-    private Set<String> moderators; // should be a link
     private Set<String> releaseIds; // should be a link
     private Set<String> vendorNames; // should be a link
 }

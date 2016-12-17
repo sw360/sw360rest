@@ -102,8 +102,9 @@ public class ComponentSpec extends RestDocsSpecBase {
                                 fieldWithPath("type").description("is always 'component'"),
                                 fieldWithPath("componentType").description("The component type, possible values are: " + Arrays.asList(ComponentType.values())),
                                 fieldWithPath("vendorNames").description("All vendors of this component"),
-                                fieldWithPath("moderators").description("All moderators of this component"),
-                                fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
+                                fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources"),
+                                fieldWithPath("_embedded.moderators").description("An array of all project moderators with email and link to their <<resources-user-get,User resource>>")
+
                         )));
     }
 
