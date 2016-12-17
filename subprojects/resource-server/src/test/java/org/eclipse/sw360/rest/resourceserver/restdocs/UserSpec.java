@@ -84,7 +84,7 @@ public class UserSpec  extends RestDocsSpecBase {
                                 linkWithRel("curies").description("Curies are used for online documentation")
                         ),
                         responseFields(
-                                fieldWithPath("_embedded.sw360:users").description("An array of <<resources-user, User resources>>"),
+                                fieldWithPath("_embedded.sw360:users").description("An array of <<resources-users, User resources>>"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));
     }
@@ -98,11 +98,11 @@ public class UserSpec  extends RestDocsSpecBase {
                 .andExpect(status().isOk())
                 .andDo(this.documentationHandler.document(
                         links(
-                                linkWithRel("self").description("The <<resources-user,User resource>>")
+                                linkWithRel("self").description("The <<resources-users,User resource>>")
                         ),
                         responseFields(
                                 fieldWithPath("type").description("always 'user'"),
-                                fieldWithPath("email").description("The user email"),
+                                fieldWithPath("email").description("The user's email"),
                                 fieldWithPath("userGroup").description("The user group, possible values are: " + Arrays.asList(UserGroup.values())),
                                 fieldWithPath("fullName").description("The users's full name"),
                                 fieldWithPath("givenName").description("The user's given name"),

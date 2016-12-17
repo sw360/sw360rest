@@ -81,7 +81,7 @@ public class ProjectSpec  extends RestDocsSpecBase {
                                 linkWithRel("curies").description("Curies are used for online documentation")
                         ),
                         responseFields(
-                                fieldWithPath("_embedded.sw360:projects").description("An array of <<resources-project, Project resources>>"),
+                                fieldWithPath("_embedded.sw360:projects").description("An array of <<resources-projects, Projects resources>>"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));
     }
@@ -95,14 +95,14 @@ public class ProjectSpec  extends RestDocsSpecBase {
                 .andExpect(status().isOk())
                 .andDo(this.documentationHandler.document(
                         links(
-                                linkWithRel("self").description("The <<resources-project,Component resource>>")
+                                linkWithRel("self").description("The <<resources-projects,Projects resource>>")
                         ),
                         responseFields(
                                 fieldWithPath("name").description("The name of the project"),
                                 fieldWithPath("description").description("The project description"),
                                 fieldWithPath("createdBy").description("The user who created this project"),
                                 fieldWithPath("createdOn").description("The date the project was created"),
-                                fieldWithPath("type").description("is always 'project'."),
+                                fieldWithPath("type").description("is always 'project'"),
                                 fieldWithPath("projectType").description("The project type, possible values are: " + Arrays.asList(ProjectType.values())),
                                 fieldWithPath("moderators").description("All moderators of this project"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")

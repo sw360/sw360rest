@@ -1,7 +1,7 @@
 [[resources-users]]
 === Users
 
-The Users resource is used to create and list users.
+The Users resource is used to get and list users.
 
 
 [[resources-users-list]]

@@ -78,7 +78,7 @@ public class ComponentSpec extends RestDocsSpecBase {
                                 linkWithRel("curies").description("Curies are used for online documentation")
                         ),
                         responseFields(
-                                fieldWithPath("_embedded.sw360:components").description("An array of <<resources-component, Component resources>>"),
+                                fieldWithPath("_embedded.sw360:components").description("An array of <<resources-components, Components resources>>"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));
     }
@@ -92,14 +92,14 @@ public class ComponentSpec extends RestDocsSpecBase {
                 .andExpect(status().isOk())
                 .andDo(this.documentationHandler.document(
                         links(
-                                linkWithRel("self").description("The <<resources-component,Component resource>>")
+                                linkWithRel("self").description("The <<resources-components,Component resource>>")
                         ),
                         responseFields(
                                 fieldWithPath("name").description("The name of the component"),
                                 fieldWithPath("description").description("The component description"),
                                 fieldWithPath("createdBy").description("The user who created this component"),
                                 fieldWithPath("createdOn").description("The date the component was created"),
-                                fieldWithPath("type").description("is always 'component'."),
+                                fieldWithPath("type").description("is always 'component'"),
                                 fieldWithPath("componentType").description("The component type, possible values are: " + Arrays.asList(ComponentType.values())),
                                 fieldWithPath("vendorNames").description("All vendors of this component"),
                                 fieldWithPath("moderators").description("All moderators of this component"),
