@@ -37,7 +37,7 @@ public class ResourceServerConfiguration  extends WebSecurityConfigurerAdapter i
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers("/", "/**/*.html", "/**/*.css", "/**/*.js", "/**/*.json");
+        web.ignoring().antMatchers("/", "/**/*.html", "/**/*.css", "/**/*.js", "/**/*.json", "/**/*.png", "/**/*.gif");
     }
 
     @Override

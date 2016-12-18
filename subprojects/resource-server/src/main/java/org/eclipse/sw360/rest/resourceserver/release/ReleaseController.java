@@ -107,7 +107,8 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
                 .slash("api" + RELEASES_URL + "/" + sw360Release.getId()).withSelfRel();
         releaseResource.add(selfLink);
 
-        Link componentLink = linkTo(ReleaseController.class).slash("api" + ComponentController.COMPONENTS_URL + "/" + sw360Release.getComponentId()).withRel("component");
+        Link componentLink = linkTo(ReleaseController.class)
+                .slash("api" + ComponentController.COMPONENTS_URL + "/" + sw360Release.getComponentId()).withRel("component");
         releaseResource.add(componentLink);
 
         HalResourceWidthEmbeddedItems halReleaseResource = new HalResourceWidthEmbeddedItems(releaseResource);

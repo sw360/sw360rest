@@ -11,6 +11,7 @@ package org.eclipse.sw360.rest.resourceserver.restdocs;
 
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentType;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.rest.resourceserver.TestHelper;
 import org.eclipse.sw360.rest.resourceserver.component.Sw360ComponentService;
@@ -23,8 +24,7 @@ import org.springframework.hateoas.MediaTypes;
 import java.util.*;
 
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.*;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
@@ -43,20 +43,32 @@ public class ComponentSpec extends RestDocsSpecBase {
     @Before
     public void before() {
         List<Component> componentList = new ArrayList<>();
-        Component component = new Component();
-        component.setId("17653524");
-        component.setName("Angular");
-        component.setDescription("Angular is a development platform for building mobile and desktop web applications.");
-        component.setCreatedOn("2016-12-15");
-        component.setCreatedBy("admin@sw360.org");
-        component.setComponentType(ComponentType.OSS);
-        component.setVendorNames(new HashSet<>(Arrays.asList("Google")));
-        component.setModerators(new HashSet<>(Arrays.asList("admin@sw360.org", "john@sw360.org")));
+        Component angularComponent = new Component();
+        angularComponent.setId("17653524");
+        angularComponent.setName("Angular");
+        angularComponent.setDescription("Angular is a development platform for building mobile and desktop web applications.");
+        angularComponent.setCreatedOn("2016-12-15");
+        angularComponent.setCreatedBy("admin@sw360.org");
+        angularComponent.setComponentType(ComponentType.OSS);
+        angularComponent.setVendorNames(new HashSet<>(Arrays.asList("Google")));
+        angularComponent.setModerators(new HashSet<>(Arrays.asList("admin@sw360.org", "john@sw360.org")));
 
-        componentList.add(component);
+        componentList.add(angularComponent);
+
+        Component springComponent = new Component();
+        springComponent.setId("678dstzd8");
+        springComponent.setName("Spring Framework");
+        springComponent.setDescription("The Spring Framework provides a comprehensive programming and configuration model for modern Java-based enterprise applications.");
+        springComponent.setCreatedOn("2016-12-18");
+        springComponent.setCreatedBy("jane@sw360.org");
+        springComponent.setComponentType(ComponentType.OSS);
+        springComponent.setVendorNames(new HashSet<>(Arrays.asList("Pivotal")));
+        springComponent.setModerators(new HashSet<>(Arrays.asList("admin@sw360.org", "jane@sw360.org")));
+
+        componentList.add(springComponent);
 
         given(this.componentServiceMock.getComponentsForUser(anyObject())).willReturn(componentList);
-        given(this.componentServiceMock.getComponentForUserById(eq("17653524"), anyObject())).willReturn(component);
+        given(this.componentServiceMock.getComponentForUserById(eq("17653524"), anyObject())).willReturn(angularComponent);
 
         User user = new User();
         user.setId("admin@sw360.org");
@@ -64,6 +76,35 @@ public class ComponentSpec extends RestDocsSpecBase {
         user.setFullname("John Doe");
 
         given(this.userServiceMock.getUserByEmail("admin@sw360.org")).willReturn(user);
+
+        List<Release> releaseList = new ArrayList<>();
+        Release release = new Release();
+        release.setId("3765276512");
+        release.setName("Angular 2.3.0");
+        release.setCpeid("cpe:/a:Google:Angular:2.3.0:");
+        release.setType("release");
+        release.setReleaseDate("2016-12-07");
+        release.setVersion("2.3.0");
+        release.setCreatedOn("2016-12-18");
+        release.setCreatedBy("admin@sw360.org");
+        release.setModerators(new HashSet<>(Arrays.asList("admin@sw360.org", "jane@sw360.org")));
+        release.setComponentId(springComponent.getId());
+        releaseList.add(release);
+
+        Release release2 = new Release();
+        release2.setId("3765276512");
+        release2.setName("Angular 2.3.1");
+        release2.setCpeid("cpe:/a:Google:Angular:2.3.1:");
+        release2.setType("release");
+        release2.setReleaseDate("2016-12-15");
+        release2.setVersion("2.3.1");
+        release2.setCreatedOn("2016-12-18");
+        release2.setCreatedBy("admin@sw360.org");
+        release2.setModerators(new HashSet<>(Arrays.asList("admin@sw360.org", "jane@sw360.org")));
+        release2.setComponentId(springComponent.getId());
+        releaseList.add(release2);
+
+        angularComponent.setReleases(releaseList);
     }
 
     @Test
@@ -103,8 +144,8 @@ public class ComponentSpec extends RestDocsSpecBase {
                                 fieldWithPath("componentType").description("The component type, possible values are: " + Arrays.asList(ComponentType.values())),
                                 fieldWithPath("vendorNames").description("All vendors of this component"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources"),
-                                fieldWithPath("_embedded.moderators").description("An array of all project moderators with email and link to their <<resources-user-get,User resource>>")
-
+                                fieldWithPath("_embedded.releases").description("An array of all component releases with version and link to their <<resources-releases,Releases resource>>"),
+                                fieldWithPath("_embedded.moderators").description("An array of all component moderators with email and link to their <<resources-user-get,User resource>>")
                         )));
     }
 

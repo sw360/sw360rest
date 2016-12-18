@@ -14,8 +14,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentType;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.rest.resourceserver.core.HalHelper;
 import org.eclipse.sw360.rest.resourceserver.core.HalResourceWidthEmbeddedItems;
+import org.eclipse.sw360.rest.resourceserver.release.Sw360ReleaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
@@ -42,6 +44,9 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
     private final Sw360ComponentService componentService;
 
     @NonNull
+    private final Sw360ReleaseService releaseService;
+
+    @NonNull
     private final HalHelper halHelper;
 
     @Value("${sw360.thrift-server-url}")
@@ -59,7 +64,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
 
             List<Resource> componentResources = new ArrayList<>();
             for (Component component : components) {
-                HalResourceWidthEmbeddedItems componentResource = createHalComponentResource(component);
+                HalResourceWidthEmbeddedItems componentResource = createHalComponentResource(component, userId, false);
                 componentResources.add(componentResource);
             }
             Resources<Resource> resources = new Resources<>(componentResources);
@@ -78,7 +83,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
         try {
             String userId = (String) oAuth2Authentication.getPrincipal();
             Component sw360Component = componentService.getComponentForUserById(id, userId);
-            HalResourceWidthEmbeddedItems userHalResource = createHalComponentResource(sw360Component);
+            HalResourceWidthEmbeddedItems userHalResource = createHalComponentResource(sw360Component, userId, true);
             return new ResponseEntity<>(userHalResource, HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -96,7 +101,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
             String userId = (String) oAuth2Authentication.getPrincipal();
             Component sw360Component = createComponentFromResource(componentResource);
             componentService.createComponent(sw360Component, userId);
-            HalResourceWidthEmbeddedItems userHalResource = createHalComponentResource(sw360Component);
+            HalResourceWidthEmbeddedItems userHalResource = createHalComponentResource(sw360Component, userId, false);
             return new ResponseEntity<>(userHalResource, HttpStatus.CREATED);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -110,28 +115,44 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
         return resource;
     }
 
-    private HalResourceWidthEmbeddedItems createHalComponentResource(Component sw360Component) {
+    private HalResourceWidthEmbeddedItems createHalComponentResource(Component sw360Component, String userId, boolean verbose) {
         ComponentResource componentResource = new ComponentResource();
 
         componentResource.setType(sw360Component.getType());
         componentResource.setComponentType(String.valueOf(sw360Component.getComponentType()));
         componentResource.setName(sw360Component.getName());
-        componentResource.setDescription(sw360Component.getDescription());
         componentResource.setCreatedBy(sw360Component.getCreatedBy());
         componentResource.setCreatedOn(sw360Component.getCreatedOn());
-        componentResource.setReleaseIds(sw360Component.getReleaseIds());
         componentResource.setVendorNames(sw360Component.getVendorNames());
 
         String componentUUID = sw360Component.getId();
         Link selfLink = linkTo(ComponentController.class).slash("api/components/" + componentUUID).withSelfRel();
         componentResource.add(selfLink);
 
-        HalResourceWidthEmbeddedItems halComponentResource = new HalResourceWidthEmbeddedItems(componentResource);
-        if (sw360Component.getModerators() != null) {
-            Set<String> moderators = sw360Component.getModerators();
-            halHelper.addEmbeddedModerators(halComponentResource, moderators);
-        }
 
+        HalResourceWidthEmbeddedItems halComponentResource = new HalResourceWidthEmbeddedItems(componentResource);
+
+        if (verbose) {
+            componentResource.setDescription(sw360Component.getDescription());
+
+            // Kai Toedter 2016-12-18
+            // currently the sw360 thrift API is inconsistent:
+            // depending on the call, some components have releaseIds, some have releases
+            if (sw360Component.getReleaseIds() != null) {
+                Set<String> releases = sw360Component.getReleaseIds();
+                halHelper.addEmbeddedReleases(halComponentResource, releases, releaseService, userId);
+            }
+
+            if (sw360Component.getReleases() != null) {
+                List<Release> releases = sw360Component.getReleases();
+                halHelper.addEmbeddedReleases(halComponentResource, releases);
+            }
+
+            if (sw360Component.getModerators() != null) {
+                Set<String> moderators = sw360Component.getModerators();
+                halHelper.addEmbeddedModerators(halComponentResource, moderators);
+            }
+        }
         return halComponentResource;
     }
 

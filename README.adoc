@@ -40,9 +40,9 @@ In the following description I use "./gradlew", Windows users always just have t
 == API Design Principles
 
 The API provides Hypermedia using http://stateless.co/hal_specification.html[HAL] (Hypertext Application Language).
-The following examples only show some ideas, not the actual (final) API:
+The following examples show the ideas.
 
-API root:
+API root (index):
 [source, json]
 {
   "_links" : {
@@ -69,7 +69,51 @@ API root:
   }
 }
 
-A sw360 component example
+When you follow the link "sw360:components" you will get a list of components,
+each containing the basic set of information
+and a self link to the actual component resource.
+[source, json]
+{
+  "_embedded" : {
+    "sw360:components" : [ {
+      "type" : "component",
+      "name" : "Angular",
+      "componentType" : "OSS",
+      "createdBy" : "admin@sw360.org",
+      "createdOn" : "2016-12-15",
+      "vendorNames" : [ "Google" ],
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/api/components/17653524"
+        }
+      }
+    }, {
+      "type" : "component",
+      "name" : "Spring Framework",
+      "componentType" : "OSS",
+      "createdBy" : "jane@sw360.org",
+      "createdOn" : "2016-12-18",
+      "vendorNames" : [ "Pivotal" ],
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/api/components/678dstzd8"
+        }
+      }
+    } ]
+  },
+  "_links" : {
+    "curies" : [ {
+      "href" : "http://localhost:8080/docs/html5/{rel}.html",
+      "name" : "sw360",
+      "templated" : true
+    } ]
+  }
+}
+
+When you follow one of the components's self links,
+you will get more detailed information, including a description,
+embedded realeases and moderators.
+
 [source, json]
 {
   "type" : "component",
@@ -85,6 +129,21 @@ A sw360 component example
     }
   },
   "_embedded" : {
+    "releases" : [ {
+      "version" : "2.3.0",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/api/releases/3765276512"
+        }
+      }
+    }, {
+      "version" : "2.3.1",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/api/releases/3765276512"
+        }
+      }
+    } ],
     "moderators" : [ {
       "email" : "john@sw360.org",
       "_links" : {
