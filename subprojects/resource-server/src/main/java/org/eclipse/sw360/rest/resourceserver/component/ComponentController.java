@@ -14,9 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentType;
-import org.eclipse.sw360.rest.resourceserver.core.HalResource;
-import org.eclipse.sw360.rest.resourceserver.user.UserController;
-import org.eclipse.sw360.rest.resourceserver.user.UserResource;
+import org.eclipse.sw360.rest.resourceserver.core.HalHelper;
+import org.eclipse.sw360.rest.resourceserver.core.HalResourceWidthEmbeddedItems;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
@@ -28,8 +27,8 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
+import java.util.Set;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
@@ -37,15 +36,19 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ComponentController implements ResourceProcessor<RepositoryLinksResource> {
-    private final String COMPONENTS_URL = "/components";
+    public static final String COMPONENTS_URL = "/components";
+
+    @NonNull
+    private final Sw360ComponentService componentService;
+
+    @NonNull
+    private final HalHelper halHelper;
 
     @Value("${sw360.thrift-server-url}")
     private String thriftServerUrl;
 
     protected final EntityLinks entityLinks;
 
-    @NonNull
-    private Sw360ComponentService componentService;
 
     // @PreAuthorize("hasRole('ROLE_SW360_USER')")
     @RequestMapping(value = COMPONENTS_URL)
@@ -56,7 +59,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
 
             List<Resource> componentResources = new ArrayList<>();
             for (Component component : components) {
-                HalResource componentResource = createHalComponentResource(component);
+                HalResourceWidthEmbeddedItems componentResource = createHalComponentResource(component);
                 componentResources.add(componentResource);
             }
             Resources<Resource> resources = new Resources<>(componentResources);
@@ -75,7 +78,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
         try {
             String userId = (String) oAuth2Authentication.getPrincipal();
             Component sw360Component = componentService.getComponentForUserById(id, userId);
-            HalResource userHalResource = createHalComponentResource(sw360Component);
+            HalResourceWidthEmbeddedItems userHalResource = createHalComponentResource(sw360Component);
             return new ResponseEntity<>(userHalResource, HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -93,7 +96,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
             String userId = (String) oAuth2Authentication.getPrincipal();
             Component sw360Component = createComponentFromResource(componentResource);
             componentService.createComponent(sw360Component, userId);
-            HalResource userHalResource = createHalComponentResource(sw360Component);
+            HalResourceWidthEmbeddedItems userHalResource = createHalComponentResource(sw360Component);
             return new ResponseEntity<>(userHalResource, HttpStatus.CREATED);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -107,7 +110,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
         return resource;
     }
 
-    private HalResource createHalComponentResource(Component sw360Component) {
+    private HalResourceWidthEmbeddedItems createHalComponentResource(Component sw360Component) {
         ComponentResource componentResource = new ComponentResource();
 
         componentResource.setType(sw360Component.getType());
@@ -123,21 +126,10 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
         Link selfLink = linkTo(ComponentController.class).slash("api/components/" + componentUUID).withSelfRel();
         componentResource.add(selfLink);
 
-        HalResource halComponentResource = new HalResource(componentResource);
+        HalResourceWidthEmbeddedItems halComponentResource = new HalResourceWidthEmbeddedItems(componentResource);
         if (sw360Component.getModerators() != null) {
-            for (String moderatorEmail : sw360Component.getModerators()) {
-                UserResource userResource = new UserResource();
-                userResource.setEmail(moderatorEmail);
-                try {
-                    String userUUID = Base64.getEncoder().encodeToString(moderatorEmail.getBytes("utf-8"));
-                    Link moderatorSelfLink = linkTo(UserController.class).slash("api/users/" + userUUID).withSelfRel();
-                    userResource.add(moderatorSelfLink);
-                } catch (Exception e) {
-                    log.error("cannot create self link for moderator with email: " + moderatorEmail);
-                }
-
-                halComponentResource.addEmbeddedItem("moderators", userResource);
-            }
+            Set<String> moderators = sw360Component.getModerators();
+            halHelper.addEmbeddedModerators(halComponentResource, moderators);
         }
 
         return halComponentResource;

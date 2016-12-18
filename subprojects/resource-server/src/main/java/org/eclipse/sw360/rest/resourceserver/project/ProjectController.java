@@ -13,14 +13,16 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
-import org.eclipse.sw360.rest.resourceserver.core.HalResource;
-import org.eclipse.sw360.rest.resourceserver.user.UserController;
-import org.eclipse.sw360.rest.resourceserver.user.UserResource;
+import org.eclipse.sw360.rest.resourceserver.core.HalHelper;
+import org.eclipse.sw360.rest.resourceserver.core.HalResourceWidthEmbeddedItems;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.data.rest.webmvc.RepositoryLinksResource;
-import org.springframework.hateoas.*;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.ResourceProcessor;
+import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -30,8 +32,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
+import java.util.Set;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
@@ -39,7 +41,6 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ProjectController implements ResourceProcessor<RepositoryLinksResource> {
-    protected final EntityLinks entityLinks;
     private final String PROJECTS_URL = "/projects";
 
     @Value("${sw360.thrift-server-url}")
@@ -47,6 +48,9 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
 
     @NonNull
     private Sw360ProjectService projectService;
+
+    @NonNull
+    private final HalHelper halHelper;
 
     // @PreAuthorize("hasRole('ROLE_SW360_USER')")
     @RequestMapping(value = PROJECTS_URL, method = RequestMethod.GET)
@@ -56,7 +60,7 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
             List<Project> projects = projectService.getProjectsForUser(userId);
             List<Resource> projectResources = new ArrayList<>();
             for (Project project : projects) {
-                HalResource projectResource = createHalProjectResource(project);
+                HalResourceWidthEmbeddedItems projectResource = createHalProjectResource(project);
                 projectResources.add(projectResource);
             }
             Resources<Resource> resources = new Resources<>(projectResources);
@@ -75,7 +79,7 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
         try {
             String userId = (String) oAuth2Authentication.getPrincipal();
             Project sw360Project = projectService.getProjectForUserById(id, userId);
-            HalResource userHalResource = createHalProjectResource(sw360Project);
+            HalResourceWidthEmbeddedItems userHalResource = createHalProjectResource(sw360Project);
             return new ResponseEntity<>(userHalResource, HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -89,7 +93,7 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
         return resource;
     }
 
-    private HalResource createHalProjectResource(Project sw360Project) {
+    private HalResourceWidthEmbeddedItems createHalProjectResource(Project sw360Project) {
         ProjectResource projectResource = new ProjectResource();
 
         projectResource.setType(sw360Project.getType());
@@ -103,21 +107,10 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
         Link selfLink = linkTo(ProjectController.class).slash("api" + PROJECTS_URL + "/" + projectUUID).withSelfRel();
         projectResource.add(selfLink);
 
-        HalResource halProjectResource = new HalResource(projectResource);
+        HalResourceWidthEmbeddedItems halProjectResource = new HalResourceWidthEmbeddedItems(projectResource);
         if (sw360Project.getModerators() != null) {
-            for (String moderatorEmail : sw360Project.getModerators()) {
-                UserResource userResource = new UserResource();
-                userResource.setEmail(moderatorEmail);
-                try {
-                    String userUUID = Base64.getEncoder().encodeToString(moderatorEmail.getBytes("utf-8"));
-                    Link moderatorSelfLink = linkTo(UserController.class).slash("api/users/" + userUUID).withSelfRel();
-                    userResource.add(moderatorSelfLink);
-                } catch (Exception e) {
-                    log.error("cannot create self link for moderator with email: " + moderatorEmail);
-                }
-
-                halProjectResource.addEmbeddedItem("moderators", userResource);
-            }
+            Set<String> moderators = sw360Project.getModerators();
+            halHelper.addEmbeddedModerators(halProjectResource, moderators);
         }
 
         return halProjectResource;

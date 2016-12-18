@@ -20,15 +20,15 @@ import java.util.List;
 import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class HalResource<EntityType> extends Resource<EntityType> {
+public class HalResourceWidthEmbeddedItems<EntityType> extends Resource<EntityType> {
 
     private Map<String, List<Object>> embedded;
 
-    public HalResource(EntityType content, Iterable<Link> links) {
+    public HalResourceWidthEmbeddedItems(EntityType content, Iterable<Link> links) {
         super(content, links);
     }
 
-    public HalResource(EntityType content, Link... links) {
+    public HalResourceWidthEmbeddedItems(EntityType content, Link... links) {
         super(content, links);
     }
 

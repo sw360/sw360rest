@@ -4,7 +4,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.eclipse.sw360.rest.resourceserver.core.HalResource;
+import org.eclipse.sw360.rest.resourceserver.core.HalResourceWidthEmbeddedItems;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
@@ -49,7 +49,7 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
 
             List<Resource> userResources = new ArrayList<>();
             for (User sw360User : sw360Users) {
-                HalResource userHalResource = createHalUserResource(sw360User);
+                HalResourceWidthEmbeddedItems userHalResource = createHalUserResource(sw360User);
                 userResources.add(userHalResource);
             }
             Resources<Resource> resources = new Resources<>(userResources);
@@ -70,7 +70,7 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
             String decodedId = new String(base64decodedBytes, "utf-8");
 
             User sw360User = userService.getUserByEmail(decodedId);
-            HalResource userHalResource = createHalUserResource(sw360User);
+            HalResourceWidthEmbeddedItems userHalResource = createHalUserResource(sw360User);
             return new ResponseEntity<>(userHalResource, HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -84,7 +84,7 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
         return resource;
     }
 
-    private HalResource createHalUserResource(User sw360User) {
+    private HalResourceWidthEmbeddedItems createHalUserResource(User sw360User) {
         UserResource userResource = new UserResource();
 
         userResource.setType(sw360User.getType());
@@ -105,6 +105,6 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
             log.error("cannot create self link");
             return null;
         }
-        return new HalResource(userResource);
+        return new HalResourceWidthEmbeddedItems(userResource);
     }
 }
