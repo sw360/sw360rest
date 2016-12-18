@@ -22,7 +22,7 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class HalResourceWidthEmbeddedItems<EntityType> extends Resource<EntityType> {
 
-    private Map<String, List<Object>> embedded;
+    private Map<String, Object> embedded;
 
     public HalResourceWidthEmbeddedItems(EntityType content, Iterable<Link> links) {
         super(content, links);
@@ -34,11 +34,19 @@ public class HalResourceWidthEmbeddedItems<EntityType> extends Resource<EntityTy
 
     public void addEmbeddedItem(String relation, Object embeddedItem) {
         initializeEmbedded();
-        List<Object> embeddedItems = embedded.get(relation);
-        if(embeddedItems == null) {
-            embeddedItems = new ArrayList<>();
+        Object embeddedItems = embedded.get(relation);
+        if (embeddedItems == null) {
+            embeddedItems = embeddedItem;
+        } else {
+            if (!(embeddedItems instanceof List)) {
+                List<Object> embeddedItemsList = new ArrayList<>();
+                embeddedItemsList.add(embeddedItems);
+                embeddedItemsList.add(embeddedItem);
+                embeddedItems = embeddedItemsList;
+            } else {
+                ((List<Object>)embeddedItems).add(embeddedItem);
+            }
         }
-        embeddedItems.add(embeddedItem);
         embedded.put(relation, embeddedItems);
     }
 
@@ -48,12 +56,12 @@ public class HalResourceWidthEmbeddedItems<EntityType> extends Resource<EntityTy
     }
 
     @JsonProperty("_embedded")
-    public Map<String, List<Object>> getEmbedded() {
+    public Map<String, Object> getEmbedded() {
         return embedded;
     }
 
     private void initializeEmbedded() {
-        if(embedded == null) {
+        if (embedded == null) {
             embedded = new HashMap<>();
         }
     }

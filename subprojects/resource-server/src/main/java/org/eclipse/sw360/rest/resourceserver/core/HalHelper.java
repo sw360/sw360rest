@@ -11,6 +11,7 @@ package org.eclipse.sw360.rest.resourceserver.core;
 
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.rest.resourceserver.component.ComponentController;
 import org.eclipse.sw360.rest.resourceserver.release.ReleaseController;
 import org.eclipse.sw360.rest.resourceserver.release.ReleaseResource;
 import org.eclipse.sw360.rest.resourceserver.release.Sw360ReleaseService;
@@ -81,4 +82,36 @@ public class HalHelper {
             halResource.addEmbeddedItem("releases", releaseResource);
         }
     }
+
+    public HalResourceWidthEmbeddedItems createHalReleaseResource(Release sw360Release, boolean verbose) {
+        ReleaseResource releaseResource = new ReleaseResource();
+
+        releaseResource.setName(sw360Release.getName());
+        releaseResource.setCpeid(sw360Release.getCpeid());
+        releaseResource.setVersion(sw360Release.getVersion());
+        releaseResource.setReleaseDate(sw360Release.getReleaseDate());
+        if(sw360Release.getClearingState() != null) {
+            releaseResource.setClearingState(sw360Release.getClearingState().toString());
+        }
+
+        Link selfLink = linkTo(ReleaseController.class)
+                .slash("api" + ReleaseController.RELEASES_URL + "/" + sw360Release.getId()).withSelfRel();
+        releaseResource.add(selfLink);
+
+        Link componentLink = linkTo(ReleaseController.class)
+                .slash("api" + ComponentController.COMPONENTS_URL + "/" + sw360Release.getComponentId()).withRel("component");
+        releaseResource.add(componentLink);
+
+        HalResourceWidthEmbeddedItems halReleaseResource = new HalResourceWidthEmbeddedItems(releaseResource);
+
+        if (verbose) {
+            releaseResource.setType(sw360Release.getType());
+            if (sw360Release.getModerators() != null) {
+                Set<String> moderators = sw360Release.getModerators();
+                this.addEmbeddedModerators(halReleaseResource, moderators);
+            }
+        }
+        return halReleaseResource;
+    }
+
 }

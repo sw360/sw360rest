@@ -9,6 +9,7 @@
 
 package org.eclipse.sw360.rest.resourceserver.restdocs;
 
+import org.eclipse.sw360.datahandler.thrift.components.ClearingState;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentType;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
@@ -69,6 +70,7 @@ public class ReleaseSpec extends RestDocsSpecBase {
         release.setCreatedBy("admin@sw360.org");
         release.setModerators(new HashSet<>(Arrays.asList("admin@sw360.org", "jane@sw360.org")));
         release.setComponentId(component.getId());
+        release.setClearingState(ClearingState.APPROVED);
         releaseList.add(release);
 
         Release release2 = new Release();
@@ -82,10 +84,11 @@ public class ReleaseSpec extends RestDocsSpecBase {
         release2.setCreatedBy("admin@sw360.org");
         release2.setModerators(new HashSet<>(Arrays.asList("admin@sw360.org", "jane@sw360.org")));
         release2.setComponentId(component.getId());
+        release2.setClearingState(ClearingState.APPROVED);
         releaseList.add(release2);
 
         given(this.releaseServiceMock.getReleasesForUser(anyObject())).willReturn(releaseList);
-        given(this.releaseServiceMock.getReleaseForUserById(eq(release2.getId()), anyString())).willReturn(release2);
+        given(this.releaseServiceMock.getReleaseForUserById(eq(release.getId()), anyString())).willReturn(release);
 
         User user = new User();
         user.setId("admin@sw360.org");
@@ -128,6 +131,7 @@ public class ReleaseSpec extends RestDocsSpecBase {
                         responseFields(
                                 fieldWithPath("version").description("The version of the release"),
                                 fieldWithPath("name").description("The name of the release, optional"),
+                                fieldWithPath("clearingState").description("The clearing of the release, possible values are " + Arrays.asList(ClearingState.values())),
                                 fieldWithPath("cpeid").description("The CPE id"),
                                 fieldWithPath("releaseDate").description("The date of this release"),
                                 fieldWithPath("type").description("is always 'release'"),

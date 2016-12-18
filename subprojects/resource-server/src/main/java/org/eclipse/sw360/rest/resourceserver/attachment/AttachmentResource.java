@@ -7,7 +7,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.sw360.rest.resourceserver.release;
+package org.eclipse.sw360.rest.resourceserver.attachment;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -22,13 +22,19 @@ import org.springframework.hateoas.core.Relation;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Relation(collectionRelation = "releases")
-public class ReleaseResource extends ResourceSupport {
-    private String version;
-    private String componentId;
-    private String name;
-    private String type;
-    private String cpeid;
-    private String releaseDate;
-    private String clearingState;
+@Relation(collectionRelation = "attachments")
+public class AttachmentResource extends ResourceSupport {
+    private String attachmentContentId;
+    private String filename;
+    private String sha1;
+    private String attachmentType;
+    private String createdBy;
+    private String createdTeam;
+    private String createdComment;
+    private String createdOn;
+    private String checkedBy;
+    private String checkedTeam;
+    private String checkedComment;
+    private String checkedOn;
+    private String checkStatus;
 }

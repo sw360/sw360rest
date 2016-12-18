@@ -13,14 +13,12 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
-import org.eclipse.sw360.rest.resourceserver.component.ComponentController;
 import org.eclipse.sw360.rest.resourceserver.core.HalHelper;
 import org.eclipse.sw360.rest.resourceserver.core.HalResourceWidthEmbeddedItems;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.data.rest.webmvc.RepositoryLinksResource;
-import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceProcessor;
 import org.springframework.hateoas.Resources;
@@ -29,12 +27,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
@@ -42,7 +38,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ReleaseController implements ResourceProcessor<RepositoryLinksResource> {
-    private final String RELEASES_URL = "/releases";
+    public static final String RELEASES_URL = "/releases";
 
     @Value("${sw360.thrift-server-url}")
     private String thriftServerUrl;
@@ -54,14 +50,14 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
     private final HalHelper halHelper;
 
     // @PreAuthorize("hasRole('ROLE_SW360_USER')")
-    @RequestMapping(value = RELEASES_URL, method = RequestMethod.GET)
+    @RequestMapping(value = RELEASES_URL)
     public ResponseEntity<Resources<Resource>> getReleasesForUser(OAuth2Authentication oAuth2Authentication) {
         try {
             String userId = (String) oAuth2Authentication.getPrincipal();
             List<Release> releases = releaseService.getReleasesForUser(userId);
             List<Resource> releaseResources = new ArrayList<>();
             for (Release release : releases) {
-                HalResourceWidthEmbeddedItems releaseResource = createHalReleaseResource(release, false);
+                HalResourceWidthEmbeddedItems releaseResource = halHelper.createHalReleaseResource(release, false);
                 releaseResources.add(releaseResource);
             }
             Resources<Resource> resources = new Resources<>(releaseResources);
@@ -80,8 +76,8 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
         try {
             String userId = (String) oAuth2Authentication.getPrincipal();
             Release sw360Release = releaseService.getReleaseForUserById(id, userId);
-            HalResourceWidthEmbeddedItems userHalResource = createHalReleaseResource(sw360Release, true);
-            return new ResponseEntity<>(userHalResource, HttpStatus.OK);
+            HalResourceWidthEmbeddedItems halReleaseResource = halHelper.createHalReleaseResource(sw360Release, true);
+            return new ResponseEntity<>(halReleaseResource, HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getMessage());
         }
@@ -94,31 +90,4 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
         return resource;
     }
 
-    private HalResourceWidthEmbeddedItems createHalReleaseResource(Release sw360Release, boolean verbose) {
-        ReleaseResource releaseResource = new ReleaseResource();
-
-        releaseResource.setName(sw360Release.getName());
-        releaseResource.setCpeid(sw360Release.getCpeid());
-        releaseResource.setVersion(sw360Release.getVersion());
-        releaseResource.setReleaseDate(sw360Release.getReleaseDate());
-
-        Link selfLink = linkTo(ReleaseController.class)
-                .slash("api" + RELEASES_URL + "/" + sw360Release.getId()).withSelfRel();
-        releaseResource.add(selfLink);
-
-        Link componentLink = linkTo(ReleaseController.class)
-                .slash("api" + ComponentController.COMPONENTS_URL + "/" + sw360Release.getComponentId()).withRel("component");
-        releaseResource.add(componentLink);
-
-        HalResourceWidthEmbeddedItems halReleaseResource = new HalResourceWidthEmbeddedItems(releaseResource);
-
-        if (verbose) {
-            releaseResource.setType(sw360Release.getType());
-            if (sw360Release.getModerators() != null) {
-                Set<String> moderators = sw360Release.getModerators();
-                halHelper.addEmbeddedModerators(halReleaseResource, moderators);
-            }
-        }
-        return halReleaseResource;
-    }
 }
