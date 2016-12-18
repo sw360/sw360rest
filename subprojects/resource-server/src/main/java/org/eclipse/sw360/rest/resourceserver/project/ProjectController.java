@@ -60,7 +60,7 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
             List<Project> projects = projectService.getProjectsForUser(userId);
             List<Resource> projectResources = new ArrayList<>();
             for (Project project : projects) {
-                HalResourceWidthEmbeddedItems projectResource = createHalProjectResource(project);
+                HalResourceWidthEmbeddedItems projectResource = createHalProjectResource(project, false);
                 projectResources.add(projectResource);
             }
             Resources<Resource> resources = new Resources<>(projectResources);
@@ -79,7 +79,7 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
         try {
             String userId = (String) oAuth2Authentication.getPrincipal();
             Project sw360Project = projectService.getProjectForUserById(id, userId);
-            HalResourceWidthEmbeddedItems userHalResource = createHalProjectResource(sw360Project);
+            HalResourceWidthEmbeddedItems userHalResource = createHalProjectResource(sw360Project, true);
             return new ResponseEntity<>(userHalResource, HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -93,24 +93,26 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
         return resource;
     }
 
-    private HalResourceWidthEmbeddedItems createHalProjectResource(Project sw360Project) {
+    private HalResourceWidthEmbeddedItems createHalProjectResource(Project sw360Project, boolean verbose) {
         ProjectResource projectResource = new ProjectResource();
 
-        projectResource.setType(sw360Project.getType());
         projectResource.setProjectType(String.valueOf(sw360Project.getProjectType()));
         projectResource.setName(sw360Project.getName());
-        projectResource.setDescription(sw360Project.getDescription());
-        projectResource.setCreatedBy(sw360Project.getCreatedBy());
-        projectResource.setCreatedOn(sw360Project.getCreatedOn());
 
         String projectUUID = sw360Project.getId();
         Link selfLink = linkTo(ProjectController.class).slash("api" + PROJECTS_URL + "/" + projectUUID).withSelfRel();
         projectResource.add(selfLink);
 
         HalResourceWidthEmbeddedItems halProjectResource = new HalResourceWidthEmbeddedItems(projectResource);
-        if (sw360Project.getModerators() != null) {
-            Set<String> moderators = sw360Project.getModerators();
-            halHelper.addEmbeddedModerators(halProjectResource, moderators);
+        if (verbose) {
+            projectResource.setCreatedBy(sw360Project.getCreatedBy());
+            projectResource.setCreatedOn(sw360Project.getCreatedOn());
+            projectResource.setType(sw360Project.getType());
+            projectResource.setDescription(sw360Project.getDescription());
+            if (sw360Project.getModerators() != null) {
+                Set<String> moderators = sw360Project.getModerators();
+                halHelper.addEmbeddedModerators(halProjectResource, moderators);
+            }
         }
 
         return halProjectResource;

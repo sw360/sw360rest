@@ -61,7 +61,7 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
             List<Release> releases = releaseService.getReleasesForUser(userId);
             List<Resource> releaseResources = new ArrayList<>();
             for (Release release : releases) {
-                HalResourceWidthEmbeddedItems releaseResource = createHalReleaseResource(release);
+                HalResourceWidthEmbeddedItems releaseResource = createHalReleaseResource(release, false);
                 releaseResources.add(releaseResource);
             }
             Resources<Resource> resources = new Resources<>(releaseResources);
@@ -80,7 +80,7 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
         try {
             String userId = (String) oAuth2Authentication.getPrincipal();
             Release sw360Release = releaseService.getReleaseForUserById(id, userId);
-            HalResourceWidthEmbeddedItems userHalResource = createHalReleaseResource(sw360Release);
+            HalResourceWidthEmbeddedItems userHalResource = createHalReleaseResource(sw360Release, true);
             return new ResponseEntity<>(userHalResource, HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -94,10 +94,9 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
         return resource;
     }
 
-    private HalResourceWidthEmbeddedItems createHalReleaseResource(Release sw360Release) {
+    private HalResourceWidthEmbeddedItems createHalReleaseResource(Release sw360Release, boolean verbose) {
         ReleaseResource releaseResource = new ReleaseResource();
 
-        releaseResource.setType(sw360Release.getType());
         releaseResource.setName(sw360Release.getName());
         releaseResource.setCpeid(sw360Release.getCpeid());
         releaseResource.setVersion(sw360Release.getVersion());
@@ -112,11 +111,14 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
         releaseResource.add(componentLink);
 
         HalResourceWidthEmbeddedItems halReleaseResource = new HalResourceWidthEmbeddedItems(releaseResource);
-        if (sw360Release.getModerators() != null) {
-            Set<String> moderators = sw360Release.getModerators();
-            halHelper.addEmbeddedModerators(halReleaseResource, moderators);
-        }
 
+        if (verbose) {
+            releaseResource.setType(sw360Release.getType());
+            if (sw360Release.getModerators() != null) {
+                Set<String> moderators = sw360Release.getModerators();
+                halHelper.addEmbeddedModerators(halReleaseResource, moderators);
+            }
+        }
         return halReleaseResource;
     }
 }

@@ -118,7 +118,6 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
     private HalResourceWidthEmbeddedItems createHalComponentResource(Component sw360Component, String userId, boolean verbose) {
         ComponentResource componentResource = new ComponentResource();
 
-        componentResource.setType(sw360Component.getType());
         componentResource.setComponentType(String.valueOf(sw360Component.getComponentType()));
         componentResource.setName(sw360Component.getName());
         componentResource.setCreatedBy(sw360Component.getCreatedBy());
@@ -133,6 +132,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
         HalResourceWidthEmbeddedItems halComponentResource = new HalResourceWidthEmbeddedItems(componentResource);
 
         if (verbose) {
+            componentResource.setType(sw360Component.getType());
             componentResource.setDescription(sw360Component.getDescription());
 
             // Kai Toedter 2016-12-18

@@ -49,7 +49,7 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
 
             List<Resource> userResources = new ArrayList<>();
             for (User sw360User : sw360Users) {
-                HalResourceWidthEmbeddedItems userHalResource = createHalUserResource(sw360User);
+                HalResourceWidthEmbeddedItems userHalResource = createHalUserResource(sw360User, false);
                 userResources.add(userHalResource);
             }
             Resources<Resource> resources = new Resources<>(userResources);
@@ -70,7 +70,7 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
             String decodedId = new String(base64decodedBytes, "utf-8");
 
             User sw360User = userService.getUserByEmail(decodedId);
-            HalResourceWidthEmbeddedItems userHalResource = createHalUserResource(sw360User);
+            HalResourceWidthEmbeddedItems userHalResource = createHalUserResource(sw360User, true);
             return new ResponseEntity<>(userHalResource, HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -84,18 +84,14 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
         return resource;
     }
 
-    private HalResourceWidthEmbeddedItems createHalUserResource(User sw360User) {
+    private HalResourceWidthEmbeddedItems createHalUserResource(User sw360User, boolean verbose) {
         UserResource userResource = new UserResource();
 
-        userResource.setType(sw360User.getType());
         userResource.setEmail(sw360User.getEmail());
         if (sw360User.getUserGroup() != null) {
             userResource.setUserGroup(sw360User.getUserGroup().toString());
         }
         userResource.setFullName(sw360User.getFullname());
-        userResource.setGivenName(sw360User.getGivenname());
-        userResource.setLastName(sw360User.getLastname());
-        userResource.setDepartment(sw360User.getDepartment());
 
         try {
             String userUUID = Base64.getEncoder().encodeToString(userResource.getEmail().getBytes("utf-8"));
@@ -104,6 +100,13 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
         } catch (Exception e) {
             log.error("cannot create self link");
             return null;
+        }
+
+        if (verbose) {
+            userResource.setGivenName(sw360User.getGivenname());
+            userResource.setLastName(sw360User.getLastname());
+            userResource.setDepartment(sw360User.getDepartment());
+            userResource.setType(sw360User.getType());
         }
         return new HalResourceWidthEmbeddedItems(userResource);
     }
