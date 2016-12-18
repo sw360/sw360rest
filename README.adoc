@@ -45,37 +45,61 @@ The following examples only show some ideas, not the actual (final) API:
 API root:
 [source, json]
 {
-  "_links": {
-    "sw360:components": {
-      "href": "http://localhost:8091/api/components"
+  "_links" : {
+    "sw360:components" : {
+      "href" : "http://localhost:8080/api/components"
     },
-    "sw360:projects": {
-      "href": "http://localhost:8091/api/projects"
+    "sw360:projects" : {
+      "href" : "http://localhost:8080/api/projects"
     },
-    "sw360:users": {
-      "href": "http://localhost:8091/api/users"
+    "sw360:releases" : {
+      "href" : "http://localhost:8080/api/releases"
     },
-    "curies": [
-      {
-        "href": "http://localhost:8091/docs/html5/{rel}.html",
-        "name": "sw360",
-        "templated": true
-      }
-    ]
+    "sw360:users" : {
+      "href" : "http://localhost:8080/api/users"
+    },
+    "profile" : {
+      "href" : "http://localhost:8080/api/profile"
+    },
+    "curies" : [ {
+      "href" : "http://localhost:8080/docs/html5/{rel}.html",
+      "name" : "sw360",
+      "templated" : true
+    } ]
   }
 }
 
-A sw360 project
+A sw360 component example
 [source, json]
 {
-  "type": "project",
-  "projectType": "PRODUCT",
-  "name": "MyIAM",
-  "description": "The IAM is a multi tenant identity management service",
-  "_links": {
-     "self": {
-        "href": "http://localhost:8091/api/projects/f501de82a6e87a4faf9451b13100216e"
+  "type" : "component",
+  "name" : "Angular",
+  "componentType" : "OSS",
+  "description" : "Angular is a development platform for building mobile and desktop web applications.",
+  "createdBy" : "admin@sw360.org",
+  "createdOn" : "2016-12-15",
+  "vendorNames" : [ "Google" ],
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8080/api/components/17653524"
+    }
+  },
+  "_embedded" : {
+    "moderators" : [ {
+      "email" : "john@sw360.org",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/api/users/am9obkBzdzM2MC5vcmc="
+        }
       }
+    }, {
+      "email" : "admin@sw360.org",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/api/users/YWRtaW5Ac3czNjAub3Jn"
+        }
+      }
+    } ]
   }
 }
 
@@ -84,7 +108,9 @@ A sw360 project
 You find the current REST API documentation at
 https://s3.amazonaws.com/sw360restdoc/api-guide.html
 
-The documentation is in a very early stage and is updated automatically with each Travis-CI build.
+The documentation was created with http://docs.spring.io/spring-restdocs/docs/1.1.2.RELEASE/reference/html5/[Spring REST Docs]
+and reflects the current implementation.
+It is updated automatically with each Travis-CI build.
 
 == Browsing the sw360 REST API
 
