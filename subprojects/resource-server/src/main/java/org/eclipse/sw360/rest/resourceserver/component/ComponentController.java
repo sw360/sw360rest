@@ -77,7 +77,6 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
     }
 
     @RequestMapping(COMPONENTS_URL + "/{id}")
-    @ResponseBody
     public ResponseEntity<Resource> getComponent(
             @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
         try {
@@ -92,7 +91,6 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
     }
 
     @RequestMapping(value = COMPONENTS_URL, method = RequestMethod.POST)
-    @ResponseBody
     public ResponseEntity<Resource> createComponent(
             OAuth2Authentication oAuth2Authentication,
             @RequestBody ComponentResource componentResource) {

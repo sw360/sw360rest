@@ -41,14 +41,15 @@ public class Sw360AttachmentService {
 
     public AttachmentInfo getAttachmentBySha1ForUser(String sha1, String userId) {
         try {
+            long startTime = System.currentTimeMillis();
             User sw360User = sw360UserService.getUserByEmail(userId);
             ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
             List<Release> releases = sw360ComponentClient.getReleaseSummary(sw360User);
-            for(Release release: releases) {
+            for (Release release : releases) {
                 final Set<Attachment> attachments = release.getAttachments();
-                if(attachments != null && attachments.size() > 0) {
-                    for(Attachment attachment: attachments) {
-                        if(sha1.equals(attachment.getSha1())) {
+                if (attachments != null && attachments.size() > 0) {
+                    for (Attachment attachment : attachments) {
+                        if (sha1.equals(attachment.getSha1())) {
                             return new AttachmentInfo(attachment, release);
                         }
                     }
@@ -65,11 +66,13 @@ public class Sw360AttachmentService {
             User sw360User = sw360UserService.getUserByEmail(userId);
             ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
             List<Release> releases = sw360ComponentClient.getReleaseSummary(sw360User);
-            for(Release release: releases) {
+            int count = 0;
+            for (Release release : releases) {
                 final Set<Attachment> attachments = release.getAttachments();
-                if(attachments != null && attachments.size() > 0) {
-                    for(Attachment attachment: attachments) {
-                        if(id.equals(attachment.getAttachmentContentId())) {
+                if (attachments != null && attachments.size() > 0) {
+                    for (Attachment attachment : attachments) {
+                        count++;
+                        if (id.equals(attachment.getAttachmentContentId())) {
                             return new AttachmentInfo(attachment, release);
                         }
                     }

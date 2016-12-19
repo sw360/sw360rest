@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
 import java.util.Base64;
@@ -42,7 +41,6 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
 
     // @PreAuthorize("hasRole('ROLE_SW360_USER')")
     @RequestMapping(USERS_URL)
-    @ResponseBody
     public ResponseEntity<Resources<Resource>> getUsers() {
         try {
             List<User> sw360Users = userService.getAllUsers();
@@ -62,7 +60,6 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
     }
 
     @RequestMapping(USERS_URL + "/{id:.+}")
-    @ResponseBody
     public ResponseEntity<Resource> getUser(
             @PathVariable("id") String id) {
         try {

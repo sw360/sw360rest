@@ -31,7 +31,6 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
@@ -51,7 +50,6 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
     private String thriftServerUrl;
 
     @RequestMapping(value = ATTACHMENTS_URL, params = "sha1")
-    @ResponseBody
     public ResponseEntity<Resource> getAttachmentForSha1(
             OAuth2Authentication oAuth2Authentication,
             @RequestParam String sha1) {
@@ -70,7 +68,6 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
     }
 
     @RequestMapping(value = ATTACHMENTS_URL + "/{id}")
-    @ResponseBody
     public ResponseEntity<Resource> getAttachmentForId(
             @PathVariable("id") String id,
             OAuth2Authentication oAuth2Authentication) {

@@ -10,7 +10,10 @@
 package org.eclipse.sw360.rest.resourceserver.core;
 
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.rest.resourceserver.attachment.AttachmentController;
+import org.eclipse.sw360.rest.resourceserver.attachment.AttachmentResource;
 import org.eclipse.sw360.rest.resourceserver.component.ComponentController;
 import org.eclipse.sw360.rest.resourceserver.release.ReleaseController;
 import org.eclipse.sw360.rest.resourceserver.release.ReleaseResource;
@@ -83,6 +86,29 @@ public class HalHelper {
         }
     }
 
+    public void addEmbeddedAttachments(
+            HalResourceWidthEmbeddedItems halResource,
+            Set<Attachment> attachments) {
+        for (Attachment attachment : attachments) {
+            AttachmentResource attachmentResource = new AttachmentResource();
+            try {
+                if(attachment.getAttachmentType() != null) {
+                    attachmentResource.setAttachmentType(attachment.getAttachmentType().toString());
+                }
+                if(attachment.getFilename() != null) {
+                    attachmentResource.setFilename(attachment.getFilename().toString());
+                }
+                Link attachmentLink = linkTo(AttachmentController.class).slash("api/attachments/" + attachment.getAttachmentContentId()).withSelfRel();
+                attachmentResource.add(attachmentLink);
+            } catch (Exception e) {
+                log.error("cannot create embedded attachment with content id: " + attachment.getAttachmentContentId());
+            }
+
+            halResource.addEmbeddedItem("attachments", attachmentResource);
+        }
+
+    }
+
     public HalResourceWidthEmbeddedItems createHalReleaseResource(Release sw360Release, boolean verbose) {
         ReleaseResource releaseResource = new ReleaseResource();
 
@@ -90,7 +116,7 @@ public class HalHelper {
         releaseResource.setCpeid(sw360Release.getCpeid());
         releaseResource.setVersion(sw360Release.getVersion());
         releaseResource.setReleaseDate(sw360Release.getReleaseDate());
-        if(sw360Release.getClearingState() != null) {
+        if (sw360Release.getClearingState() != null) {
             releaseResource.setClearingState(sw360Release.getClearingState().toString());
         }
 
@@ -110,8 +136,13 @@ public class HalHelper {
                 Set<String> moderators = sw360Release.getModerators();
                 this.addEmbeddedModerators(halReleaseResource, moderators);
             }
+            if (sw360Release.getAttachments() != null) {
+                Set<Attachment> attachments = sw360Release.getAttachments();
+                this.addEmbeddedAttachments(halReleaseResource, attachments);
+            }
         }
         return halReleaseResource;
     }
+
 
 }

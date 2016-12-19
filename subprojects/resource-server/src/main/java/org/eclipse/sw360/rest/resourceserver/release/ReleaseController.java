@@ -27,7 +27,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +69,6 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
     }
 
     @RequestMapping(RELEASES_URL + "/{id}")
-    @ResponseBody
     public ResponseEntity<Resource> getRelease(
             @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
         try {

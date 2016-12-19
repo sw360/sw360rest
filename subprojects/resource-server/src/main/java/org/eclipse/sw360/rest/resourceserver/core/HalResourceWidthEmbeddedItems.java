@@ -24,10 +24,6 @@ public class HalResourceWidthEmbeddedItems<EntityType> extends Resource<EntityTy
 
     private Map<String, Object> embedded;
 
-    public HalResourceWidthEmbeddedItems(EntityType content, Iterable<Link> links) {
-        super(content, links);
-    }
-
     public HalResourceWidthEmbeddedItems(EntityType content, Link... links) {
         super(content, links);
     }
