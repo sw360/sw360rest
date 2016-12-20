@@ -98,9 +98,9 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
         try {
             String userId = (String) oAuth2Authentication.getPrincipal();
             Component sw360Component = createComponentFromResource(componentResource);
-            componentService.createComponent(sw360Component, userId);
-            HalResourceWidthEmbeddedItems userHalResource = createHalComponentResource(sw360Component, userId, false);
-            return new ResponseEntity<>(userHalResource, HttpStatus.CREATED);
+            sw360Component = componentService.createComponent(sw360Component, userId);
+            HalResourceWidthEmbeddedItems halResource = createHalComponentResource(sw360Component, userId, true);
+            return new ResponseEntity<>(halResource, HttpStatus.CREATED);
         } catch (Exception e) {
             log.error(e.getMessage());
         }

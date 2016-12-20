@@ -24,11 +24,15 @@ import org.springframework.hateoas.MediaTypes;
 import java.util.*;
 
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
-import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -66,6 +70,14 @@ public class ComponentSpec extends RestDocsSpecBase {
         springComponent.setModerators(new HashSet<>(Arrays.asList("admin@sw360.org", "jane@sw360.org")));
 
         componentList.add(springComponent);
+
+        when(this.componentServiceMock.createComponent(anyObject(), anyObject())).then(invocation -> {
+            springComponent.setType("component");
+            springComponent.setCreatedOn("2016-12-20");
+            springComponent.setModerators(null);
+            springComponent.setVendorNames(null);
+            return springComponent;
+        });
 
         given(this.componentServiceMock.getComponentsForUser(anyObject())).willReturn(componentList);
         given(this.componentServiceMock.getComponentForUserById(eq("17653524"), anyObject())).willReturn(angularComponent);
@@ -152,9 +164,11 @@ public class ComponentSpec extends RestDocsSpecBase {
     @Test
     public void should_document_create_component() throws Exception {
         Map<String, String> component = new HashMap<>();
-        component.put("type", "component");
-        component.put("componentType", "OSS");
-        component.put("name", "Test Component");
+
+        component.put("name", "Spring Framework");
+        component.put("description", "The Spring Framework provides a comprehensive programming and configuration model for modern Java-based enterprise applications.");
+        component.put("createdBy", "jane@sw360.org");
+        component.put("componentType", ComponentType.OSS.toString());
 
         String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.org", "sw360-password");
         this.mockMvc.perform(
@@ -165,8 +179,19 @@ public class ComponentSpec extends RestDocsSpecBase {
                 .andExpect(status().isCreated())
                 .andDo(this.documentationHandler.document(
                         requestFields(
-                                fieldWithPath("type").description("is always 'component'."),
+                                fieldWithPath("name").description("The name of the component"),
+                                fieldWithPath("description").description("The component description"),
+                                fieldWithPath("createdBy").description("The user who created this component"),
+                                fieldWithPath("componentType").description("The component type, possible values are: " + Arrays.asList(ComponentType.values()))
+                        ),
+                        responseFields(
+                                fieldWithPath("name").description("The name of the component"),
+                                fieldWithPath("description").description("The component description"),
+                                fieldWithPath("createdBy").description("The user who created this component"),
+                                fieldWithPath("createdOn").description("The date the component was created"),
+                                fieldWithPath("type").description("is always 'component'"),
                                 fieldWithPath("componentType").description("The component type, possible values are: " + Arrays.asList(ComponentType.values())),
-                                fieldWithPath("name").description("The name of the component"))));
+                                fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
+                        )));
     }
 }

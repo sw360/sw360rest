@@ -16,6 +16,7 @@ import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.THttpClient;
 import org.apache.thrift.transport.TTransportException;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
 import org.eclipse.sw360.datahandler.thrift.users.User;
@@ -64,7 +65,10 @@ public class Sw360ComponentService {
         try {
             ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
             User sw360User = sw360UserService.getUserByEmail(userId);
-            sw360ComponentClient.updateComponent(component, sw360User);
+            RequestStatus requestStatus = sw360ComponentClient.updateComponent(component, sw360User);
+            if (requestStatus == RequestStatus.SUCCESS) {
+                return component;
+            }
         } catch (TException e) {
             e.printStackTrace();
         }
