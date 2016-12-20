@@ -55,11 +55,11 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
             @RequestParam String sha1) {
         try {
             String userId = (String) oAuth2Authentication.getPrincipal();
-            Sw360AttachmentService.AttachmentInfo attachmentInfo =
+            AttachmentInfo attachmentInfo =
                     attachmentService.getAttachmentBySha1ForUser(sha1, userId);
 
             HalResourceWidthEmbeddedItems attachmentResource =
-                    createHalAttachmentResource(attachmentInfo.attachment, attachmentInfo.release,true);
+                    createHalAttachmentResource(attachmentInfo.getAttachment(), attachmentInfo.getRelease(),true);
             return new ResponseEntity<>(attachmentResource, HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -73,11 +73,11 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
             OAuth2Authentication oAuth2Authentication) {
         try {
             String userId = (String) oAuth2Authentication.getPrincipal();
-            Sw360AttachmentService.AttachmentInfo attachmentInfo =
+            AttachmentInfo attachmentInfo =
                     attachmentService.getAttachmentByIdForUser(id, userId);
 
             HalResourceWidthEmbeddedItems attachmentResource =
-                    createHalAttachmentResource(attachmentInfo.attachment, attachmentInfo.release,true);
+                    createHalAttachmentResource(attachmentInfo.getAttachment(), attachmentInfo.getRelease(),true);
             return new ResponseEntity<>(attachmentResource, HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -91,7 +91,6 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
             boolean verbose) {
         AttachmentResource attachmentResource = new AttachmentResource();
 
-        attachmentResource.setAttachmentContentId(sw360Attachment.getAttachmentContentId());
         attachmentResource.setFilename(sw360Attachment.getFilename());
         attachmentResource.setSha1(sw360Attachment.getSha1());
         attachmentResource.setAttachmentType(sw360Attachment.getAttachmentType().toString());

@@ -126,5 +126,6 @@ include::users.adoc[]
 include::projects.adoc[]
 include::components.adoc[]
 include::releases.adoc[]
+include::attachments.adoc[]
 
 

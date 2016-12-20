@@ -24,7 +24,6 @@ import org.springframework.hateoas.core.Relation;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Relation(collectionRelation = "attachments")
 public class AttachmentResource extends ResourceSupport {
-    private String attachmentContentId;
     private String filename;
     private String sha1;
     private String attachmentType;

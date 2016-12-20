@@ -41,7 +41,6 @@ public class Sw360AttachmentService {
 
     public AttachmentInfo getAttachmentBySha1ForUser(String sha1, String userId) {
         try {
-            long startTime = System.currentTimeMillis();
             User sw360User = sw360UserService.getUserByEmail(userId);
             ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
             List<Release> releases = sw360ComponentClient.getReleaseSummary(sw360User);
@@ -66,12 +65,10 @@ public class Sw360AttachmentService {
             User sw360User = sw360UserService.getUserByEmail(userId);
             ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
             List<Release> releases = sw360ComponentClient.getReleaseSummary(sw360User);
-            int count = 0;
             for (Release release : releases) {
                 final Set<Attachment> attachments = release.getAttachments();
                 if (attachments != null && attachments.size() > 0) {
                     for (Attachment attachment : attachments) {
-                        count++;
                         if (id.equals(attachment.getAttachmentContentId())) {
                             return new AttachmentInfo(attachment, release);
                         }
@@ -88,15 +85,5 @@ public class Sw360AttachmentService {
         THttpClient thriftClient = new THttpClient(thriftServerUrl + "/components/thrift");
         TProtocol protocol = new TCompactProtocol(thriftClient);
         return new ComponentService.Client(protocol);
-    }
-
-    static class AttachmentInfo {
-        public AttachmentInfo(Attachment attachment, Release release) {
-            this.attachment = attachment;
-            this.release = release;
-        }
-
-        Attachment attachment;
-        Release release;
     }
 }
