@@ -53,19 +53,9 @@ public class HalHelper {
             Set<String> releases,
             Sw360ReleaseService sw360ReleaseService,
             String userId) {
-
         for (String releaseId : releases) {
-            ReleaseResource releaseResource = new ReleaseResource();
-            try {
-                final Release release = sw360ReleaseService.getReleaseForUserById(releaseId, userId);
-                releaseResource.setVersion(release.getVersion());
-                Link releaseLink = linkTo(ReleaseController.class).slash("api/releases/" + releaseId).withSelfRel();
-                releaseResource.add(releaseLink);
-            } catch (Exception e) {
-                log.error("cannot create embedded release with id: " + releaseId);
-            }
-
-            halResource.addEmbeddedItem("releases", releaseResource);
+            final Release release = sw360ReleaseService.getReleaseForUserById(releaseId, userId);
+            addEmbeddedRelease(halResource, release);
         }
     }
 
@@ -73,17 +63,24 @@ public class HalHelper {
             HalResourceWidthEmbeddedItems halResource,
             List<Release> releases) {
         for (Release release : releases) {
-            ReleaseResource releaseResource = new ReleaseResource();
-            try {
-                releaseResource.setVersion(release.getVersion());
-                Link releaseLink = linkTo(ReleaseController.class).slash("api/releases/" + release.getId()).withSelfRel();
-                releaseResource.add(releaseLink);
-            } catch (Exception e) {
-                log.error("cannot create embedded release with id: " + release.getId());
-            }
-
-            halResource.addEmbeddedItem("releases", releaseResource);
+            addEmbeddedRelease(halResource, release);
         }
+    }
+
+    private void addEmbeddedRelease(HalResourceWidthEmbeddedItems halResource, Release release) {
+        ReleaseResource releaseResource = new ReleaseResource();
+        try {
+            releaseResource.setVersion(release.getVersion());
+            if(release.getClearingState() != null) {
+                releaseResource.setClearingState(release.getClearingState().toString());
+            }
+            Link releaseLink = linkTo(ReleaseController.class).slash("api/releases/" + release.getId()).withSelfRel();
+            releaseResource.add(releaseLink);
+        } catch (Exception e) {
+            log.error("cannot create embedded release with id: " + release.getId());
+        }
+
+        halResource.addEmbeddedItem("releases", releaseResource);
     }
 
     public void addEmbeddedAttachments(
@@ -92,10 +89,10 @@ public class HalHelper {
         for (Attachment attachment : attachments) {
             AttachmentResource attachmentResource = new AttachmentResource();
             try {
-                if(attachment.getAttachmentType() != null) {
+                if (attachment.getAttachmentType() != null) {
                     attachmentResource.setAttachmentType(attachment.getAttachmentType().toString());
                 }
-                if(attachment.getFilename() != null) {
+                if (attachment.getFilename() != null) {
                     attachmentResource.setFilename(attachment.getFilename().toString());
                 }
                 Link attachmentLink = linkTo(AttachmentController.class).slash("api/attachments/" + attachment.getAttachmentContentId()).withSelfRel();
