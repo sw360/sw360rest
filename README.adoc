@@ -75,6 +75,7 @@ API root (index):
 When you follow the link "sw360:components" you will get a list of components,
 each containing the basic set of information
 and a self link to the actual component resource.
+
 [source, json]
 {
   "_embedded" : {
