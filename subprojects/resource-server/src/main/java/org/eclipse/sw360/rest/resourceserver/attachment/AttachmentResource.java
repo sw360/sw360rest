@@ -27,7 +27,6 @@ public class AttachmentResource extends ResourceSupport {
     private String filename;
     private String sha1;
     private String attachmentType;
-    private String createdBy;
     private String createdTeam;
     private String createdComment;
     private String createdOn;

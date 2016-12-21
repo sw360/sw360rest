@@ -29,5 +29,4 @@ public class ProjectResource extends ResourceSupport {
     private String name;
     private String description;
     private String createdOn;
-    private String createdBy;
 }

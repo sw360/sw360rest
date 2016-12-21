@@ -14,8 +14,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.rest.resourceserver.core.HalHelper;
 import org.eclipse.sw360.rest.resourceserver.core.HalResourceWidthEmbeddedItems;
+import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
@@ -44,6 +46,9 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
     private final Sw360AttachmentService attachmentService;
 
     @NonNull
+    private final Sw360UserService userService;
+
+    @NonNull
     private final HalHelper halHelper;
 
     @Value("${sw360.thrift-server-url}")
@@ -57,9 +62,12 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
             String userId = (String) oAuth2Authentication.getPrincipal();
             AttachmentInfo attachmentInfo =
                     attachmentService.getAttachmentBySha1ForUser(sha1, userId);
-
+            User sw360User = userService.getUserByEmail(userId);
             HalResourceWidthEmbeddedItems attachmentResource =
-                    createHalAttachmentResource(attachmentInfo.getAttachment(), attachmentInfo.getRelease(),true);
+                    createHalAttachmentResource(
+                            attachmentInfo.getAttachment(),
+                            attachmentInfo.getRelease(),
+                            sw360User);
             return new ResponseEntity<>(attachmentResource, HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -73,11 +81,14 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
             OAuth2Authentication oAuth2Authentication) {
         try {
             String userId = (String) oAuth2Authentication.getPrincipal();
+            User sw360User = userService.getUserByEmail(userId);
             AttachmentInfo attachmentInfo =
                     attachmentService.getAttachmentByIdForUser(id, userId);
 
             HalResourceWidthEmbeddedItems attachmentResource =
-                    createHalAttachmentResource(attachmentInfo.getAttachment(), attachmentInfo.getRelease(),true);
+                    createHalAttachmentResource(attachmentInfo.getAttachment(),
+                            attachmentInfo.getRelease(),
+                            sw360User);
             return new ResponseEntity<>(attachmentResource, HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -88,13 +99,12 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
     private HalResourceWidthEmbeddedItems createHalAttachmentResource(
             Attachment sw360Attachment,
             Release sw360Release,
-            boolean verbose) {
+            User sw360User) {
         AttachmentResource attachmentResource = new AttachmentResource();
 
         attachmentResource.setFilename(sw360Attachment.getFilename());
         attachmentResource.setSha1(sw360Attachment.getSha1());
         attachmentResource.setAttachmentType(sw360Attachment.getAttachmentType().toString());
-        attachmentResource.setCreatedBy(sw360Attachment.getCreatedBy());
         attachmentResource.setCreatedTeam(sw360Attachment.getCreatedTeam());
         attachmentResource.setCreatedComment(sw360Attachment.getCreatedComment());
         attachmentResource.setCreatedOn(sw360Attachment.getCreatedOn());
@@ -112,8 +122,9 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
         attachmentResource.add(releaseLink);
 
         HalResourceWidthEmbeddedItems halAttachmentResource = new HalResourceWidthEmbeddedItems(attachmentResource);
-
         halAttachmentResource.addEmbeddedItem("release", halHelper.createHalReleaseResource(sw360Release, false));
+        halHelper.addEmbeddedUser(halAttachmentResource, sw360User, "createdBy");
+
         return halAttachmentResource;
     }
 

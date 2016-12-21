@@ -15,9 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentType;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.rest.resourceserver.core.HalHelper;
 import org.eclipse.sw360.rest.resourceserver.core.HalResourceWidthEmbeddedItems;
 import org.eclipse.sw360.rest.resourceserver.release.Sw360ReleaseService;
+import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
@@ -26,7 +28,10 @@ import org.springframework.hateoas.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +50,9 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
 
     @NonNull
     private final Sw360ReleaseService releaseService;
+
+    @NonNull
+    private final Sw360UserService userService;
 
     @NonNull
     private final HalHelper halHelper;
@@ -118,7 +126,6 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
 
         componentResource.setComponentType(String.valueOf(sw360Component.getComponentType()));
         componentResource.setName(sw360Component.getName());
-        componentResource.setCreatedBy(sw360Component.getCreatedBy());
         componentResource.setCreatedOn(sw360Component.getCreatedOn());
         componentResource.setVendorNames(sw360Component.getVendorNames());
 
@@ -133,9 +140,6 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
             componentResource.setType(sw360Component.getType());
             componentResource.setDescription(sw360Component.getDescription());
 
-            // Kai Toedter 2016-12-18
-            // currently the sw360 thrift API is inconsistent:
-            // depending on the call, some components have releaseIds, some have releases
             if (sw360Component.getReleaseIds() != null) {
                 Set<String> releases = sw360Component.getReleaseIds();
                 halHelper.addEmbeddedReleases(halComponentResource, releases, releaseService, userId);
@@ -150,6 +154,9 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
                 Set<String> moderators = sw360Component.getModerators();
                 halHelper.addEmbeddedModerators(halComponentResource, moderators);
             }
+
+            User sw360User = userService.getUserByEmail(userId);
+            halHelper.addEmbeddedUser(halComponentResource, sw360User, "createdBy");
         }
         return halComponentResource;
     }
@@ -161,7 +168,6 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
         component.setComponentType(ComponentType.valueOf(componentResource.getComponentType()));
         component.setName(componentResource.getName());
         component.setDescription(componentResource.getDescription());
-        component.setCreatedBy(componentResource.getCreatedBy());
         component.setCreatedOn(componentResource.getCreatedOn());
 
         return component;

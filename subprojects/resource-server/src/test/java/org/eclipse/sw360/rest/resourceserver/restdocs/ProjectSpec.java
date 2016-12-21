@@ -110,11 +110,11 @@ public class ProjectSpec  extends RestDocsSpecBase {
                         responseFields(
                                 fieldWithPath("name").description("The name of the project"),
                                 fieldWithPath("description").description("The project description"),
-                                fieldWithPath("createdBy").description("The user who created this project"),
                                 fieldWithPath("createdOn").description("The date the project was created"),
                                 fieldWithPath("type").description("is always 'project'"),
                                 fieldWithPath("projectType").description("The project type, possible values are: " + Arrays.asList(ProjectType.values())),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources"),
+                                fieldWithPath("_embedded.createdBy").description("The user who created this project"),
                                 fieldWithPath("_embedded.moderators").description("An array of all project moderators with email and link to their <<resources-user-get,User resource>>")
                         )));
     }

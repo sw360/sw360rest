@@ -28,7 +28,7 @@ public class ReleaseResource extends ResourceSupport {
     private String componentId;
     private String name;
     private String type;
-    private String cpeid;
+    private String cpeId;
     private String releaseDate;
     private String clearingState;
 }

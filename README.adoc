@@ -46,6 +46,10 @@ API root (index):
 [source, json]
 {
   "_links" : {
+    "sw360:attachments" : {
+      "href" : "http://localhost:8080/api/attachments{?sha1}",
+      "templated" : true
+    },
     "sw360:components" : {
       "href" : "http://localhost:8080/api/components"
     },
@@ -68,7 +72,6 @@ API root (index):
     } ]
   }
 }
-
 When you follow the link "sw360:components" you will get a list of components,
 each containing the basic set of information
 and a self link to the actual component resource.
@@ -79,7 +82,6 @@ and a self link to the actual component resource.
       "type" : "component",
       "name" : "Angular",
       "componentType" : "OSS",
-      "createdBy" : "admin@sw360.org",
       "createdOn" : "2016-12-15",
       "vendorNames" : [ "Google" ],
       "_links" : {
@@ -91,7 +93,6 @@ and a self link to the actual component resource.
       "type" : "component",
       "name" : "Spring Framework",
       "componentType" : "OSS",
-      "createdBy" : "jane@sw360.org",
       "createdOn" : "2016-12-18",
       "vendorNames" : [ "Pivotal" ],
       "_links" : {
@@ -120,7 +121,6 @@ embedded realeases and moderators.
   "name" : "Angular",
   "componentType" : "OSS",
   "description" : "Angular is a development platform for building mobile and desktop web applications.",
-  "createdBy" : "admin@sw360.org",
   "createdOn" : "2016-12-15",
   "vendorNames" : [ "Google" ],
   "_links" : {
@@ -129,6 +129,14 @@ embedded realeases and moderators.
     }
   },
   "_embedded" : {
+    "createdBy" : {
+      "email" : "admin@sw360.org",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/api/users/YWRtaW5Ac3czNjAub3Jn"
+        }
+      }
+    },
     "releases" : [ {
       "version" : "2.3.0",
       "_links" : {

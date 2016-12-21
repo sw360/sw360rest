@@ -12,6 +12,7 @@ package org.eclipse.sw360.rest.resourceserver.core;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.rest.resourceserver.attachment.AttachmentController;
 import org.eclipse.sw360.rest.resourceserver.attachment.AttachmentResource;
 import org.eclipse.sw360.rest.resourceserver.component.ComponentController;
@@ -67,6 +68,20 @@ public class HalHelper {
         }
     }
 
+    public void addEmbeddedUser(HalResourceWidthEmbeddedItems halResource, User user, String relation) {
+        UserResource userResource = new UserResource();
+        try {
+            userResource.setEmail(user.getEmail());
+            String userUUID = Base64.getEncoder().encodeToString(user.getEmail().getBytes("utf-8"));
+            Link userLink = linkTo(UserController.class).slash("api/users/" + userUUID).withSelfRel();
+            userResource.add(userLink);
+        } catch (Exception e) {
+            log.error("cannot create embedded user with email: " + user.getEmail());
+        }
+
+        halResource.addEmbeddedItem(relation, userResource);
+    }
+
     private void addEmbeddedRelease(HalResourceWidthEmbeddedItems halResource, Release release) {
         ReleaseResource releaseResource = new ReleaseResource();
         try {
@@ -82,6 +97,7 @@ public class HalHelper {
 
         halResource.addEmbeddedItem("releases", releaseResource);
     }
+
 
     public void addEmbeddedAttachments(
             HalResourceWidthEmbeddedItems halResource,
@@ -110,7 +126,7 @@ public class HalHelper {
         ReleaseResource releaseResource = new ReleaseResource();
 
         releaseResource.setName(sw360Release.getName());
-        releaseResource.setCpeid(sw360Release.getCpeid());
+        releaseResource.setCpeId(sw360Release.getCpeid());
         releaseResource.setVersion(sw360Release.getVersion());
         releaseResource.setReleaseDate(sw360Release.getReleaseDate());
         if (sw360Release.getClearingState() != null) {

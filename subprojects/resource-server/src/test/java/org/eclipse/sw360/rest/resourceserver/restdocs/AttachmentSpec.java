@@ -23,6 +23,7 @@ import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
 import org.eclipse.sw360.datahandler.thrift.attachments.CheckStatus;
 import org.eclipse.sw360.datahandler.thrift.components.ClearingState;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.rest.resourceserver.TestHelper;
 import org.eclipse.sw360.rest.resourceserver.attachment.AttachmentInfo;
 import org.eclipse.sw360.rest.resourceserver.attachment.Sw360AttachmentService;
@@ -93,6 +94,13 @@ public class AttachmentSpec extends RestDocsSpecBase {
         AttachmentInfo attachmentInfo = new AttachmentInfo(attachment, release);
 
         given(this.attachmentServiceMock.getAttachmentByIdForUser(eq(attachment.getAttachmentContentId()), anyObject())).willReturn(attachmentInfo);
+
+        User user = new User();
+        user.setId("admin@sw360.org");
+        user.setEmail("admin@sw360.org");
+        user.setFullname("John Doe");
+
+        given(this.userServiceMock.getUserByEmail("admin@sw360.org")).willReturn(user);
     }
 
     @Test
@@ -114,12 +122,12 @@ public class AttachmentSpec extends RestDocsSpecBase {
                                 fieldWithPath("attachmentType").description("The attachment type, possible values are " + Arrays.asList(AttachmentType.values())),
                                 fieldWithPath("createdTeam").description("The team who created this attachment"),
                                 fieldWithPath("createdComment").description("Comment of the creating team"),
-                                fieldWithPath("createdBy").description("The user who created this attachment"),
                                 fieldWithPath("createdOn").description("The date the attachment was created"),
                                 fieldWithPath("checkedTeam").description("The team who checked this attachment"),
                                 fieldWithPath("checkedComment").description("Comment of the checking team"),
                                 fieldWithPath("checkedOn").description("The date the attachment was checked"),
                                 fieldWithPath("checkStatus").description("The checking status. possible values are " + Arrays.asList(CheckStatus.values())),
+                                fieldWithPath("_embedded.createdBy").description("The user who created this attachment"),
                                 fieldWithPath("_embedded.release").description("The release this attachment belongs to"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));

@@ -132,7 +132,7 @@ public class ReleaseSpec extends RestDocsSpecBase {
                                 fieldWithPath("version").description("The version of the release"),
                                 fieldWithPath("name").description("The name of the release, optional"),
                                 fieldWithPath("clearingState").description("The clearing of the release, possible values are " + Arrays.asList(ClearingState.values())),
-                                fieldWithPath("cpeid").description("The CPE id"),
+                                fieldWithPath("cpeId").description("The CPE id"),
                                 fieldWithPath("releaseDate").description("The date of this release"),
                                 fieldWithPath("type").description("is always 'release'"),
                                 fieldWithPath("_embedded.moderators").description("An array of all release moderators with email and link to their <<resources-user-get,User resource>>"),

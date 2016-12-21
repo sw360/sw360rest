@@ -150,12 +150,12 @@ public class ComponentSpec extends RestDocsSpecBase {
                         responseFields(
                                 fieldWithPath("name").description("The name of the component"),
                                 fieldWithPath("description").description("The component description"),
-                                fieldWithPath("createdBy").description("The user who created this component"),
                                 fieldWithPath("createdOn").description("The date the component was created"),
                                 fieldWithPath("type").description("is always 'component'"),
                                 fieldWithPath("componentType").description("The component type, possible values are: " + Arrays.asList(ComponentType.values())),
                                 fieldWithPath("vendorNames").description("All vendors of this component"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources"),
+                                fieldWithPath("_embedded.createdBy").description("The user who created this component"),
                                 fieldWithPath("_embedded.releases").description("An array of all component releases with version and link to their <<resources-releases,Releases resource>>"),
                                 fieldWithPath("_embedded.moderators").description("An array of all component moderators with email and link to their <<resources-user-get,User resource>>")
                         )));
@@ -187,10 +187,10 @@ public class ComponentSpec extends RestDocsSpecBase {
                         responseFields(
                                 fieldWithPath("name").description("The name of the component"),
                                 fieldWithPath("description").description("The component description"),
-                                fieldWithPath("createdBy").description("The user who created this component"),
                                 fieldWithPath("createdOn").description("The date the component was created"),
                                 fieldWithPath("type").description("is always 'component'"),
                                 fieldWithPath("componentType").description("The component type, possible values are: " + Arrays.asList(ComponentType.values())),
+                                fieldWithPath("_embedded.createdBy").description("The user who created this component"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));
     }

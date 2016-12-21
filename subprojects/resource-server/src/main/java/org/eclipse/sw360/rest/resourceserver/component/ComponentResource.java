@@ -30,7 +30,6 @@ public class ComponentResource extends ResourceSupport {
     private String name;
     private String componentType;
     private String description;
-    private String createdBy;
     private String createdOn;
     private Set<String> vendorNames; // should be a link
 }
