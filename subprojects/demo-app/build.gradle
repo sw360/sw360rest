@@ -1,0 +1,16 @@
+apply plugin: 'org.springframework.boot'
+
+jar {
+    baseName = 'sw360-rest-demo-client'
+    version = '0.0.1'
+}
+
+dependencies {
+    compile 'org.springframework.boot:spring-boot-starter-web'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.8.4'
+    compile 'org.projectlombok:lombok:1.16.12'
+    compile 'org.apache.thrift:libthrift:0.9.3'
+    compile ("org.eclipse.sw360:datahandler:1.6.0-SNAPSHOT") {
+        exclude group:"org.slf4j"
+    }
+}

@@ -17,12 +17,15 @@ import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.THttpClient;
 import org.apache.thrift.transport.TTransportException;
+import org.eclipse.sw360.datahandler.thrift.AddDocumentRequestStatus;
+import org.eclipse.sw360.datahandler.thrift.AddDocumentRequestSummary;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -55,6 +58,23 @@ public class Sw360ProjectService {
         } catch (TException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public Project createProject(Project project, String userId) {
+        try {
+            ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
+            User sw360User = sw360UserService.getUserByEmail(userId);
+            AddDocumentRequestSummary documentRequestSummary = sw360ProjectClient.addProject(project, sw360User);
+            if (documentRequestSummary.getRequestStatus() == AddDocumentRequestStatus.SUCCESS) {
+                project.setId(documentRequestSummary.getId());
+                return project;
+            } else if (documentRequestSummary.getRequestStatus() == AddDocumentRequestStatus.DUPLICATE) {
+                throw new DataIntegrityViolationException("sw360 project with name '" + project.getName() + " already exists.");
+            }
+        } catch (TException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
     }
 
     private ProjectService.Iface getThriftProjectClient() throws TTransportException {

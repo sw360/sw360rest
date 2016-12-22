@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -43,9 +42,8 @@ public class Sw360ComponentService {
             ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
             return sw360ComponentClient.getComponentSummary(sw360User);
         } catch (TException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return Collections.emptyList();
     }
 
     public Component getComponentForUserById(String componentId, String userId) {
@@ -54,9 +52,8 @@ public class Sw360ComponentService {
             User sw360User = sw360UserService.getUserByEmail(userId);
             return sw360ComponentClient.getComponentById(componentId, sw360User);
         } catch (TException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
     public Component createComponent(Component component, String userId) {
@@ -68,7 +65,7 @@ public class Sw360ComponentService {
                 return component;
             }
         } catch (TException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return null;
     }

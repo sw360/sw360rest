@@ -13,6 +13,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectType;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.rest.resourceserver.core.HalHelper;
 import org.eclipse.sw360.rest.resourceserver.core.HalResourceWidthEmbeddedItems;
@@ -29,6 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -92,10 +94,37 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
         return null;
     }
 
+    @RequestMapping(value = PROJECTS_URL, method = RequestMethod.POST)
+    public ResponseEntity createComponent(
+            OAuth2Authentication oAuth2Authentication,
+            @RequestBody ProjectResource projectResource) {
+
+        try {
+            String userId = (String) oAuth2Authentication.getPrincipal();
+            User sw360User = userService.getUserByEmail(userId);
+            Project sw360Project = createProjectFromResource(projectResource);
+            sw360Project = projectService.createProject(sw360Project, userId);
+            HalResourceWidthEmbeddedItems<ProjectResource> halResource = createHalProjectResource(sw360Project, sw360User, true);
+            return new ResponseEntity<>(halResource, HttpStatus.CREATED);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
     @Override
     public RepositoryLinksResource process(RepositoryLinksResource resource) {
         resource.add(linkTo(ProjectController.class).slash("api" + PROJECTS_URL).withRel("projects"));
         return resource;
+    }
+
+    private Project createProjectFromResource(ProjectResource projectResource) {
+        Project project = new Project();
+
+        project.setName(projectResource.getName());
+        project.setDescription(projectResource.getDescription());
+        project.setProjectType(ProjectType.valueOf(projectResource.getProjectType()));
+
+        return project;
     }
 
     private HalResourceWidthEmbeddedItems<ProjectResource> createHalProjectResource(Project sw360Project, User sw360User, boolean verbose) {
