@@ -51,3 +51,14 @@ asciidoctor {
     ]
     inputs.dir snippetsDir
 }
+
+task copyDoc(type: Copy) {
+	from "${asciidoctor.outputDir}"
+	into "$buildDir/resources/main/static/docs"
+}
+
+jar {
+	dependsOn asciidoctor
+	dependsOn copyDoc
+}
+
