@@ -22,10 +22,7 @@ import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.*;
@@ -55,7 +52,7 @@ public class ReleaseSpec extends RestDocsSpecBase {
         component.setCreatedOn("2016-12-15");
         component.setCreatedBy("admin@sw360.org");
         component.setComponentType(ComponentType.OSS);
-        component.setVendorNames(new HashSet<>(Arrays.asList("Google")));
+        component.setVendorNames(new HashSet<>(Collections.singletonList("Google")));
         component.setModerators(new HashSet<>(Arrays.asList("admin@sw360.org", "john@sw360.org")));
 
         List<Release> releaseList = new ArrayList<>();

@@ -52,8 +52,7 @@ public class ResourceServerConfiguration  extends WebSecurityConfigurerAdapter i
     private static class OAuthRequestedMatcher implements RequestMatcher {
         public boolean matches(HttpServletRequest httpServletRequest) {
             String authorizationHeaderValue = httpServletRequest.getHeader("Authorization");
-            boolean hasBearerToken = (authorizationHeaderValue != null) && authorizationHeaderValue.startsWith("Bearer");
-            return hasBearerToken;
+            return (authorizationHeaderValue != null) && authorizationHeaderValue.startsWith("Bearer");
         }
     }
 

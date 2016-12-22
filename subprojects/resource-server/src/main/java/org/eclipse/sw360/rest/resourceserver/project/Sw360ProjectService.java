@@ -41,8 +41,7 @@ public class Sw360ProjectService {
         try {
             ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
             User sw360User = sw360UserService.getUserByEmail(userId);
-            List<Project> projects = sw360ProjectClient.getAccessibleProjectsSummary(sw360User);
-            return projects;
+            return sw360ProjectClient.getAccessibleProjectsSummary(sw360User);
         } catch (TException e) {
             throw new RuntimeException(e);
         }
@@ -52,8 +51,7 @@ public class Sw360ProjectService {
         try {
             ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
             User sw360User = sw360UserService.getUserByEmail(userId);
-            Project project = sw360ProjectClient.getProjectById(projectId, sw360User);
-            return project;
+            return sw360ProjectClient.getProjectById(projectId, sw360User);
         } catch (TException e) {
             throw new RuntimeException(e);
         }

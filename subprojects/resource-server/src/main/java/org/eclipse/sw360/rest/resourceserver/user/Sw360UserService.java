@@ -30,8 +30,7 @@ public class Sw360UserService {
     public List<User> getAllUsers() {
         try {
             UserService.Iface sw360UserClient = getThriftUserClient();
-            List<User> users = sw360UserClient.getAllUsers();
-            return users;
+            return sw360UserClient.getAllUsers();
         } catch (TException e) {
             e.printStackTrace();
         }
@@ -41,8 +40,7 @@ public class Sw360UserService {
     public User getUserByEmail(String email) {
         try {
             UserService.Iface sw360UserClient = getThriftUserClient();
-            User user = sw360UserClient.getByEmail(email);
-            return user;
+            return sw360UserClient.getByEmail(email);
         } catch (TException e) {
             e.printStackTrace();
         }

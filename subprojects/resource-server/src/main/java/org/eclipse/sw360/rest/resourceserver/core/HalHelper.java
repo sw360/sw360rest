@@ -50,7 +50,7 @@ public class HalHelper {
     }
 
     public void addEmbeddedReleases(
-            HalResourceWidthEmbeddedItems halResource,
+            HalResourceWidthEmbeddedItems<org.eclipse.sw360.rest.resourceserver.component.ComponentResource> halResource,
             Set<String> releases,
             Sw360ReleaseService sw360ReleaseService,
             String userId) {
@@ -61,7 +61,7 @@ public class HalHelper {
     }
 
     public void addEmbeddedReleases(
-            HalResourceWidthEmbeddedItems halResource,
+            HalResourceWidthEmbeddedItems<org.eclipse.sw360.rest.resourceserver.component.ComponentResource> halResource,
             List<Release> releases) {
         for (Release release : releases) {
             addEmbeddedRelease(halResource, release);
@@ -82,7 +82,7 @@ public class HalHelper {
         halResource.addEmbeddedItem(relation, userResource);
     }
 
-    private void addEmbeddedRelease(HalResourceWidthEmbeddedItems halResource, Release release) {
+    private void addEmbeddedRelease(HalResourceWidthEmbeddedItems<org.eclipse.sw360.rest.resourceserver.component.ComponentResource> halResource, Release release) {
         ReleaseResource releaseResource = new ReleaseResource();
         try {
             releaseResource.setVersion(release.getVersion());
@@ -100,7 +100,7 @@ public class HalHelper {
 
 
     public void addEmbeddedAttachments(
-            HalResourceWidthEmbeddedItems halResource,
+            HalResourceWidthEmbeddedItems<ReleaseResource> halResource,
             Set<Attachment> attachments) {
         for (Attachment attachment : attachments) {
             AttachmentResource attachmentResource = new AttachmentResource();
@@ -109,7 +109,7 @@ public class HalHelper {
                     attachmentResource.setAttachmentType(attachment.getAttachmentType().toString());
                 }
                 if (attachment.getFilename() != null) {
-                    attachmentResource.setFilename(attachment.getFilename().toString());
+                    attachmentResource.setFilename(attachment.getFilename());
                 }
                 Link attachmentLink = linkTo(AttachmentController.class).slash("api/attachments/" + attachment.getAttachmentContentId()).withSelfRel();
                 attachmentResource.add(attachmentLink);
@@ -122,7 +122,7 @@ public class HalHelper {
 
     }
 
-    public HalResourceWidthEmbeddedItems createHalReleaseResource(Release sw360Release, boolean verbose) {
+    public HalResourceWidthEmbeddedItems<ReleaseResource> createHalReleaseResource(Release sw360Release, boolean verbose) {
         ReleaseResource releaseResource = new ReleaseResource();
 
         releaseResource.setName(sw360Release.getName());
@@ -141,7 +141,7 @@ public class HalHelper {
                 .slash("api" + ComponentController.COMPONENTS_URL + "/" + sw360Release.getComponentId()).withRel("component");
         releaseResource.add(componentLink);
 
-        HalResourceWidthEmbeddedItems halReleaseResource = new HalResourceWidthEmbeddedItems(releaseResource);
+        HalResourceWidthEmbeddedItems<ReleaseResource> halReleaseResource = new HalResourceWidthEmbeddedItems<>(releaseResource);
 
         if (verbose) {
             releaseResource.setType(sw360Release.getType());

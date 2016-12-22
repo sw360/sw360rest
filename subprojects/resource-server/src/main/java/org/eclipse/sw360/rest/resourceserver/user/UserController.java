@@ -12,7 +12,6 @@ import org.springframework.data.rest.webmvc.RepositoryLinksResource;
 import org.springframework.hateoas.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -37,20 +36,18 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
     @NonNull
     private final Sw360UserService userService;
 
-    private final ShaPasswordEncoder shaPasswordEncoder = new ShaPasswordEncoder();
-
     // @PreAuthorize("hasRole('ROLE_SW360_USER')")
     @RequestMapping(USERS_URL)
-    public ResponseEntity<Resources<Resource>> getUsers() {
+    public ResponseEntity<Resources<Resource<UserResource>>> getUsers() {
         try {
             List<User> sw360Users = userService.getAllUsers();
 
-            List<Resource> userResources = new ArrayList<>();
+            List<Resource<UserResource>> userResources = new ArrayList<>();
             for (User sw360User : sw360Users) {
-                HalResourceWidthEmbeddedItems userHalResource = createHalUserResource(sw360User, false);
+                HalResourceWidthEmbeddedItems<UserResource> userHalResource = createHalUserResource(sw360User, false);
                 userResources.add(userHalResource);
             }
-            Resources<Resource> resources = new Resources<>(userResources);
+            Resources<Resource<UserResource>> resources = new Resources<>(userResources);
 
             return new ResponseEntity<>(resources, HttpStatus.OK);
         } catch (Exception e) {
@@ -60,14 +57,14 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
     }
 
     @RequestMapping(USERS_URL + "/{id:.+}")
-    public ResponseEntity<Resource> getUser(
+    public ResponseEntity<Resource<UserResource>> getUser(
             @PathVariable("id") String id) {
         try {
             byte[] base64decodedBytes = Base64.getDecoder().decode(id);
             String decodedId = new String(base64decodedBytes, "utf-8");
 
             User sw360User = userService.getUserByEmail(decodedId);
-            HalResourceWidthEmbeddedItems userHalResource = createHalUserResource(sw360User, true);
+            HalResourceWidthEmbeddedItems<UserResource> userHalResource = createHalUserResource(sw360User, true);
             return new ResponseEntity<>(userHalResource, HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -81,7 +78,7 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
         return resource;
     }
 
-    private HalResourceWidthEmbeddedItems createHalUserResource(User sw360User, boolean verbose) {
+    private HalResourceWidthEmbeddedItems<UserResource> createHalUserResource(User sw360User, boolean verbose) {
         UserResource userResource = new UserResource();
 
         userResource.setEmail(sw360User.getEmail());
@@ -105,6 +102,6 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
             userResource.setDepartment(sw360User.getDepartment());
             userResource.setType(sw360User.getType());
         }
-        return new HalResourceWidthEmbeddedItems(userResource);
+        return new HalResourceWidthEmbeddedItems<>(userResource);
     }
 }

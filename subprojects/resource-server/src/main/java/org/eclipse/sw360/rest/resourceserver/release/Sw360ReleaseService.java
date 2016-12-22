@@ -41,8 +41,7 @@ public class Sw360ReleaseService {
         try {
             ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
             User sw360User = sw360UserService.getUserByEmail(userId);
-            List<Release> releases = sw360ComponentClient.getReleaseSummary(sw360User);
-            return releases;
+            return sw360ComponentClient.getReleaseSummary(sw360User);
         } catch (TException e) {
             throw new RuntimeException(e);
         }
@@ -52,8 +51,7 @@ public class Sw360ReleaseService {
         try {
             ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
             User sw360User = sw360UserService.getUserByEmail(userId);
-            Release release = sw360ComponentClient.getReleaseById(releaseId, sw360User);
-            return release;
+            return sw360ComponentClient.getReleaseById(releaseId, sw360User);
         } catch (TException e) {
             throw new RuntimeException(e);
         }

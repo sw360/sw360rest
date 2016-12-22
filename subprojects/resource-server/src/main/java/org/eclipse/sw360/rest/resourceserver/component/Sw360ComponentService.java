@@ -41,8 +41,7 @@ public class Sw360ComponentService {
         try {
             User sw360User = sw360UserService.getUserByEmail(userId);
             ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
-            List<Component> components = sw360ComponentClient.getComponentSummary(sw360User);
-            return components;
+            return sw360ComponentClient.getComponentSummary(sw360User);
         } catch (TException e) {
             e.printStackTrace();
         }
@@ -53,8 +52,7 @@ public class Sw360ComponentService {
         try {
             ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
             User sw360User = sw360UserService.getUserByEmail(userId);
-            Component component = sw360ComponentClient.getComponentById(componentId, sw360User);
-            return component;
+            return sw360ComponentClient.getComponentById(componentId, sw360User);
         } catch (TException e) {
             e.printStackTrace();
         }

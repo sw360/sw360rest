@@ -22,43 +22,35 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class HalResourceWidthEmbeddedItems<EntityType> extends Resource<EntityType> {
 
-    private Map<String, Object> embedded;
+    private Map<String, Object> embeddedMap;
 
     public HalResourceWidthEmbeddedItems(EntityType content, Link... links) {
         super(content, links);
     }
 
+    @SuppressWarnings("unchecked")
     public void addEmbeddedItem(String relation, Object embeddedItem) {
-        initializeEmbedded();
-        Object embeddedItems = embedded.get(relation);
+        if (embeddedMap == null) {
+            embeddedMap = new HashMap<>();
+        }
+        Object embeddedItems = embeddedMap.get(relation);
         if (embeddedItems == null) {
             embeddedItems = embeddedItem;
         } else {
-            if (!(embeddedItems instanceof List)) {
+            if (embeddedItems instanceof List) {
+                ((List<Object>) embeddedItems).add(embeddedItem);
+            } else {
                 List<Object> embeddedItemsList = new ArrayList<>();
                 embeddedItemsList.add(embeddedItems);
                 embeddedItemsList.add(embeddedItem);
                 embeddedItems = embeddedItemsList;
-            } else {
-                ((List<Object>)embeddedItems).add(embeddedItem);
             }
         }
-        embedded.put(relation, embeddedItems);
-    }
-
-    public void addEmbeddedItems(String relation, List<Object> embeddedItems) {
-        initializeEmbedded();
-        embedded.put(relation, embeddedItems);
+        embeddedMap.put(relation, embeddedItems);
     }
 
     @JsonProperty("_embedded")
     public Map<String, Object> getEmbedded() {
-        return embedded;
-    }
-
-    private void initializeEmbedded() {
-        if (embedded == null) {
-            embedded = new HashMap<>();
-        }
+        return embeddedMap;
     }
 }

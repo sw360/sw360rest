@@ -54,7 +54,7 @@ public class ComponentSpec extends RestDocsSpecBase {
         angularComponent.setCreatedOn("2016-12-15");
         angularComponent.setCreatedBy("admin@sw360.org");
         angularComponent.setComponentType(ComponentType.OSS);
-        angularComponent.setVendorNames(new HashSet<>(Arrays.asList("Google")));
+        angularComponent.setVendorNames(new HashSet<>(Collections.singletonList("Google")));
         angularComponent.setModerators(new HashSet<>(Arrays.asList("admin@sw360.org", "john@sw360.org")));
 
         componentList.add(angularComponent);
@@ -66,7 +66,7 @@ public class ComponentSpec extends RestDocsSpecBase {
         springComponent.setCreatedOn("2016-12-18");
         springComponent.setCreatedBy("jane@sw360.org");
         springComponent.setComponentType(ComponentType.OSS);
-        springComponent.setVendorNames(new HashSet<>(Arrays.asList("Pivotal")));
+        springComponent.setVendorNames(new HashSet<>(Collections.singletonList("Pivotal")));
         springComponent.setModerators(new HashSet<>(Arrays.asList("admin@sw360.org", "jane@sw360.org")));
 
         componentList.add(springComponent);
