@@ -19,6 +19,7 @@ import org.apache.thrift.transport.THttpClient;
 import org.apache.thrift.transport.TTransportException;
 import org.eclipse.sw360.datahandler.thrift.AddDocumentRequestStatus;
 import org.eclipse.sw360.datahandler.thrift.AddDocumentRequestSummary;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
 import org.eclipse.sw360.datahandler.thrift.users.User;
@@ -75,6 +76,33 @@ public class Sw360ProjectService {
             throw new RuntimeException(e);
         }
         return null;
+    }
+
+    public void deleteProject(Project project, String userId) {
+        try {
+            ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
+            User sw360User = sw360UserService.getUserByEmail(userId);
+            RequestStatus requestStatus = sw360ProjectClient.deleteProject(project.getId(), sw360User);
+            if (requestStatus == RequestStatus.SUCCESS) {
+                return;
+            }
+            throw new RuntimeException("sw360 project with name '" + project.getName() + " cannot be deleted.");
+        } catch (TException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void deleteAllProjects(String userId) {
+        try {
+            ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
+            User sw360User = sw360UserService.getUserByEmail(userId);
+            List<Project> projects = sw360ProjectClient.getAccessibleProjectsSummary(sw360User);
+            for(Project project: projects) {
+                sw360ProjectClient.deleteProject(project.getId(), sw360User);
+            }
+        } catch (TException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private ProjectService.Iface getThriftProjectClient() throws TTransportException {

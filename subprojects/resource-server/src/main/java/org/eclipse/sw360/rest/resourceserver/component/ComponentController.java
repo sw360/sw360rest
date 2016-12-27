@@ -32,7 +32,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -66,53 +69,43 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
     // @PreAuthorize("hasRole('ROLE_SW360_USER')")
     @RequestMapping(value = COMPONENTS_URL)
     public ResponseEntity<Resources<Resource<ComponentResource>>> getComponents(OAuth2Authentication oAuth2Authentication) {
-        try {
-            String userId = (String) oAuth2Authentication.getPrincipal();
-            List<Component> components = componentService.getComponentsForUser(userId);
+        String userId = (String) oAuth2Authentication.getPrincipal();
+        List<Component> components = componentService.getComponentsForUser(userId);
 
-            List<Resource<ComponentResource>> componentResources = new ArrayList<>();
-            for (Component component : components) {
-                HalResourceWidthEmbeddedItems<ComponentResource> componentResource = createHalComponentResource(component, userId, false);
-                componentResources.add(componentResource);
-            }
-            Resources<Resource<ComponentResource>> resources = new Resources<>(componentResources);
-
-            return new ResponseEntity<>(resources, HttpStatus.OK);
-        } catch (Exception e) {
-            log.error(e.getMessage());
+        List<Resource<ComponentResource>> componentResources = new ArrayList<>();
+        for (Component component : components) {
+            HalResourceWidthEmbeddedItems<ComponentResource> componentResource = createHalComponentResource(component, userId, false);
+            componentResources.add(componentResource);
         }
-        return null;
+        Resources<Resource<ComponentResource>> resources = new Resources<>(componentResources);
+
+        return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
     @RequestMapping(COMPONENTS_URL + "/{id}")
     public ResponseEntity<Resource<ComponentResource>> getComponent(
             @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
-        try {
-            String userId = (String) oAuth2Authentication.getPrincipal();
-            Component sw360Component = componentService.getComponentForUserById(id, userId);
-            HalResourceWidthEmbeddedItems<ComponentResource> userHalResource = createHalComponentResource(sw360Component, userId, true);
-            return new ResponseEntity<>(userHalResource, HttpStatus.OK);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-        }
-        return null;
+        String userId = (String) oAuth2Authentication.getPrincipal();
+        Component sw360Component = componentService.getComponentForUserById(id, userId);
+        HalResourceWidthEmbeddedItems<ComponentResource> userHalResource = createHalComponentResource(sw360Component, userId, true);
+        return new ResponseEntity<>(userHalResource, HttpStatus.OK);
     }
 
     @RequestMapping(value = COMPONENTS_URL, method = RequestMethod.POST)
     public ResponseEntity<Resource<ComponentResource>> createComponent(
             OAuth2Authentication oAuth2Authentication,
-            @RequestBody ComponentResource componentResource) {
+            @RequestBody ComponentResource componentResource) throws URISyntaxException {
 
-        try {
-            String userId = (String) oAuth2Authentication.getPrincipal();
-            Component sw360Component = createComponentFromResource(componentResource);
-            sw360Component = componentService.createComponent(sw360Component, userId);
-            HalResourceWidthEmbeddedItems<ComponentResource> halResource = createHalComponentResource(sw360Component, userId, true);
-            return new ResponseEntity<>(halResource, HttpStatus.CREATED);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-        }
-        return null;
+        String userId = (String) oAuth2Authentication.getPrincipal();
+        Component sw360Component = createComponentFromResource(componentResource);
+        sw360Component = componentService.createComponent(sw360Component, userId);
+        HalResourceWidthEmbeddedItems<ComponentResource> halResource = createHalComponentResource(sw360Component, userId, true);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest().path("/{id}")
+                .buildAndExpand(sw360Component.getId()).toUri();
+
+        return ResponseEntity.created(location).body(halResource);
     }
 
     @Override

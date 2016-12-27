@@ -16,13 +16,15 @@ import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.THttpClient;
 import org.apache.thrift.transport.TTransportException;
-import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.AddDocumentRequestStatus;
+import org.eclipse.sw360.datahandler.thrift.AddDocumentRequestSummary;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -60,9 +62,12 @@ public class Sw360ComponentService {
         try {
             ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
             User sw360User = sw360UserService.getUserByEmail(userId);
-            RequestStatus requestStatus = sw360ComponentClient.updateComponent(component, sw360User);
-            if (requestStatus == RequestStatus.SUCCESS) {
+            AddDocumentRequestSummary documentRequestSummary = sw360ComponentClient.addComponent(component, sw360User);
+            if (documentRequestSummary.getRequestStatus() == AddDocumentRequestStatus.SUCCESS) {
+                component.setId(documentRequestSummary.getId());
                 return component;
+            } else if (documentRequestSummary.getRequestStatus() == AddDocumentRequestStatus.DUPLICATE) {
+                throw new DataIntegrityViolationException("sw360 component with name '" + component.getName() + " already exists.");
             }
         } catch (TException e) {
             throw new RuntimeException(e);

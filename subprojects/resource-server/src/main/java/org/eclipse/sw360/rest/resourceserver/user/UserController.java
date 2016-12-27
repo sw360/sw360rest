@@ -40,40 +40,32 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
     // @PreAuthorize("hasRole('ROLE_SW360_USER')")
     @RequestMapping(USERS_URL)
     public ResponseEntity<Resources<Resource<UserResource>>> getUsers() {
-        try {
-            List<User> sw360Users = userService.getAllUsers();
+        List<User> sw360Users = userService.getAllUsers();
 
-            List<Resource<UserResource>> userResources = new ArrayList<>();
-            for (User sw360User : sw360Users) {
-                HalResourceWidthEmbeddedItems<UserResource> userHalResource = createHalUserResource(sw360User, false);
-                userResources.add(userHalResource);
-            }
-            Resources<Resource<UserResource>> resources = new Resources<>(userResources);
-
-            return new ResponseEntity<>(resources, HttpStatus.OK);
-        } catch (Exception e) {
-            throw (e);
+        List<Resource<UserResource>> userResources = new ArrayList<>();
+        for (User sw360User : sw360Users) {
+            HalResourceWidthEmbeddedItems<UserResource> userHalResource = createHalUserResource(sw360User, false);
+            userResources.add(userHalResource);
         }
+        Resources<Resource<UserResource>> resources = new Resources<>(userResources);
+
+        return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
     @RequestMapping(USERS_URL + "/{id:.+}")
     public ResponseEntity<Resource<UserResource>> getUser(
             @PathVariable("id") String id) {
+        byte[] base64decodedBytes = Base64.getDecoder().decode(id);
+        String decodedId;
         try {
-            byte[] base64decodedBytes = Base64.getDecoder().decode(id);
-            String decodedId;
-            try {
-                decodedId = new String(base64decodedBytes, "utf-8");
-            } catch (UnsupportedEncodingException e) {
-                throw (new RuntimeException(e));
-            }
-
-            User sw360User = userService.getUserByEmail(decodedId);
-            HalResourceWidthEmbeddedItems<UserResource> userHalResource = createHalUserResource(sw360User, true);
-            return new ResponseEntity<>(userHalResource, HttpStatus.OK);
-        } catch (Exception e) {
-            throw (e);
+            decodedId = new String(base64decodedBytes, "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            throw (new RuntimeException(e));
         }
+
+        User sw360User = userService.getUserByEmail(decodedId);
+        HalResourceWidthEmbeddedItems<UserResource> userHalResource = createHalUserResource(sw360User, true);
+        return new ResponseEntity<>(userHalResource, HttpStatus.OK);
     }
 
     @Override

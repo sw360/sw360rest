@@ -61,35 +61,27 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
     // @PreAuthorize("hasRole('ROLE_SW360_USER')")
     @RequestMapping(value = PROJECTS_URL, method = RequestMethod.GET)
     public ResponseEntity<Resources<Resource<ProjectResource>>> getProjectsForUser(OAuth2Authentication oAuth2Authentication) {
-        try {
-            String userId = (String) oAuth2Authentication.getPrincipal();
-            List<Project> projects = projectService.getProjectsForUser(userId);
-            List<Resource<ProjectResource>> projectResources = new ArrayList<>();
-            for (Project sw360Project : projects) {
-                User sw360User = userService.getUserByEmail(sw360Project.getCreatedBy());
-                HalResourceWidthEmbeddedItems<ProjectResource> projectResource = createHalProjectResource(sw360Project, sw360User, false);
-                projectResources.add(projectResource);
-            }
-            Resources<Resource<ProjectResource>> resources = new Resources<>(projectResources);
-
-            return new ResponseEntity<>(resources, HttpStatus.OK);
-        } catch (Exception e) {
-            throw e;
+        String userId = (String) oAuth2Authentication.getPrincipal();
+        List<Project> projects = projectService.getProjectsForUser(userId);
+        List<Resource<ProjectResource>> projectResources = new ArrayList<>();
+        for (Project sw360Project : projects) {
+            User sw360User = userService.getUserByEmail(sw360Project.getCreatedBy());
+            HalResourceWidthEmbeddedItems<ProjectResource> projectResource = createHalProjectResource(sw360Project, sw360User, false);
+            projectResources.add(projectResource);
         }
+        Resources<Resource<ProjectResource>> resources = new Resources<>(projectResources);
+
+        return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
     @RequestMapping(PROJECTS_URL + "/{id}")
     public ResponseEntity<Resource<ProjectResource>> getProject(
             @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
-        try {
-            String userId = (String) oAuth2Authentication.getPrincipal();
-            User sw360User = userService.getUserByEmail(userId);
-            Project sw360Project = projectService.getProjectForUserById(id, userId);
-            HalResourceWidthEmbeddedItems<ProjectResource> userHalResource = createHalProjectResource(sw360Project, sw360User, true);
-            return new ResponseEntity<>(userHalResource, HttpStatus.OK);
-        } catch (Exception e) {
-            throw e;
-        }
+        String userId = (String) oAuth2Authentication.getPrincipal();
+        User sw360User = userService.getUserByEmail(userId);
+        Project sw360Project = projectService.getProjectForUserById(id, userId);
+        HalResourceWidthEmbeddedItems<ProjectResource> userHalResource = createHalProjectResource(sw360Project, sw360User, true);
+        return new ResponseEntity<>(userHalResource, HttpStatus.OK);
     }
 
     @RequestMapping(value = PROJECTS_URL, method = RequestMethod.POST)
@@ -97,16 +89,12 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
             OAuth2Authentication oAuth2Authentication,
             @RequestBody ProjectResource projectResource) {
 
-        try {
-            String userId = (String) oAuth2Authentication.getPrincipal();
-            User sw360User = userService.getUserByEmail(userId);
-            Project sw360Project = createProjectFromResource(projectResource);
-            sw360Project = projectService.createProject(sw360Project, userId);
-            HalResourceWidthEmbeddedItems<ProjectResource> halResource = createHalProjectResource(sw360Project, sw360User, true);
-            return new ResponseEntity<>(halResource, HttpStatus.CREATED);
-        } catch (Exception e) {
-            throw e;
-        }
+        String userId = (String) oAuth2Authentication.getPrincipal();
+        User sw360User = userService.getUserByEmail(userId);
+        Project sw360Project = createProjectFromResource(projectResource);
+        sw360Project = projectService.createProject(sw360Project, userId);
+        HalResourceWidthEmbeddedItems<ProjectResource> halResource = createHalProjectResource(sw360Project, sw360User, true);
+        return new ResponseEntity<>(halResource, HttpStatus.CREATED);
     }
 
     @Override
