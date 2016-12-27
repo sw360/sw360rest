@@ -52,7 +52,7 @@ public class ApiSpec extends RestDocsSpecBase {
 
     @Test
     public void should_document_errors() throws Exception {
-        given(this.projectServiceMock.getProjectForUserById(anyString(), anyString())).willThrow(new RuntimeException(new TException("Internal error processing getProjectByI")));
+        given(this.projectServiceMock.getProjectForUserById(anyString(), anyString())).willThrow(new RuntimeException(new TException("Internal error processing getProjectById")));
 
         String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.org", "sw360-password");
         this.mockMvc.perform(RestDocumentationRequestBuilders.get("/api/projects/12321")
