@@ -115,7 +115,7 @@ and a self link to the actual component resource.
 
 When you follow one of the components's self links,
 you will get more detailed information, including a description,
-embedded realeases and moderators.
+embedded releases and moderators.
 
 [source, json]
 {

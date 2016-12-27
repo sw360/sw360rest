@@ -87,8 +87,8 @@ that describes the problem. The error object has the following structure:
 
 include::{snippets}/should_document_errors/response-fields.adoc[]
 
-For example, a request that attempts to apply a non-existent user will produce a
-`400 Bad Request` response:
+For example, a request that attempts to get a non-existent project will produce a
+`500 Internal Server Error` response:
 
 include::{snippets}/should_document_errors/http-response.adoc[]
 
