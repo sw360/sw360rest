@@ -12,7 +12,7 @@ apply from: "$rootDir/gradle/versioning.gradle"
 buildscript {
     ext {
         springRestdocsVersion = '1.1.2.RELEASE'
-        springBootVersion = '1.4.2.RELEASE'
+        springBootVersion = '1.4.3.RELEASE'
     }
 
     repositories {
