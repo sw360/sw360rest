@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -51,9 +52,8 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
 
             return new ResponseEntity<>(resources, HttpStatus.OK);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            throw (e);
         }
-        return null;
     }
 
     @RequestMapping(USERS_URL + "/{id:.+}")
@@ -61,15 +61,19 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
             @PathVariable("id") String id) {
         try {
             byte[] base64decodedBytes = Base64.getDecoder().decode(id);
-            String decodedId = new String(base64decodedBytes, "utf-8");
+            String decodedId;
+            try {
+                decodedId = new String(base64decodedBytes, "utf-8");
+            } catch (UnsupportedEncodingException e) {
+                throw (new RuntimeException(e));
+            }
 
             User sw360User = userService.getUserByEmail(decodedId);
             HalResourceWidthEmbeddedItems<UserResource> userHalResource = createHalUserResource(sw360User, true);
             return new ResponseEntity<>(userHalResource, HttpStatus.OK);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            throw (e);
         }
-        return null;
     }
 
     @Override

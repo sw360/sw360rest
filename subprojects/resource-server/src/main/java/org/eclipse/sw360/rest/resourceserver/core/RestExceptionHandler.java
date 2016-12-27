@@ -9,17 +9,38 @@
 
 package org.eclipse.sw360.rest.resourceserver.core;
 
-import org.springframework.data.rest.webmvc.support.ExceptionMessage;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.time.Instant;
+
 @ControllerAdvice
 public class RestExceptionHandler {
 
 	@ExceptionHandler(Exception.class)
-    public ResponseEntity<ExceptionMessage> exceptionHandler(Exception e) {
-		return new ResponseEntity<>(new ExceptionMessage(e), HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<ErrorMessage> exceptionHandler(Exception e) {
+		return new ResponseEntity<>(new ErrorMessage(e, HttpStatus.INTERNAL_SERVER_ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
+	@Data
+	@RequiredArgsConstructor
+	private static class ErrorMessage {
+
+		public ErrorMessage(Exception e, HttpStatus httpStatus) {
+			this.httpStatus = httpStatus.value();
+			this.httpError = httpStatus.getReasonPhrase();
+			this.message = e.getMessage();
+		}
+
+        @JsonSerialize(using = JsonInstantSerializer.class)
+		private Instant timestamp = Instant.now();
+		final private int httpStatus;
+		final private String httpError;
+		final private String message;
 	}
 }

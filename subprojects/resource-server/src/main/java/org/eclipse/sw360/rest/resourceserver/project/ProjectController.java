@@ -74,9 +74,8 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
 
             return new ResponseEntity<>(resources, HttpStatus.OK);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            throw e;
         }
-        return null;
     }
 
     @RequestMapping(PROJECTS_URL + "/{id}")
@@ -89,9 +88,8 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
             HalResourceWidthEmbeddedItems<ProjectResource> userHalResource = createHalProjectResource(sw360Project, sw360User, true);
             return new ResponseEntity<>(userHalResource, HttpStatus.OK);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            throw e;
         }
-        return null;
     }
 
     @RequestMapping(value = PROJECTS_URL, method = RequestMethod.POST)

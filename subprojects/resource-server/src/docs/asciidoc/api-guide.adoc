@@ -64,6 +64,12 @@ use of HTTP status codes.
 
 | `404 Not Found`
 | The requested resource did not exist
+
+| `409 Conflict`
+| A conflict can occur, when a resource shall be created and a resource with the same unique attribute (e.g. name) already exists.
+
+| `500 Internal Server Error`
+| An internal server error occurred. Information about the cause can be found in the response body.
 |===
 
 [[overview-headers]]

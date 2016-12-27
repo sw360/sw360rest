@@ -19,7 +19,6 @@ import org.eclipse.sw360.datahandler.thrift.users.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -32,9 +31,8 @@ public class Sw360UserService {
             UserService.Iface sw360UserClient = getThriftUserClient();
             return sw360UserClient.getAllUsers();
         } catch (TException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return Collections.emptyList();
     }
 
     public User getUserByEmail(String email) {
@@ -42,9 +40,8 @@ public class Sw360UserService {
             UserService.Iface sw360UserClient = getThriftUserClient();
             return sw360UserClient.getByEmail(email);
         } catch (TException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
     private UserService.Iface getThriftUserClient() throws TTransportException {
