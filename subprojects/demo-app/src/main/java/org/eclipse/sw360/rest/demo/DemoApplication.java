@@ -77,7 +77,7 @@ public class DemoApplication {
 
     private void createComponent(String name, String version) throws Exception {
         Map<String, String> component = new HashMap<>();
-        component.put("name", name + "4");
+        component.put("name", name);
         component.put("description", name + " is part of the Spring framework");
         component.put("componentType", ComponentType.OSS.toString());
 
