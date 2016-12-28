@@ -80,7 +80,7 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
     }
 
     @RequestMapping(value = PROJECTS_URL, method = RequestMethod.POST)
-    public ResponseEntity createComponent(
+    public ResponseEntity createProject(
             OAuth2Authentication oAuth2Authentication,
             @RequestBody ProjectResource projectResource) {
 
