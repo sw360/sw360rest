@@ -21,7 +21,6 @@ import org.eclipse.sw360.rest.resourceserver.core.HalResourceWidthEmbeddedItems;
 import org.eclipse.sw360.rest.resourceserver.release.Sw360ReleaseService;
 import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.data.rest.webmvc.RepositoryLinksResource;
 import org.springframework.hateoas.*;
@@ -60,13 +59,9 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
     @NonNull
     private final HalHelper halHelper;
 
-    @Value("${sw360.thrift-server-url}")
-    private String thriftServerUrl;
-
     protected final EntityLinks entityLinks;
 
 
-    // @PreAuthorize("hasRole('ROLE_SW360_USER')")
     @RequestMapping(value = COMPONENTS_URL)
     public ResponseEntity<Resources<Resource<ComponentResource>>> getComponents(OAuth2Authentication oAuth2Authentication) {
         String userId = (String) oAuth2Authentication.getPrincipal();

@@ -17,7 +17,6 @@ import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.rest.resourceserver.core.HalHelper;
 import org.eclipse.sw360.rest.resourceserver.core.HalResourceWidthEmbeddedItems;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.data.rest.webmvc.RepositoryLinksResource;
 import org.springframework.hateoas.Resource;
@@ -42,16 +41,12 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 public class ReleaseController implements ResourceProcessor<RepositoryLinksResource> {
     public static final String RELEASES_URL = "/releases";
 
-    @Value("${sw360.thrift-server-url}")
-    private String thriftServerUrl;
-
     @NonNull
     private Sw360ReleaseService releaseService;
 
     @NonNull
     private final HalHelper halHelper;
 
-    // @PreAuthorize("hasRole('ROLE_SW360_USER')")
     @RequestMapping(value = RELEASES_URL)
     public ResponseEntity<Resources<Resource>> getReleasesForUser(OAuth2Authentication oAuth2Authentication) {
         String userId = (String) oAuth2Authentication.getPrincipal();

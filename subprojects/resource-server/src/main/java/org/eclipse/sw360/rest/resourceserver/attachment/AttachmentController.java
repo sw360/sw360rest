@@ -19,7 +19,6 @@ import org.eclipse.sw360.rest.resourceserver.core.HalHelper;
 import org.eclipse.sw360.rest.resourceserver.core.HalResourceWidthEmbeddedItems;
 import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.data.rest.webmvc.RepositoryLinksResource;
 import org.springframework.hateoas.Link;
@@ -50,9 +49,6 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
 
     @NonNull
     private final HalHelper halHelper;
-
-    @Value("${sw360.thrift-server-url}")
-    private String thriftServerUrl;
 
     @RequestMapping(value = ATTACHMENTS_URL, params = "sha1")
     public ResponseEntity<Resource<AttachmentResource>> getAttachmentForSha1(

@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.rest.resourceserver.core.HalResourceWidthEmbeddedItems;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.data.rest.webmvc.RepositoryLinksResource;
 import org.springframework.hateoas.*;
@@ -29,15 +28,11 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
 
     protected final EntityLinks entityLinks;
 
-    @Value("${sw360.thrift-server-url}")
-    private String thriftServerUrl;
-
     private final String USERS_URL = "/users";
 
     @NonNull
     private final Sw360UserService userService;
 
-    // @PreAuthorize("hasRole('ROLE_SW360_USER')")
     @RequestMapping(USERS_URL)
     public ResponseEntity<Resources<Resource<UserResource>>> getUsers() {
         List<User> sw360Users = userService.getAllUsers();

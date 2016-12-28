@@ -19,7 +19,6 @@ import org.eclipse.sw360.rest.resourceserver.core.HalHelper;
 import org.eclipse.sw360.rest.resourceserver.core.HalResourceWidthEmbeddedItems;
 import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.data.rest.webmvc.RepositoryLinksResource;
 import org.springframework.hateoas.Link;
@@ -46,9 +45,6 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 public class ProjectController implements ResourceProcessor<RepositoryLinksResource> {
     private final String PROJECTS_URL = "/projects";
 
-    @Value("${sw360.thrift-server-url}")
-    private String thriftServerUrl;
-
     @NonNull
     private Sw360ProjectService projectService;
 
@@ -58,7 +54,6 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
     @NonNull
     private final HalHelper halHelper;
 
-    // @PreAuthorize("hasRole('ROLE_SW360_USER')")
     @RequestMapping(value = PROJECTS_URL, method = RequestMethod.GET)
     public ResponseEntity<Resources<Resource<ProjectResource>>> getProjectsForUser(OAuth2Authentication oAuth2Authentication) {
         String userId = (String) oAuth2Authentication.getPrincipal();
