@@ -64,7 +64,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
 
     @RequestMapping(value = COMPONENTS_URL)
     public ResponseEntity<Resources<Resource<ComponentResource>>> getComponents(OAuth2Authentication oAuth2Authentication) {
-        String userId = (String) oAuth2Authentication.getPrincipal();
+        String userId = oAuth2Authentication.getName();
         List<Component> components = componentService.getComponentsForUser(userId);
 
         List<Resource<ComponentResource>> componentResources = new ArrayList<>();
@@ -80,7 +80,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
     @RequestMapping(COMPONENTS_URL + "/{id}")
     public ResponseEntity<Resource<ComponentResource>> getComponent(
             @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
-        String userId = (String) oAuth2Authentication.getPrincipal();
+        String userId = oAuth2Authentication.getName();
         Component sw360Component = componentService.getComponentForUserById(id, userId);
         HalResourceWidthEmbeddedItems<ComponentResource> userHalResource = createHalComponentResource(sw360Component, userId, true);
         return new ResponseEntity<>(userHalResource, HttpStatus.OK);
@@ -91,7 +91,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
             OAuth2Authentication oAuth2Authentication,
             @RequestBody ComponentResource componentResource) throws URISyntaxException {
 
-        String userId = (String) oAuth2Authentication.getPrincipal();
+        String userId = oAuth2Authentication.getName();
         Component sw360Component = createComponentFromResource(componentResource);
         sw360Component = componentService.createComponent(sw360Component, userId);
         HalResourceWidthEmbeddedItems<ComponentResource> halResource = createHalComponentResource(sw360Component, userId, true);

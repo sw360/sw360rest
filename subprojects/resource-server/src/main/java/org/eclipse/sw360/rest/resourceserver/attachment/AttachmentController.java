@@ -55,7 +55,7 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
             OAuth2Authentication oAuth2Authentication,
             @RequestParam String sha1) {
         try {
-            String userId = (String) oAuth2Authentication.getPrincipal();
+            String userId = oAuth2Authentication.getName();
             AttachmentInfo attachmentInfo =
                     attachmentService.getAttachmentBySha1ForUser(sha1, userId);
             User sw360User = userService.getUserByEmail(userId);
@@ -76,7 +76,7 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
             @PathVariable("id") String id,
             OAuth2Authentication oAuth2Authentication) {
         try {
-            String userId = (String) oAuth2Authentication.getPrincipal();
+            String userId = oAuth2Authentication.getName();
             User sw360User = userService.getUserByEmail(userId);
             AttachmentInfo attachmentInfo =
                     attachmentService.getAttachmentByIdForUser(id, userId);

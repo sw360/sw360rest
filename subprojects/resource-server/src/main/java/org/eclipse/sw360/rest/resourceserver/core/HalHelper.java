@@ -82,45 +82,6 @@ public class HalHelper {
         halResource.addEmbeddedItem(relation, userResource);
     }
 
-    private void addEmbeddedRelease(HalResourceWidthEmbeddedItems<org.eclipse.sw360.rest.resourceserver.component.ComponentResource> halResource, Release release) {
-        ReleaseResource releaseResource = new ReleaseResource();
-        try {
-            releaseResource.setVersion(release.getVersion());
-            if(release.getClearingState() != null) {
-                releaseResource.setClearingState(release.getClearingState().toString());
-            }
-            Link releaseLink = linkTo(ReleaseController.class).slash("api/releases/" + release.getId()).withSelfRel();
-            releaseResource.add(releaseLink);
-        } catch (Exception e) {
-            log.error("cannot create embedded release with id: " + release.getId());
-        }
-
-        halResource.addEmbeddedItem("releases", releaseResource);
-    }
-
-
-    public void addEmbeddedAttachments(
-            HalResourceWidthEmbeddedItems<ReleaseResource> halResource,
-            Set<Attachment> attachments) {
-        for (Attachment attachment : attachments) {
-            AttachmentResource attachmentResource = new AttachmentResource();
-            try {
-                if (attachment.getAttachmentType() != null) {
-                    attachmentResource.setAttachmentType(attachment.getAttachmentType().toString());
-                }
-                if (attachment.getFilename() != null) {
-                    attachmentResource.setFilename(attachment.getFilename());
-                }
-                Link attachmentLink = linkTo(AttachmentController.class).slash("api/attachments/" + attachment.getAttachmentContentId()).withSelfRel();
-                attachmentResource.add(attachmentLink);
-            } catch (Exception e) {
-                log.error("cannot create embedded attachment with content id: " + attachment.getAttachmentContentId());
-            }
-
-            halResource.addEmbeddedItem("attachments", attachmentResource);
-        }
-
-    }
 
     public HalResourceWidthEmbeddedItems<ReleaseResource> createHalReleaseResource(Release sw360Release, boolean verbose) {
         ReleaseResource releaseResource = new ReleaseResource();
@@ -157,5 +118,43 @@ public class HalHelper {
         return halReleaseResource;
     }
 
+    private void addEmbeddedRelease(HalResourceWidthEmbeddedItems<org.eclipse.sw360.rest.resourceserver.component.ComponentResource> halResource, Release release) {
+        ReleaseResource releaseResource = new ReleaseResource();
+        try {
+            releaseResource.setVersion(release.getVersion());
+            if(release.getClearingState() != null) {
+                releaseResource.setClearingState(release.getClearingState().toString());
+            }
+            Link releaseLink = linkTo(ReleaseController.class).slash("api/releases/" + release.getId()).withSelfRel();
+            releaseResource.add(releaseLink);
+        } catch (Exception e) {
+            log.error("cannot create embedded release with id: " + release.getId());
+        }
 
+        halResource.addEmbeddedItem("releases", releaseResource);
+    }
+
+
+    private void addEmbeddedAttachments(
+            HalResourceWidthEmbeddedItems<ReleaseResource> halResource,
+            Set<Attachment> attachments) {
+        for (Attachment attachment : attachments) {
+            AttachmentResource attachmentResource = new AttachmentResource();
+            try {
+                if (attachment.getAttachmentType() != null) {
+                    attachmentResource.setAttachmentType(attachment.getAttachmentType().toString());
+                }
+                if (attachment.getFilename() != null) {
+                    attachmentResource.setFilename(attachment.getFilename());
+                }
+                Link attachmentLink = linkTo(AttachmentController.class).slash("api/attachments/" + attachment.getAttachmentContentId()).withSelfRel();
+                attachmentResource.add(attachmentLink);
+            } catch (Exception e) {
+                log.error("cannot create embedded attachment with content id: " + attachment.getAttachmentContentId());
+            }
+
+            halResource.addEmbeddedItem("attachments", attachmentResource);
+        }
+
+    }
 }

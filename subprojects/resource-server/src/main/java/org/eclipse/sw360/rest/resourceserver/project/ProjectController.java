@@ -56,7 +56,7 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
 
     @RequestMapping(value = PROJECTS_URL, method = RequestMethod.GET)
     public ResponseEntity<Resources<Resource<ProjectResource>>> getProjectsForUser(OAuth2Authentication oAuth2Authentication) {
-        String userId = (String) oAuth2Authentication.getPrincipal();
+        String userId = oAuth2Authentication.getName();
         List<Project> projects = projectService.getProjectsForUser(userId);
         List<Resource<ProjectResource>> projectResources = new ArrayList<>();
         for (Project sw360Project : projects) {
@@ -72,7 +72,7 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
     @RequestMapping(PROJECTS_URL + "/{id}")
     public ResponseEntity<Resource<ProjectResource>> getProject(
             @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
-        String userId = (String) oAuth2Authentication.getPrincipal();
+        String userId = oAuth2Authentication.getName();
         User sw360User = userService.getUserByEmail(userId);
         Project sw360Project = projectService.getProjectForUserById(id, userId);
         HalResourceWidthEmbeddedItems<ProjectResource> userHalResource = createHalProjectResource(sw360Project, sw360User, true);
@@ -84,7 +84,7 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
             OAuth2Authentication oAuth2Authentication,
             @RequestBody ProjectResource projectResource) {
 
-        String userId = (String) oAuth2Authentication.getPrincipal();
+        String userId = oAuth2Authentication.getName();
         User sw360User = userService.getUserByEmail(userId);
         Project sw360Project = createProjectFromResource(projectResource);
         sw360Project = projectService.createProject(sw360Project, userId);
