@@ -9,7 +9,6 @@
 
 package org.eclipse.sw360.rest.resourceserver.project;
 
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
@@ -23,7 +22,6 @@ import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -38,33 +36,27 @@ public class Sw360ProjectService {
     @Value("${sw360.thrift-server-url}")
     private String thriftServerUrl;
 
-    @NonNull
-    private final Sw360UserService sw360UserService;
-
-    public List<Project> getProjectsForUser(String userId) {
+    public List<Project> getProjectsForUser(User sw360User) {
         try {
             ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
-            User sw360User = sw360UserService.getUserByEmail(userId);
             return sw360ProjectClient.getAccessibleProjectsSummary(sw360User);
         } catch (TException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public Project getProjectForUserById(String projectId, String userId) {
+    public Project getProjectForUserById(String projectId, User sw360User) {
         try {
             ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
-            User sw360User = sw360UserService.getUserByEmail(userId);
             return sw360ProjectClient.getProjectById(projectId, sw360User);
         } catch (TException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public Project createProject(Project project, String userId) {
+    public Project createProject(Project project, User sw360User) {
         try {
             ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
-            User sw360User = sw360UserService.getUserByEmail(userId);
             AddDocumentRequestSummary documentRequestSummary = sw360ProjectClient.addProject(project, sw360User);
             if (documentRequestSummary.getRequestStatus() == AddDocumentRequestStatus.SUCCESS) {
                 project.setId(documentRequestSummary.getId());
@@ -78,10 +70,9 @@ public class Sw360ProjectService {
         return null;
     }
 
-    public void deleteProject(Project project, String userId) {
+    public void deleteProject(Project project, User sw360User) {
         try {
             ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
-            User sw360User = sw360UserService.getUserByEmail(userId);
             RequestStatus requestStatus = sw360ProjectClient.deleteProject(project.getId(), sw360User);
             if (requestStatus == RequestStatus.SUCCESS) {
                 return;
@@ -92,10 +83,9 @@ public class Sw360ProjectService {
         }
     }
 
-    public void deleteAllProjects(String userId) {
+    public void deleteAllProjects(User sw360User) {
         try {
             ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
-            User sw360User = sw360UserService.getUserByEmail(userId);
             List<Project> projects = sw360ProjectClient.getAccessibleProjectsSummary(sw360User);
             for(Project project: projects) {
                 sw360ProjectClient.deleteProject(project.getId(), sw360User);

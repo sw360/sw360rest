@@ -16,10 +16,9 @@ import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentType;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.eclipse.sw360.rest.resourceserver.core.HalHelper;
 import org.eclipse.sw360.rest.resourceserver.core.HalResourceWidthEmbeddedItems;
+import org.eclipse.sw360.rest.resourceserver.core.RestControllerHelper;
 import org.eclipse.sw360.rest.resourceserver.release.Sw360ReleaseService;
-import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.data.rest.webmvc.RepositoryLinksResource;
@@ -54,22 +53,19 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
     private final Sw360ReleaseService releaseService;
 
     @NonNull
-    private final Sw360UserService userService;
-
-    @NonNull
-    private final HalHelper halHelper;
+    private final RestControllerHelper restControllerHelper;
 
     protected final EntityLinks entityLinks;
 
 
     @RequestMapping(value = COMPONENTS_URL)
     public ResponseEntity<Resources<Resource<ComponentResource>>> getComponents(OAuth2Authentication oAuth2Authentication) {
-        String userId = oAuth2Authentication.getName();
-        List<Component> components = componentService.getComponentsForUser(userId);
+        User user = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+        List<Component> components = componentService.getComponentsForUser(user);
 
         List<Resource<ComponentResource>> componentResources = new ArrayList<>();
         for (Component component : components) {
-            HalResourceWidthEmbeddedItems<ComponentResource> componentResource = createHalComponentResource(component, userId, false);
+            HalResourceWidthEmbeddedItems<ComponentResource> componentResource = createHalComponentResource(component, user, false);
             componentResources.add(componentResource);
         }
         Resources<Resource<ComponentResource>> resources = new Resources<>(componentResources);
@@ -80,9 +76,9 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
     @RequestMapping(COMPONENTS_URL + "/{id}")
     public ResponseEntity<Resource<ComponentResource>> getComponent(
             @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
-        String userId = oAuth2Authentication.getName();
-        Component sw360Component = componentService.getComponentForUserById(id, userId);
-        HalResourceWidthEmbeddedItems<ComponentResource> userHalResource = createHalComponentResource(sw360Component, userId, true);
+        User user = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+        Component sw360Component = componentService.getComponentForUserById(id, user);
+        HalResourceWidthEmbeddedItems<ComponentResource> userHalResource = createHalComponentResource(sw360Component, user, true);
         return new ResponseEntity<>(userHalResource, HttpStatus.OK);
     }
 
@@ -91,10 +87,10 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
             OAuth2Authentication oAuth2Authentication,
             @RequestBody ComponentResource componentResource) throws URISyntaxException {
 
-        String userId = oAuth2Authentication.getName();
+        User user = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         Component sw360Component = createComponentFromResource(componentResource);
-        sw360Component = componentService.createComponent(sw360Component, userId);
-        HalResourceWidthEmbeddedItems<ComponentResource> halResource = createHalComponentResource(sw360Component, userId, true);
+        sw360Component = componentService.createComponent(sw360Component, user);
+        HalResourceWidthEmbeddedItems<ComponentResource> halResource = createHalComponentResource(sw360Component, user, true);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{id}")
@@ -109,7 +105,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
         return resource;
     }
 
-    private HalResourceWidthEmbeddedItems<ComponentResource> createHalComponentResource(Component sw360Component, String userId, boolean verbose) {
+    private HalResourceWidthEmbeddedItems<ComponentResource> createHalComponentResource(Component sw360Component, User user, boolean verbose) {
         ComponentResource componentResource = new ComponentResource();
 
         componentResource.setComponentType(String.valueOf(sw360Component.getComponentType()));
@@ -130,21 +126,20 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
 
             if (sw360Component.getReleaseIds() != null) {
                 Set<String> releases = sw360Component.getReleaseIds();
-                halHelper.addEmbeddedReleases(halComponentResource, releases, releaseService, userId);
+                restControllerHelper.addEmbeddedReleases(halComponentResource, releases, releaseService, user);
             }
 
             if (sw360Component.getReleases() != null) {
                 List<Release> releases = sw360Component.getReleases();
-                halHelper.addEmbeddedReleases(halComponentResource, releases);
+                restControllerHelper.addEmbeddedReleases(halComponentResource, releases);
             }
 
             if (sw360Component.getModerators() != null) {
                 Set<String> moderators = sw360Component.getModerators();
-                halHelper.addEmbeddedModerators(halComponentResource, moderators);
+                restControllerHelper.addEmbeddedModerators(halComponentResource, moderators);
             }
 
-            User sw360User = userService.getUserByEmail(userId);
-            halHelper.addEmbeddedUser(halComponentResource, sw360User, "createdBy");
+            restControllerHelper.addEmbeddedUser(halComponentResource, user, "createdBy");
         }
         return halComponentResource;
     }

@@ -19,6 +19,7 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.responseHeaders;
@@ -52,7 +53,7 @@ public class ApiSpec extends RestDocsSpecBase {
 
     @Test
     public void should_document_errors() throws Exception {
-        given(this.projectServiceMock.getProjectForUserById(anyString(), anyString())).willThrow(new RuntimeException(new TException("Internal error processing getProjectById")));
+        given(this.projectServiceMock.getProjectForUserById(anyString(), anyObject())).willThrow(new RuntimeException(new TException("Internal error processing getProjectById")));
 
         String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.org", "sw360-password");
         this.mockMvc.perform(RestDocumentationRequestBuilders.get("/api/projects/12321")

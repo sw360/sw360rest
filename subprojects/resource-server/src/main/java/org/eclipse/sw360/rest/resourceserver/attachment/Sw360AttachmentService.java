@@ -9,7 +9,6 @@
 
 package org.eclipse.sw360.rest.resourceserver.attachment;
 
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
@@ -21,7 +20,6 @@ import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -36,12 +34,8 @@ public class Sw360AttachmentService {
     @Value("${sw360.thrift-server-url}")
     private String thriftServerUrl;
 
-    @NonNull
-    private final Sw360UserService sw360UserService;
-
-    public AttachmentInfo getAttachmentBySha1ForUser(String sha1, String userId) {
+    public AttachmentInfo getAttachmentBySha1ForUser(String sha1, User sw360User) {
         try {
-            User sw360User = sw360UserService.getUserByEmail(userId);
             ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
             List<Release> releases = sw360ComponentClient.getReleaseSummary(sw360User);
             for (Release release : releases) {
@@ -60,9 +54,8 @@ public class Sw360AttachmentService {
         return null;
     }
 
-    public AttachmentInfo getAttachmentByIdForUser(String id, String userId) {
+    public AttachmentInfo getAttachmentByIdForUser(String id, User sw360User) {
         try {
-            User sw360User = sw360UserService.getUserByEmail(userId);
             ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
             List<Release> releases = sw360ComponentClient.getReleaseSummary(sw360User);
             for (Release release : releases) {

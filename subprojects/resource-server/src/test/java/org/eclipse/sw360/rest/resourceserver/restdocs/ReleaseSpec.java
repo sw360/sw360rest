@@ -85,7 +85,7 @@ public class ReleaseSpec extends RestDocsSpecBase {
         releaseList.add(release2);
 
         given(this.releaseServiceMock.getReleasesForUser(anyObject())).willReturn(releaseList);
-        given(this.releaseServiceMock.getReleaseForUserById(eq(release.getId()), anyString())).willReturn(release);
+        given(this.releaseServiceMock.getReleaseForUserById(eq(release.getId()), anyObject())).willReturn(release);
 
         User user = new User();
         user.setId("admin@sw360.org");

@@ -9,6 +9,8 @@
 
 package org.eclipse.sw360.rest.resourceserver.core;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
@@ -16,12 +18,16 @@ import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.rest.resourceserver.attachment.AttachmentController;
 import org.eclipse.sw360.rest.resourceserver.attachment.AttachmentResource;
 import org.eclipse.sw360.rest.resourceserver.component.ComponentController;
+import org.eclipse.sw360.rest.resourceserver.component.ComponentResource;
 import org.eclipse.sw360.rest.resourceserver.release.ReleaseController;
 import org.eclipse.sw360.rest.resourceserver.release.ReleaseResource;
 import org.eclipse.sw360.rest.resourceserver.release.Sw360ReleaseService;
+import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.eclipse.sw360.rest.resourceserver.user.UserController;
 import org.eclipse.sw360.rest.resourceserver.user.UserResource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.Base64;
@@ -32,7 +38,17 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
 @Slf4j
 @Service
-public class HalHelper {
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+public class RestControllerHelper {
+    @NonNull
+    private Sw360UserService userService;
+
+    public User getSw360UserFromAuthentication(OAuth2Authentication oAuth2Authentication) {
+        String userId = oAuth2Authentication.getName();
+        User sw360User = userService.getUserByEmail(userId);
+        return sw360User;
+    }
+
     public void addEmbeddedModerators(HalResourceWidthEmbeddedItems halResource, Set<String> moderators) {
         for (String moderatorEmail : moderators) {
             UserResource userResource = new UserResource();
@@ -50,18 +66,18 @@ public class HalHelper {
     }
 
     public void addEmbeddedReleases(
-            HalResourceWidthEmbeddedItems<org.eclipse.sw360.rest.resourceserver.component.ComponentResource> halResource,
+            HalResourceWidthEmbeddedItems<ComponentResource> halResource,
             Set<String> releases,
             Sw360ReleaseService sw360ReleaseService,
-            String userId) {
+            User user) {
         for (String releaseId : releases) {
-            final Release release = sw360ReleaseService.getReleaseForUserById(releaseId, userId);
+            final Release release = sw360ReleaseService.getReleaseForUserById(releaseId, user);
             addEmbeddedRelease(halResource, release);
         }
     }
 
     public void addEmbeddedReleases(
-            HalResourceWidthEmbeddedItems<org.eclipse.sw360.rest.resourceserver.component.ComponentResource> halResource,
+            HalResourceWidthEmbeddedItems<ComponentResource> halResource,
             List<Release> releases) {
         for (Release release : releases) {
             addEmbeddedRelease(halResource, release);
@@ -83,42 +99,42 @@ public class HalHelper {
     }
 
 
-    public HalResourceWidthEmbeddedItems<ReleaseResource> createHalReleaseResource(Release sw360Release, boolean verbose) {
+    public HalResourceWidthEmbeddedItems<ReleaseResource> createHalReleaseResource(Release release, boolean verbose) {
         ReleaseResource releaseResource = new ReleaseResource();
 
-        releaseResource.setName(sw360Release.getName());
-        releaseResource.setCpeId(sw360Release.getCpeid());
-        releaseResource.setVersion(sw360Release.getVersion());
-        releaseResource.setReleaseDate(sw360Release.getReleaseDate());
-        if (sw360Release.getClearingState() != null) {
-            releaseResource.setClearingState(sw360Release.getClearingState().toString());
+        releaseResource.setName(release.getName());
+        releaseResource.setCpeId(release.getCpeid());
+        releaseResource.setVersion(release.getVersion());
+        releaseResource.setReleaseDate(release.getReleaseDate());
+        if (release.getClearingState() != null) {
+            releaseResource.setClearingState(release.getClearingState().toString());
         }
 
         Link selfLink = linkTo(ReleaseController.class)
-                .slash("api" + ReleaseController.RELEASES_URL + "/" + sw360Release.getId()).withSelfRel();
+                .slash("api" + ReleaseController.RELEASES_URL + "/" + release.getId()).withSelfRel();
         releaseResource.add(selfLink);
 
         Link componentLink = linkTo(ReleaseController.class)
-                .slash("api" + ComponentController.COMPONENTS_URL + "/" + sw360Release.getComponentId()).withRel("component");
+                .slash("api" + ComponentController.COMPONENTS_URL + "/" + release.getComponentId()).withRel("component");
         releaseResource.add(componentLink);
 
         HalResourceWidthEmbeddedItems<ReleaseResource> halReleaseResource = new HalResourceWidthEmbeddedItems<>(releaseResource);
 
         if (verbose) {
-            releaseResource.setType(sw360Release.getType());
-            if (sw360Release.getModerators() != null) {
-                Set<String> moderators = sw360Release.getModerators();
+            releaseResource.setType(release.getType());
+            if (release.getModerators() != null) {
+                Set<String> moderators = release.getModerators();
                 this.addEmbeddedModerators(halReleaseResource, moderators);
             }
-            if (sw360Release.getAttachments() != null) {
-                Set<Attachment> attachments = sw360Release.getAttachments();
+            if (release.getAttachments() != null) {
+                Set<Attachment> attachments = release.getAttachments();
                 this.addEmbeddedAttachments(halReleaseResource, attachments);
             }
         }
         return halReleaseResource;
     }
 
-    private void addEmbeddedRelease(HalResourceWidthEmbeddedItems<org.eclipse.sw360.rest.resourceserver.component.ComponentResource> halResource, Release release) {
+    private void addEmbeddedRelease(HalResourceWidthEmbeddedItems<ComponentResource> halResource, Release release) {
         ReleaseResource releaseResource = new ReleaseResource();
         try {
             releaseResource.setVersion(release.getVersion());

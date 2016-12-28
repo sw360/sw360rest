@@ -69,7 +69,7 @@ public class ProjectSpec  extends RestDocsSpecBase {
         projectList.add(project2);
 
         given(this.projectServiceMock.getProjectsForUser(anyObject())).willReturn(projectList);
-        given(this.projectServiceMock.getProjectForUserById(eq(project.getId()), anyString())).willReturn(project);
+        given(this.projectServiceMock.getProjectForUserById(eq(project.getId()), anyObject())).willReturn(project);
 
         User user = new User();
         user.setId("admin@sw360.org");

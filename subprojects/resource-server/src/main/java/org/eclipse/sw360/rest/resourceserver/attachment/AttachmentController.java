@@ -15,9 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.eclipse.sw360.rest.resourceserver.core.HalHelper;
 import org.eclipse.sw360.rest.resourceserver.core.HalResourceWidthEmbeddedItems;
-import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
+import org.eclipse.sw360.rest.resourceserver.core.RestControllerHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.data.rest.webmvc.RepositoryLinksResource;
@@ -45,20 +44,16 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
     private final Sw360AttachmentService attachmentService;
 
     @NonNull
-    private final Sw360UserService userService;
-
-    @NonNull
-    private final HalHelper halHelper;
+    private final RestControllerHelper restControllerHelper;
 
     @RequestMapping(value = ATTACHMENTS_URL, params = "sha1")
     public ResponseEntity<Resource<AttachmentResource>> getAttachmentForSha1(
             OAuth2Authentication oAuth2Authentication,
             @RequestParam String sha1) {
         try {
-            String userId = oAuth2Authentication.getName();
+            User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
             AttachmentInfo attachmentInfo =
-                    attachmentService.getAttachmentBySha1ForUser(sha1, userId);
-            User sw360User = userService.getUserByEmail(userId);
+                    attachmentService.getAttachmentBySha1ForUser(sha1, sw360User);
             HalResourceWidthEmbeddedItems<AttachmentResource> attachmentResource =
                     createHalAttachmentResource(
                             attachmentInfo.getAttachment(),
@@ -76,10 +71,9 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
             @PathVariable("id") String id,
             OAuth2Authentication oAuth2Authentication) {
         try {
-            String userId = oAuth2Authentication.getName();
-            User sw360User = userService.getUserByEmail(userId);
+            User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
             AttachmentInfo attachmentInfo =
-                    attachmentService.getAttachmentByIdForUser(id, userId);
+                    attachmentService.getAttachmentByIdForUser(id, sw360User);
 
             HalResourceWidthEmbeddedItems<AttachmentResource> attachmentResource =
                     createHalAttachmentResource(attachmentInfo.getAttachment(),
@@ -118,8 +112,8 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
         attachmentResource.add(releaseLink);
 
         HalResourceWidthEmbeddedItems<AttachmentResource> halAttachmentResource = new HalResourceWidthEmbeddedItems<>(attachmentResource);
-        halAttachmentResource.addEmbeddedItem("release", halHelper.createHalReleaseResource(sw360Release, false));
-        halHelper.addEmbeddedUser(halAttachmentResource, sw360User, "createdBy");
+        halAttachmentResource.addEmbeddedItem("release", restControllerHelper.createHalReleaseResource(sw360Release, false));
+        restControllerHelper.addEmbeddedUser(halAttachmentResource, sw360User, "createdBy");
 
         return halAttachmentResource;
     }

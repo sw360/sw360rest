@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectType;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.eclipse.sw360.rest.resourceserver.core.HalHelper;
+import org.eclipse.sw360.rest.resourceserver.core.RestControllerHelper;
 import org.eclipse.sw360.rest.resourceserver.core.HalResourceWidthEmbeddedItems;
 import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,16 +52,16 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
     private Sw360UserService userService;
 
     @NonNull
-    private final HalHelper halHelper;
+    private final RestControllerHelper restControllerHelper;
 
     @RequestMapping(value = PROJECTS_URL, method = RequestMethod.GET)
     public ResponseEntity<Resources<Resource<ProjectResource>>> getProjectsForUser(OAuth2Authentication oAuth2Authentication) {
-        String userId = oAuth2Authentication.getName();
-        List<Project> projects = projectService.getProjectsForUser(userId);
+        User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+        List<Project> projects = projectService.getProjectsForUser(sw360User);
         List<Resource<ProjectResource>> projectResources = new ArrayList<>();
         for (Project sw360Project : projects) {
-            User sw360User = userService.getUserByEmail(sw360Project.getCreatedBy());
-            HalResourceWidthEmbeddedItems<ProjectResource> projectResource = createHalProjectResource(sw360Project, sw360User, false);
+            User sw360ProjectUser = userService.getUserByEmail(sw360Project.getCreatedBy());
+            HalResourceWidthEmbeddedItems<ProjectResource> projectResource = createHalProjectResource(sw360Project, sw360ProjectUser, false);
             projectResources.add(projectResource);
         }
         Resources<Resource<ProjectResource>> resources = new Resources<>(projectResources);
@@ -72,9 +72,8 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
     @RequestMapping(PROJECTS_URL + "/{id}")
     public ResponseEntity<Resource<ProjectResource>> getProject(
             @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
-        String userId = oAuth2Authentication.getName();
-        User sw360User = userService.getUserByEmail(userId);
-        Project sw360Project = projectService.getProjectForUserById(id, userId);
+        User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+        Project sw360Project = projectService.getProjectForUserById(id, sw360User);
         HalResourceWidthEmbeddedItems<ProjectResource> userHalResource = createHalProjectResource(sw360Project, sw360User, true);
         return new ResponseEntity<>(userHalResource, HttpStatus.OK);
     }
@@ -83,11 +82,9 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
     public ResponseEntity createProject(
             OAuth2Authentication oAuth2Authentication,
             @RequestBody ProjectResource projectResource) {
-
-        String userId = oAuth2Authentication.getName();
-        User sw360User = userService.getUserByEmail(userId);
+        User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         Project sw360Project = createProjectFromResource(projectResource);
-        sw360Project = projectService.createProject(sw360Project, userId);
+        sw360Project = projectService.createProject(sw360Project, sw360User);
         HalResourceWidthEmbeddedItems<ProjectResource> halResource = createHalProjectResource(sw360Project, sw360User, true);
         return new ResponseEntity<>(halResource, HttpStatus.CREATED);
     }
@@ -121,12 +118,12 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
         HalResourceWidthEmbeddedItems<ProjectResource> halProjectResource = new HalResourceWidthEmbeddedItems<>(projectResource);
         if (verbose) {
             projectResource.setCreatedOn(sw360Project.getCreatedOn());
-            halHelper.addEmbeddedUser(halProjectResource, sw360User, "createdBy");
+            restControllerHelper.addEmbeddedUser(halProjectResource, sw360User, "createdBy");
             projectResource.setType(sw360Project.getType());
             projectResource.setDescription(sw360Project.getDescription());
             if (sw360Project.getModerators() != null) {
                 Set<String> moderators = sw360Project.getModerators();
-                halHelper.addEmbeddedModerators(halProjectResource, moderators);
+                restControllerHelper.addEmbeddedModerators(halProjectResource, moderators);
             }
         }
 

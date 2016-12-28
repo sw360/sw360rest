@@ -9,7 +9,6 @@
 
 package org.eclipse.sw360.rest.resourceserver.component;
 
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
@@ -21,7 +20,6 @@ import org.eclipse.sw360.datahandler.thrift.AddDocumentRequestSummary;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -35,12 +33,8 @@ public class Sw360ComponentService {
     @Value("${sw360.thrift-server-url}")
     private String thriftServerUrl;
 
-    @NonNull
-    private final Sw360UserService sw360UserService;
-
-    public List<Component> getComponentsForUser(String userId) {
+    public List<Component> getComponentsForUser(User sw360User) {
         try {
-            User sw360User = sw360UserService.getUserByEmail(userId);
             ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
             return sw360ComponentClient.getComponentSummary(sw360User);
         } catch (TException e) {
@@ -48,20 +42,18 @@ public class Sw360ComponentService {
         }
     }
 
-    public Component getComponentForUserById(String componentId, String userId) {
+    public Component getComponentForUserById(String componentId, User sw360User) {
         try {
             ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
-            User sw360User = sw360UserService.getUserByEmail(userId);
             return sw360ComponentClient.getComponentById(componentId, sw360User);
         } catch (TException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public Component createComponent(Component component, String userId) {
+    public Component createComponent(Component component, User sw360User) {
         try {
             ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
-            User sw360User = sw360UserService.getUserByEmail(userId);
             AddDocumentRequestSummary documentRequestSummary = sw360ComponentClient.addComponent(component, sw360User);
             if (documentRequestSummary.getRequestStatus() == AddDocumentRequestStatus.SUCCESS) {
                 component.setId(documentRequestSummary.getId());
