@@ -21,6 +21,11 @@ before_install:
   - curl -o datahandler-1.6.0-SNAPSHOT.jar https://s3.amazonaws.com/sw360restdoc/datahandler-1.6.0-SNAPSHOT.jar
   - mvn install:install-file -Dfile=datahandler-1.6.0-SNAPSHOT.jar -DgroupId=org.eclipse.sw360 -DartifactId=datahandler -Dversion=1.6.0-SNAPSHOT -Dpackaging=jar
 
+install: true
+
+script:
+  - ./gradlew build
+
 deploy:
   provider: s3
   access_key_id: "$ARTIFACTS_KEY"
