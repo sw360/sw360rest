@@ -15,8 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectType;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.eclipse.sw360.rest.resourceserver.core.RestControllerHelper;
 import org.eclipse.sw360.rest.resourceserver.core.HalResourceWidthEmbeddedItems;
+import org.eclipse.sw360.rest.resourceserver.core.RestControllerHelper;
+import org.eclipse.sw360.rest.resourceserver.release.Sw360ReleaseService;
 import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
@@ -33,9 +34,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
@@ -47,6 +46,9 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
 
     @NonNull
     private Sw360ProjectService projectService;
+
+    @NonNull
+    private Sw360ReleaseService releaseService;
 
     @NonNull
     private Sw360UserService userService;
@@ -121,6 +123,17 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
             restControllerHelper.addEmbeddedUser(halProjectResource, sw360User, "createdBy");
             projectResource.setType(sw360Project.getType());
             projectResource.setDescription(sw360Project.getDescription());
+            Set<String> releaseIds = new HashSet<>();
+            if (sw360Project.getReleaseIdToUsage() != null) {
+                Map<String, String> releaseIdToUsage = sw360Project.getReleaseIdToUsage();
+                for(String releaseId: releaseIdToUsage.keySet()) {
+                    // TODO kai Toedter 2016-12-29: Is there a constant for "contained"
+                    if(releaseIdToUsage.get(releaseId).equals("contained")) {
+                        releaseIds.add(releaseId);
+                    }
+                }
+                restControllerHelper.addEmbeddedReleases(halProjectResource, releaseIds, releaseService, sw360User);
+            }
             if (sw360Project.getModerators() != null) {
                 Set<String> moderators = sw360Project.getModerators();
                 restControllerHelper.addEmbeddedModerators(halProjectResource, moderators);

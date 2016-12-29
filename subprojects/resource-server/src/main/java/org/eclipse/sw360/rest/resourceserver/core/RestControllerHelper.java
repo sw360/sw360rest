@@ -18,7 +18,6 @@ import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.rest.resourceserver.attachment.AttachmentController;
 import org.eclipse.sw360.rest.resourceserver.attachment.AttachmentResource;
 import org.eclipse.sw360.rest.resourceserver.component.ComponentController;
-import org.eclipse.sw360.rest.resourceserver.component.ComponentResource;
 import org.eclipse.sw360.rest.resourceserver.release.ReleaseController;
 import org.eclipse.sw360.rest.resourceserver.release.ReleaseResource;
 import org.eclipse.sw360.rest.resourceserver.release.Sw360ReleaseService;
@@ -45,8 +44,7 @@ public class RestControllerHelper {
 
     public User getSw360UserFromAuthentication(OAuth2Authentication oAuth2Authentication) {
         String userId = oAuth2Authentication.getName();
-        User sw360User = userService.getUserByEmail(userId);
-        return sw360User;
+        return userService.getUserByEmail(userId);
     }
 
     public void addEmbeddedModerators(HalResourceWidthEmbeddedItems halResource, Set<String> moderators) {
@@ -66,7 +64,7 @@ public class RestControllerHelper {
     }
 
     public void addEmbeddedReleases(
-            HalResourceWidthEmbeddedItems<ComponentResource> halResource,
+            HalResourceWidthEmbeddedItems halResource,
             Set<String> releases,
             Sw360ReleaseService sw360ReleaseService,
             User user) {
@@ -77,7 +75,7 @@ public class RestControllerHelper {
     }
 
     public void addEmbeddedReleases(
-            HalResourceWidthEmbeddedItems<ComponentResource> halResource,
+            HalResourceWidthEmbeddedItems halResource,
             List<Release> releases) {
         for (Release release : releases) {
             addEmbeddedRelease(halResource, release);
@@ -134,10 +132,13 @@ public class RestControllerHelper {
         return halReleaseResource;
     }
 
-    private void addEmbeddedRelease(HalResourceWidthEmbeddedItems<ComponentResource> halResource, Release release) {
+    private void addEmbeddedRelease(HalResourceWidthEmbeddedItems halResource, Release release) {
         ReleaseResource releaseResource = new ReleaseResource();
         try {
             releaseResource.setVersion(release.getVersion());
+            if(release.getName() != null) {
+                releaseResource.setName(release.getName());
+            }
             if(release.getClearingState() != null) {
                 releaseResource.setClearingState(release.getClearingState().toString());
             }
@@ -152,7 +153,7 @@ public class RestControllerHelper {
 
 
     private void addEmbeddedAttachments(
-            HalResourceWidthEmbeddedItems<ReleaseResource> halResource,
+            HalResourceWidthEmbeddedItems halResource,
             Set<Attachment> attachments) {
         for (Attachment attachment : attachments) {
             AttachmentResource attachmentResource = new AttachmentResource();
