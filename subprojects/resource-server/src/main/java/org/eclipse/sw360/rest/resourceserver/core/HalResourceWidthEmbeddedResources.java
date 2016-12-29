@@ -20,37 +20,37 @@ import java.util.List;
 import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class HalResourceWidthEmbeddedItems<EntityType> extends Resource<EntityType> {
+public class HalResourceWidthEmbeddedResources<T> extends Resource<T> {
 
     private Map<String, Object> embeddedMap;
 
-    public HalResourceWidthEmbeddedItems(EntityType content, Link... links) {
+    public HalResourceWidthEmbeddedResources(T content, Link... links) {
         super(content, links);
     }
 
     @SuppressWarnings("unchecked")
-    public void addEmbeddedItem(String relation, Object embeddedItem) {
+    public void addEmbeddedResource(String relation, Object embeddedResource) {
         if (embeddedMap == null) {
             embeddedMap = new HashMap<>();
         }
-        Object embeddedItems = embeddedMap.get(relation);
-        if (embeddedItems == null) {
-            embeddedItems = embeddedItem;
+        Object embeddedResources = embeddedMap.get(relation);
+        if (embeddedResources == null) {
+            embeddedResources = embeddedResource;
         } else {
-            if (embeddedItems instanceof List) {
-                ((List<Object>) embeddedItems).add(embeddedItem);
+            if (embeddedResources instanceof List) {
+                ((List<Object>) embeddedResources).add(embeddedResource);
             } else {
-                List<Object> embeddedItemsList = new ArrayList<>();
-                embeddedItemsList.add(embeddedItems);
-                embeddedItemsList.add(embeddedItem);
-                embeddedItems = embeddedItemsList;
+                List<Object> embeddedResourcesList = new ArrayList<>();
+                embeddedResourcesList.add(embeddedResources);
+                embeddedResourcesList.add(embeddedResource);
+                embeddedResources = embeddedResourcesList;
             }
         }
-        embeddedMap.put(relation, embeddedItems);
+        embeddedMap.put(relation, embeddedResources);
     }
 
     @JsonProperty("_embedded")
-    public Map<String, Object> getEmbedded() {
+    public Map<String, Object> getEmbeddedRecources() {
         return embeddedMap;
     }
 }

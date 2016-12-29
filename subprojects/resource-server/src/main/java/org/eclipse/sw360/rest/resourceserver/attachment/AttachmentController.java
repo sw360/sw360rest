@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.eclipse.sw360.rest.resourceserver.core.HalResourceWidthEmbeddedItems;
+import org.eclipse.sw360.rest.resourceserver.core.HalResourceWidthEmbeddedResources;
 import org.eclipse.sw360.rest.resourceserver.core.RestControllerHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
@@ -54,7 +54,7 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
             User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
             AttachmentInfo attachmentInfo =
                     attachmentService.getAttachmentBySha1ForUser(sha1, sw360User);
-            HalResourceWidthEmbeddedItems<AttachmentResource> attachmentResource =
+            HalResourceWidthEmbeddedResources<AttachmentResource> attachmentResource =
                     createHalAttachmentResource(
                             attachmentInfo.getAttachment(),
                             attachmentInfo.getRelease(),
@@ -75,7 +75,7 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
             AttachmentInfo attachmentInfo =
                     attachmentService.getAttachmentByIdForUser(id, sw360User);
 
-            HalResourceWidthEmbeddedItems<AttachmentResource> attachmentResource =
+            HalResourceWidthEmbeddedResources<AttachmentResource> attachmentResource =
                     createHalAttachmentResource(attachmentInfo.getAttachment(),
                             attachmentInfo.getRelease(),
                             sw360User);
@@ -86,7 +86,7 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
         return null;
     }
 
-    private HalResourceWidthEmbeddedItems<AttachmentResource> createHalAttachmentResource(
+    private HalResourceWidthEmbeddedResources<AttachmentResource> createHalAttachmentResource(
             Attachment sw360Attachment,
             Release sw360Release,
             User sw360User) {
@@ -111,8 +111,8 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
         Link releaseLink = linkTo(AttachmentController.class).slash("api/releases/" + sw360Release.getId()).withRel("release");
         attachmentResource.add(releaseLink);
 
-        HalResourceWidthEmbeddedItems<AttachmentResource> halAttachmentResource = new HalResourceWidthEmbeddedItems<>(attachmentResource);
-        halAttachmentResource.addEmbeddedItem("release", restControllerHelper.createHalReleaseResource(sw360Release, false));
+        HalResourceWidthEmbeddedResources<AttachmentResource> halAttachmentResource = new HalResourceWidthEmbeddedResources<>(attachmentResource);
+        halAttachmentResource.addEmbeddedResource("release", restControllerHelper.createHalReleaseResource(sw360Release, false));
         restControllerHelper.addEmbeddedUser(halAttachmentResource, sw360User, "createdBy");
 
         return halAttachmentResource;

@@ -4,7 +4,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.eclipse.sw360.rest.resourceserver.core.HalResourceWidthEmbeddedItems;
+import org.eclipse.sw360.rest.resourceserver.core.HalResourceWidthEmbeddedResources;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.data.rest.webmvc.RepositoryLinksResource;
@@ -39,7 +39,7 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
 
         List<Resource<UserResource>> userResources = new ArrayList<>();
         for (User sw360User : sw360Users) {
-            HalResourceWidthEmbeddedItems<UserResource> userHalResource = createHalUserResource(sw360User, false);
+            HalResourceWidthEmbeddedResources<UserResource> userHalResource = createHalUserResource(sw360User, false);
             userResources.add(userHalResource);
         }
         Resources<Resource<UserResource>> resources = new Resources<>(userResources);
@@ -59,7 +59,7 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
         }
 
         User sw360User = userService.getUserByEmail(decodedId);
-        HalResourceWidthEmbeddedItems<UserResource> userHalResource = createHalUserResource(sw360User, true);
+        HalResourceWidthEmbeddedResources<UserResource> userHalResource = createHalUserResource(sw360User, true);
         return new ResponseEntity<>(userHalResource, HttpStatus.OK);
     }
 
@@ -69,7 +69,7 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
         return resource;
     }
 
-    private HalResourceWidthEmbeddedItems<UserResource> createHalUserResource(User sw360User, boolean verbose) {
+    private HalResourceWidthEmbeddedResources<UserResource> createHalUserResource(User sw360User, boolean verbose) {
         UserResource userResource = new UserResource();
 
         userResource.setEmail(sw360User.getEmail());
@@ -93,6 +93,6 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
             userResource.setDepartment(sw360User.getDepartment());
             userResource.setType(sw360User.getType());
         }
-        return new HalResourceWidthEmbeddedItems<>(userResource);
+        return new HalResourceWidthEmbeddedResources<>(userResource);
     }
 }

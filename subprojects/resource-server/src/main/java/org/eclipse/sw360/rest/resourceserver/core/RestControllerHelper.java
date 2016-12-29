@@ -47,7 +47,7 @@ public class RestControllerHelper {
         return userService.getUserByEmail(userId);
     }
 
-    public void addEmbeddedModerators(HalResourceWidthEmbeddedItems halResource, Set<String> moderators) {
+    public void addEmbeddedModerators(HalResourceWidthEmbeddedResources halResource, Set<String> moderators) {
         for (String moderatorEmail : moderators) {
             UserResource userResource = new UserResource();
             userResource.setEmail(moderatorEmail);
@@ -59,12 +59,12 @@ public class RestControllerHelper {
                 log.error("cannot create self link for moderator with email: " + moderatorEmail);
             }
 
-            halResource.addEmbeddedItem("moderators", userResource);
+            halResource.addEmbeddedResource("moderators", userResource);
         }
     }
 
     public void addEmbeddedReleases(
-            HalResourceWidthEmbeddedItems halResource,
+            HalResourceWidthEmbeddedResources halResource,
             Set<String> releases,
             Sw360ReleaseService sw360ReleaseService,
             User user) {
@@ -75,14 +75,14 @@ public class RestControllerHelper {
     }
 
     public void addEmbeddedReleases(
-            HalResourceWidthEmbeddedItems halResource,
+            HalResourceWidthEmbeddedResources halResource,
             List<Release> releases) {
         for (Release release : releases) {
             addEmbeddedRelease(halResource, release);
         }
     }
 
-    public void addEmbeddedUser(HalResourceWidthEmbeddedItems halResource, User user, String relation) {
+    public void addEmbeddedUser(HalResourceWidthEmbeddedResources halResource, User user, String relation) {
         UserResource userResource = new UserResource();
         try {
             userResource.setEmail(user.getEmail());
@@ -93,11 +93,11 @@ public class RestControllerHelper {
             log.error("cannot create embedded user with email: " + user.getEmail());
         }
 
-        halResource.addEmbeddedItem(relation, userResource);
+        halResource.addEmbeddedResource(relation, userResource);
     }
 
 
-    public HalResourceWidthEmbeddedItems<ReleaseResource> createHalReleaseResource(Release release, boolean verbose) {
+    public HalResourceWidthEmbeddedResources<ReleaseResource> createHalReleaseResource(Release release, boolean verbose) {
         ReleaseResource releaseResource = new ReleaseResource();
 
         releaseResource.setName(release.getName());
@@ -116,7 +116,7 @@ public class RestControllerHelper {
                 .slash("api" + ComponentController.COMPONENTS_URL + "/" + release.getComponentId()).withRel("component");
         releaseResource.add(componentLink);
 
-        HalResourceWidthEmbeddedItems<ReleaseResource> halReleaseResource = new HalResourceWidthEmbeddedItems<>(releaseResource);
+        HalResourceWidthEmbeddedResources<ReleaseResource> halReleaseResource = new HalResourceWidthEmbeddedResources<>(releaseResource);
 
         if (verbose) {
             releaseResource.setType(release.getType());
@@ -132,7 +132,7 @@ public class RestControllerHelper {
         return halReleaseResource;
     }
 
-    private void addEmbeddedRelease(HalResourceWidthEmbeddedItems halResource, Release release) {
+    private void addEmbeddedRelease(HalResourceWidthEmbeddedResources halResource, Release release) {
         ReleaseResource releaseResource = new ReleaseResource();
         try {
             releaseResource.setVersion(release.getVersion());
@@ -148,12 +148,12 @@ public class RestControllerHelper {
             log.error("cannot create embedded release with id: " + release.getId());
         }
 
-        halResource.addEmbeddedItem("releases", releaseResource);
+        halResource.addEmbeddedResource("releases", releaseResource);
     }
 
 
     private void addEmbeddedAttachments(
-            HalResourceWidthEmbeddedItems halResource,
+            HalResourceWidthEmbeddedResources halResource,
             Set<Attachment> attachments) {
         for (Attachment attachment : attachments) {
             AttachmentResource attachmentResource = new AttachmentResource();
@@ -170,7 +170,7 @@ public class RestControllerHelper {
                 log.error("cannot create embedded attachment with content id: " + attachment.getAttachmentContentId());
             }
 
-            halResource.addEmbeddedItem("attachments", attachmentResource);
+            halResource.addEmbeddedResource("attachments", attachmentResource);
         }
 
     }
