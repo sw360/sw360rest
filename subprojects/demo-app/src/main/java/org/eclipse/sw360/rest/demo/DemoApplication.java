@@ -186,14 +186,14 @@ public class DemoApplication {
         try (DirectoryStream<Path> stream =
                      Files.newDirectoryStream(dir, "*.jar")) {
             for (Path path : stream) {
-                addCompoment(path.getFileName().toString());
+                addComponent(path.getFileName().toString());
             }
         } catch (IOException e) {
             System.err.println(e);
         }
     }
 
-    private void addCompoment(String jarFile) {
+    private void addComponent(String jarFile) {
         if (jarFile.contains("javadoc") || jarFile.contains("sources")) {
             return;
         }
