@@ -105,7 +105,7 @@ public class DemoApplication {
 
     private void createRelease(String name, String version, String componentId) throws Exception {
         Map<String, String> release = new HashMap<>();
-        release.put("name", name + " " + version);
+        release.put("name", name);
         release.put("componentId", componentId);
         release.put("version", version);
         release.put("clearingState", ClearingState.APPROVED.toString());
