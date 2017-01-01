@@ -27,7 +27,7 @@ This project provides REST infrastructure for sw360, including
 Before you can build and run all the tests, make sure that you have
 
 * Java 8 SDK installed
-* Build the sw360 portal project locally
+* Build the sw360 portal project locally (https://github.com/sw360/sw360portal)
 ** datahandler-1.6.0-SNAPSHOT.jar has to be in your local maven repository
 
 To build an run all tests open a console and type
@@ -181,7 +181,7 @@ The documentation was created with http://docs.spring.io/spring-restdocs/docs/1.
 and reflects the current implementation.
 It is updated automatically with each Travis-CI build.
 
-== Browsing the sw360 REST API
+== Browsing existing sw360 portal data with the sw360 REST API
 
 This is currently work in progress and will be easier in the future.
 
@@ -223,6 +223,27 @@ Now you should see an API browser (Hal-Browser), but you are not authorized yet.
 Copy the whole token (including "Authorization: Bearer") into the "Custom Request Headers" field in the HAL-Browser and click on the "Go!" button.
 
 Now you are authorized and can use the HAL-Browser to navigate through the API.
+
+== Creating a Docker sandbox
+
+This is currently work in progress and will be easier in the future.
+
+Preconditions:
+
+* docker and docker-compose installed
+* Local maven build of the sw360 portal project
+
+To create the Docker sandbox, invoke
+
+* ./gradlew build prepare docker
+* docker-compose build
+* docker-compose up
+* Check/Modify the IP address in the DemoApplication and run it
+* Browse to <docker-host>:9091/api/browser/index.html#/api
+* Copy the same token you used in the previous section into the "Custom Request Headers"
+
+In the future a sandbox token will be created automatically.
+
 
 == License
 

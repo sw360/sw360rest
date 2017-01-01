@@ -32,4 +32,5 @@ security:
           -----END PUBLIC KEY-----
 
 sw360:
-  thrift-server-url: http://localhost:8080
+  thrift-server-url: ${SW360_THRIFT_SERVER_URL:http://localhost:8080}
+#  thrift-server-url: http://localhost:8080

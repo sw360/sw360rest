@@ -23,7 +23,7 @@ import java.util.List;
 
 @Service
 public class Sw360UserService {
-    @Value("${sw360.thrift-server-url}")
+    @Value("${sw360.thrift-server-url:http://localhost:8080}")
     private String thriftServerUrl;
 
     public List<User> getAllUsers() {

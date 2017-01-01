@@ -1,0 +1,35 @@
+apply plugin: "java"
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+ext {
+    sw360Version = '1.6.0-SNAPSHOT'
+}
+
+configurations {
+    sw360ThriftServices
+}
+
+dependencies {
+    sw360ThriftServices "org.eclipse.sw360:svc-attachments:$sw360Version@war"
+    sw360ThriftServices "org.eclipse.sw360:svc-components:$sw360Version@war"
+    sw360ThriftServices "org.eclipse.sw360:svc-fossology:$sw360Version@war"
+    sw360ThriftServices "org.eclipse.sw360:svc-licenseinfo:$sw360Version@war"
+    sw360ThriftServices "org.eclipse.sw360:svc-licenses:$sw360Version@war"
+    sw360ThriftServices "org.eclipse.sw360:svc-moderation:$sw360Version@war"
+    sw360ThriftServices "org.eclipse.sw360:svc-projects:$sw360Version@war"
+    sw360ThriftServices "org.eclipse.sw360:svc-users:$sw360Version@war"
+    sw360ThriftServices "org.eclipse.sw360:svc-vendors:$sw360Version@war"
+    sw360ThriftServices "org.eclipse.sw360:svc-vulnerabilities:$sw360Version@war"
+}
+
+task prepareDocker(type: Copy) {
+    from configurations.sw360ThriftServices
+    into "$buildDir/webapps"
+    rename { String fileName ->
+        fileName.replace("svc-", "").replace("-$sw360Version", "")
+    }
+}

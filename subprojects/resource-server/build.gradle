@@ -15,8 +15,8 @@ apply plugin: 'org.springframework.boot'
 
 jar {
 	baseName = 'sw360-rest-authorization-server'
-	version = '0.0.1'
 }
+apply from: "$rootDir/gradle/prepareDocker.gradle"
 
 dependencies {
 	compile 'org.springframework.boot:spring-boot-starter-web'

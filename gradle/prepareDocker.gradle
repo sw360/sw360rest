@@ -1,0 +1,39 @@
+/*
+ * Copyright Siemens AG, 2016. Part of the SW360 Portal Project.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+
+task deleteDockerDir(type: Delete) {
+    delete "${buildDir}/docker"
+}
+
+task unzipBoot(type: Copy) {
+    def zipFile = file("${buildDir}/libs/${jar.baseName}-${project.version}.jar")
+    def outputDir = file("${buildDir}/docker/app")
+
+    from zipTree(zipFile)
+    into outputDir
+
+    def copyDetails = []
+    eachFile { copyDetails << it }
+    doLast {
+        copyDetails.each { FileCopyDetails details ->
+            def target = new File(outputDir, details.path)
+            if(target.exists()) {
+                target.setLastModified(details.lastModified)
+            }
+        }
+    }
+}
+unzipBoot.dependsOn deleteDockerDir
+
+task prepareDocker() {
+    doLast {
+        ant.move(file: "${buildDir}/docker/app/BOOT-INF/lib", toFile: "${buildDir}/docker/lib")
+    }
+}
+prepareDocker.dependsOn unzipBoot

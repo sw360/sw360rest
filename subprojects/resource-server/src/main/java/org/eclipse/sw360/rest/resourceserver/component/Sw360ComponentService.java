@@ -30,7 +30,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class Sw360ComponentService {
-    @Value("${sw360.thrift-server-url}")
+    @Value("${sw360.thrift-server-url:http://localhost:8080}")
     private String thriftServerUrl;
 
     public List<Component> getComponentsForUser(User sw360User) {

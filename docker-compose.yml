@@ -1,0 +1,29 @@
+version: '2'
+services:
+
+  sw360-couchdb:
+    image: couchdb
+    ports:
+      - 5984:5984
+
+  sw360-thrift-server:
+    build: subprojects/docker-sandbox
+    ports:
+      - 8080:8080
+    links:
+      - sw360-couchdb
+
+  sw360-authorization-server:
+    build: subprojects/authorization-server
+    ports:
+      - 8090:8090
+
+  sw360-resource-server:
+    build: subprojects/resource-server
+    ports:
+      - 8091:8091
+    links:
+      - sw360-thrift-server
+    environment:
+      - SW360_THRIFT_SERVER_URL=http://sw360-thrift-server:8080
+

@@ -32,7 +32,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class Sw360ReleaseService {
-    @Value("${sw360.thrift-server-url}")
+    @Value("${sw360.thrift-server-url:http://localhost:8080}")
     private String thriftServerUrl;
 
     public List<Release> getReleasesForUser(User sw360User) {

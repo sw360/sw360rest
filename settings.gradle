@@ -10,6 +10,7 @@
 include 'authorization-server'
 include 'resource-server'
 include 'demo-app'
+include 'docker-sandbox'
 
 rootProject.name = 'sw360rest'
 rootProject.children.each { project ->

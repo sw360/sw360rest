@@ -33,7 +33,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class Sw360ProjectService {
-    @Value("${sw360.thrift-server-url}")
+    @Value("${sw360.thrift-server-url:http://localhost:8080}")
     private String thriftServerUrl;
 
     public List<Project> getProjectsForUser(User sw360User) {

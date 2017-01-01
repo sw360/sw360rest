@@ -1,6 +1,7 @@
 = sw360 REST Demo Client
 
-This demo client will be started when the REST API is aligned.
+This demo client is in experimental phase.
+Please stay tuned.
 
 == License
 

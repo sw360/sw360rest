@@ -41,11 +41,16 @@ import java.util.Map;
 
 public class DemoApplication {
 
-    private static final String THRIFT_SERVER_URL = "http://localhost:8080";
-    private static final String REST_SERVER_URL = "http://localhost:8091";
-    private static final String AUTH_SERVER_URL = "http://localhost:8090";
-    private static final String SPRING_FRAMEWORK_DIST = "D:/downloads/spring-framework-4.3.5.RELEASE-dist/spring-framework-4.3.5.RELEASE";
+    // Currently assuming the all services running in docker containers
+    private static final String DOCKER_HOST = "http://192.168.99.100";
+    private static final String THRIFT_SERVER_URL = DOCKER_HOST + ":8080";
+    private static final String REST_SERVER_URL = DOCKER_HOST + ":8091";
+    private static final String AUTH_SERVER_URL = DOCKER_HOST + ":8090";
 
+    // to get test data, download
+    // https://repo.spring.io/release/org/springframework/spring/4.3.5.RELEASE/spring-framework-4.3.5.RELEASE-dist.zip
+    // and unzip it. SPRING_FRAMEWORK_DIST has to point to the unzipped distribution
+    private static final String SPRING_FRAMEWORK_DIST = "D:/downloads/spring-framework-4.3.5.RELEASE-dist/spring-framework-4.3.5.RELEASE";
 
     private RestTemplate restTemplate = new RestTemplate();
     private ObjectMapper objectMapper = new ObjectMapper();
