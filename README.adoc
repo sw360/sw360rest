@@ -11,21 +11,29 @@ Please stay tuned...
 
 == Overview
 
-This project provides REST infrastructure for sw360, including
+This project provides a REST API infrastructure for sw360, including
 
-* OAuth2 authorisation server (subproject authorization-server)
-** This is just for having an oauth2 provider for tests
+* OAuth2 Authorisation Server (subproject authorization-server)
+** This is just for having an oauth2 provider for testing authorization
 ** Might be replaced in the future
-* REST API gateway (subproject resource-server)
+* REST API Gateway (subproject resource-server)
 ** Currently in experimental phase to find out what the best mapping to the existing sw360 domain model would be
+* Docker Sandbox (subproject docker-sandbox)
+** This is a minimal docker setup for testing the REST API, it is not supposed to be used in production
+** It contains 4 containers
+*** CouchDB
+*** sw360 Thrift server
+*** OAuth2 Authorisation Server
+*** sw360 REST API Gateway
 * Demo client application (subproject demo-app)
-** Not started yet
 ** It is planned to provide blueprints for common use cases here
+** Currently it only contains a demo app that sets up test data for the docker sandbox
 
 == API Design Principles
 
-The API provides Hypermedia using http://stateless.co/hal_specification.html[HAL] (Hypertext Application Language).
-The following examples show the ideas.
+The REST API provides Hypermedia using http://stateless.co/hal_specification.html[HAL] (Hypertext Application Language).
+The following examples show some ideas of the REST API.
+As mentioned above, this is NOT the final API, it is just a base for discussion.
 
 API root (index):
 [source, json]
