@@ -33,7 +33,8 @@ This project provides a REST API infrastructure for sw360, including
 
 The REST API provides Hypermedia using http://stateless.co/hal_specification.html[HAL] (Hypertext Application Language).
 The following examples show some ideas of the REST API.
-As mentioned above, this is NOT the final API, it is just a base for discussion.
+As mentioned above, this is NOT the final API,
+it is just a base for discussion.
 
 API root (index):
 [source, json]
@@ -68,7 +69,7 @@ API root (index):
 
 When you follow the link "sw360:components" you will get a list of components,
 each containing the basic set of information
-and a self link to the actual component resource.
+and a self link to the actual component resource, e.g.
 
 [source, json]
 {
@@ -108,7 +109,7 @@ and a self link to the actual component resource.
 
 When you follow one of the components's self links,
 you will get more detailed information, including a description,
-embedded releases and moderators.
+embedded releases and moderators, e.g.
 
 [source, json]
 {
@@ -203,7 +204,7 @@ To create the Docker sandbox, invoke
 * docker-compose build
 * docker-compose up
 * Check/Modify the IP address in the DemoApplication and run it
-* Browse to <docker-host>:9091/browser.html#/api
+* Browse to <docker-host>:8091/browser.html#/api
 ** This version of the HAL browser contains a oauth2 bearer token for the docker sandbox
 
 The docker-sandbox does not contain any test data yet.
