@@ -22,10 +22,12 @@ dependencies {
 	compile 'org.springframework.boot:spring-boot-starter-web'
 	compile 'org.springframework.boot:spring-boot-starter-security'
     compile 'org.springframework.boot:spring-boot-starter-data-rest'
-	compile 'org.springframework.data:spring-data-rest-hal-browser'
 	compile 'org.springframework.security.oauth:spring-security-oauth2'
 	compile 'org.springframework.security:spring-security-jwt'
 	compile 'org.projectlombok:lombok:1.16.12'
+
+    // exclude this if you don't want to deploy the HAL browser with the resource server
+	compile 'org.springframework.data:spring-data-rest-hal-browser'
 
 	compile 'org.apache.thrift:libthrift:0.9.3'
 	compile ("org.eclipse.sw360:datahandler:1.6.0-SNAPSHOT") {

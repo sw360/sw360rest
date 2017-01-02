@@ -50,7 +50,7 @@ public class DemoApplication {
     // to get test data, download
     // https://repo.spring.io/release/org/springframework/spring/4.3.5.RELEASE/spring-framework-4.3.5.RELEASE-dist.zip
     // and unzip it. SPRING_FRAMEWORK_DIST has to point to the unzipped distribution
-    private static final String SPRING_FRAMEWORK_DIST = "D:/downloads/spring-framework-4.3.5.RELEASE-dist/spring-framework-4.3.5.RELEASE";
+    private static final String SPRING_FRAMEWORK_DIST = "D:/downloads/spring-framework-4.3.5.RELEASE";
 
     private RestTemplate restTemplate = new RestTemplate();
     private ObjectMapper objectMapper = new ObjectMapper();

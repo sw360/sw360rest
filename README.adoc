@@ -22,21 +22,6 @@ This project provides REST infrastructure for sw360, including
 ** Not started yet
 ** It is planned to provide blueprints for common use cases here
 
-== Getting Started
-
-Before you can build and run all the tests, make sure that you have
-
-* Java 8 SDK installed
-* Build the sw360 portal project locally (https://github.com/sw360/sw360portal)
-** datahandler-1.6.0-SNAPSHOT.jar has to be in your local maven repository
-
-To build an run all tests open a console and type
-
-* Linux/Mac: ./gradlew build
-* Windows: gradlew build
-
-In the following description I use "./gradlew", Windows users always just have to type "gradlew" instead.
-
 == API Design Principles
 
 The API provides Hypermedia using http://stateless.co/hal_specification.html[HAL] (Hypertext Application Language).
@@ -181,17 +166,61 @@ The documentation was created with http://docs.spring.io/spring-restdocs/docs/1.
 and reflects the current implementation.
 It is updated automatically with each Travis-CI build.
 
+
+== Getting Started
+
+Before you can build and run all the tests, make sure that you have
+
+* Java 8 SDK installed
+* Build the sw360 portal project locally (https://github.com/sw360/sw360portal)
+** datahandler-1.6.0-SNAPSHOT.jar has to be in your local maven repository
+
+To build an run all tests open a console and type
+
+* Linux/Mac: ./gradlew build
+* Windows: gradlew build
+
+In the following description I use "./gradlew", Windows users always just have to type "gradlew" instead.
+
+== Creating a Docker sandbox
+
+Preconditions:
+
+* docker and docker-compose installed
+* Local maven build of the sw360 portal project
+
+To create the Docker sandbox, invoke
+
+* ./gradlew build preparedocker
+* docker-compose build
+* docker-compose up
+* Check/Modify the IP address in the DemoApplication and run it
+* Browse to <docker-host>:9091/browser.html#/api
+** This version of the HAL browser contains a oauth2 bearer token for the docker sandbox
+
+The docker-sandbox does not contain any test data yet.
+To fill it with test data, do the following steps (will be more automated in the future):
+
+* Download https://repo.spring.io/release/org/springframework/spring/4.3.5.RELEASE/spring-framework-4.3.5.RELEASE-dist.zip
+* Unzip it
+* Modify class DemoApplication subprojects/demo-app:
+** DOCKER_HOST to your docker host
+** SPRING_FRAMEWORK_DIST to your unzipped Spring framework dist
+* Run class DemoApplication
+
 == Browsing existing sw360 portal data with the sw360 REST API
 
 This is currently work in progress and will be easier in the future.
 
 The precondition for browsing the real sw360 data using the REST API is that you
-have all the sw360 Thrift services running. You could change the Thrift services URL by editing
-subprojects/resource-server/src/main/resources/application.yml. The default configuration is:
+have all the sw360 Thrift services running. You could change the Thrift services URL by
+setting the environment variable SW360_THRIFT_SERVER_URL to your local sw360 thrift server,
+e.g. http://localhost:8080 or you could edit
+edit subprojects/resource-server/src/main/resources/application.yml. The default configuration is:
 
 [source, yml]
 sw360:
-  thrift-server-url: http://localhost:8080
+  thrift-server-url: ${SW360_THRIFT_SERVER_URL:http://localhost:8080}
 
 Furthermore you need to configure the hardcoded sw360 user id in
 the authorization server to match the id/email of an existing sw360 user.
@@ -206,7 +235,9 @@ sw360:
 Right now you have to start both the authorization server as well as the resource server in 2 separate console windows:
 
 * ./gradlew authorization-server:bootrun
+** starts the authorization server at localhost:8090
 * ./gradlew resource-server:bootrun
+** starts the resource server at localhost:8091
 
 Then get an oauth2 token from the authorization server by running
 
@@ -223,27 +254,6 @@ Now you should see an API browser (Hal-Browser), but you are not authorized yet.
 Copy the whole token (including "Authorization: Bearer") into the "Custom Request Headers" field in the HAL-Browser and click on the "Go!" button.
 
 Now you are authorized and can use the HAL-Browser to navigate through the API.
-
-== Creating a Docker sandbox
-
-This is currently work in progress and will be easier in the future.
-
-Preconditions:
-
-* docker and docker-compose installed
-* Local maven build of the sw360 portal project
-
-To create the Docker sandbox, invoke
-
-* ./gradlew build prepare docker
-* docker-compose build
-* docker-compose up
-* Check/Modify the IP address in the DemoApplication and run it
-* Browse to <docker-host>:9091/api/browser/index.html#/api
-* Copy the same token you used in the previous section into the "Custom Request Headers"
-
-In the future a sandbox token will be created automatically.
-
 
 == License
 
