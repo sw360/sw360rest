@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectType;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.eclipse.sw360.rest.resourceserver.core.HalResourceWidthEmbeddedResources;
+import org.eclipse.sw360.rest.resourceserver.core.HalResource;
 import org.eclipse.sw360.rest.resourceserver.core.RestControllerHelper;
 import org.eclipse.sw360.rest.resourceserver.release.Sw360ReleaseService;
 import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
@@ -63,7 +63,7 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
         List<Resource<ProjectResource>> projectResources = new ArrayList<>();
         for (Project sw360Project : projects) {
             User sw360ProjectUser = userService.getUserByEmail(sw360Project.getCreatedBy());
-            HalResourceWidthEmbeddedResources<ProjectResource> projectResource = createHalProjectResource(sw360Project, sw360ProjectUser, false);
+            HalResource<ProjectResource> projectResource = createHalProjectResource(sw360Project, sw360ProjectUser, false);
             projectResources.add(projectResource);
         }
         Resources<Resource<ProjectResource>> resources = new Resources<>(projectResources);
@@ -76,7 +76,7 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
             @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
         User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         Project sw360Project = projectService.getProjectForUserById(id, sw360User);
-        HalResourceWidthEmbeddedResources<ProjectResource> userHalResource = createHalProjectResource(sw360Project, sw360User, true);
+        HalResource<ProjectResource> userHalResource = createHalProjectResource(sw360Project, sw360User, true);
         return new ResponseEntity<>(userHalResource, HttpStatus.OK);
     }
 
@@ -87,7 +87,7 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
         User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         Project sw360Project = createProjectFromResource(projectResource);
         sw360Project = projectService.createProject(sw360Project, sw360User);
-        HalResourceWidthEmbeddedResources<ProjectResource> halResource = createHalProjectResource(sw360Project, sw360User, true);
+        HalResource<ProjectResource> halResource = createHalProjectResource(sw360Project, sw360User, true);
         return new ResponseEntity<>(halResource, HttpStatus.CREATED);
     }
 
@@ -107,17 +107,18 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
         return project;
     }
 
-    private HalResourceWidthEmbeddedResources<ProjectResource> createHalProjectResource(Project sw360Project, User sw360User, boolean verbose) {
+    private HalResource<ProjectResource> createHalProjectResource(Project sw360Project, User sw360User, boolean verbose) {
         ProjectResource projectResource = new ProjectResource();
 
         projectResource.setProjectType(String.valueOf(sw360Project.getProjectType()));
         projectResource.setName(sw360Project.getName());
 
+        HalResource<ProjectResource> halProjectResource = new HalResource<>(projectResource);
+
         String projectUUID = sw360Project.getId();
         Link selfLink = linkTo(ProjectController.class).slash("api" + PROJECTS_URL + "/" + projectUUID).withSelfRel();
-        projectResource.add(selfLink);
+        halProjectResource.add(selfLink);
 
-        HalResourceWidthEmbeddedResources<ProjectResource> halProjectResource = new HalResourceWidthEmbeddedResources<>(projectResource);
         if (verbose) {
             projectResource.setCreatedOn(sw360Project.getCreatedOn());
             restControllerHelper.addEmbeddedUser(halProjectResource, sw360User, "createdBy");

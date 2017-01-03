@@ -14,7 +14,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.core.Relation;
 
 @Data
@@ -23,7 +22,7 @@ import org.springframework.hateoas.core.Relation;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Relation(collectionRelation = "attachments")
-public class AttachmentResource extends ResourceSupport {
+public class AttachmentResource {
     private String filename;
     private String sha1;
     private String attachmentType;

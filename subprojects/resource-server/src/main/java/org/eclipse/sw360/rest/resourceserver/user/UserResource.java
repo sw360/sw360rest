@@ -14,7 +14,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.core.Relation;
 
 @Data
@@ -23,7 +22,7 @@ import org.springframework.hateoas.core.Relation;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Relation(collectionRelation = "users")
-public class UserResource extends ResourceSupport {
+public class UserResource {
     private String type;
     private String email;
     private String userGroup;

@@ -14,7 +14,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.core.Relation;
 
 import java.util.Set;
@@ -25,7 +24,7 @@ import java.util.Set;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Relation(collectionRelation = "components")
-public class ComponentResource extends ResourceSupport {
+public class ComponentResource {
     private String type;
     private String name;
     private String componentType;

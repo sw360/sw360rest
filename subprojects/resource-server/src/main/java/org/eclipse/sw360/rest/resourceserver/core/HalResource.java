@@ -20,11 +20,11 @@ import java.util.List;
 import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class HalResourceWidthEmbeddedResources<T> extends Resource<T> {
+public class HalResource<T> extends Resource<T> {
 
     private Map<String, Object> embeddedMap;
 
-    public HalResourceWidthEmbeddedResources(T content, Link... links) {
+    public HalResource(T content, Link... links) {
         super(content, links);
     }
 

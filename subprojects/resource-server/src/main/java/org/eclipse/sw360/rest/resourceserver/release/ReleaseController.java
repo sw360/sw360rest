@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.components.ClearingState;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.eclipse.sw360.rest.resourceserver.core.HalResourceWidthEmbeddedResources;
+import org.eclipse.sw360.rest.resourceserver.core.HalResource;
 import org.eclipse.sw360.rest.resourceserver.core.RestControllerHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
@@ -55,7 +55,7 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
         List<Resource> releaseResources = new ArrayList<>();
 
         for (Release release : releases) {
-            HalResourceWidthEmbeddedResources releaseResource = restControllerHelper.createHalReleaseResource(release, false);
+            HalResource releaseResource = restControllerHelper.createHalReleaseResource(release, false);
             releaseResources.add(releaseResource);
         }
         Resources<Resource> resources = new Resources<>(releaseResources);
@@ -68,7 +68,7 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
             @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
         User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         Release sw360Release = releaseService.getReleaseForUserById(id, sw360User);
-        HalResourceWidthEmbeddedResources halReleaseResource = restControllerHelper.createHalReleaseResource(sw360Release, true);
+        HalResource halReleaseResource = restControllerHelper.createHalReleaseResource(sw360Release, true);
         return new ResponseEntity<>(halReleaseResource, HttpStatus.OK);
     }
 
@@ -79,7 +79,7 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
         User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         Release sw360Release = createReleaseFromResource(releaseResource);
         sw360Release = releaseService.createRelease(sw360Release, sw360User);
-        HalResourceWidthEmbeddedResources<ReleaseResource> halResource = restControllerHelper.createHalReleaseResource(sw360Release, true);
+        HalResource<ReleaseResource> halResource = restControllerHelper.createHalReleaseResource(sw360Release, true);
         return new ResponseEntity<>(halResource, HttpStatus.CREATED);
     }
 

@@ -16,7 +16,7 @@ import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentType;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.eclipse.sw360.rest.resourceserver.core.HalResourceWidthEmbeddedResources;
+import org.eclipse.sw360.rest.resourceserver.core.HalResource;
 import org.eclipse.sw360.rest.resourceserver.core.RestControllerHelper;
 import org.eclipse.sw360.rest.resourceserver.release.Sw360ReleaseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +65,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
 
         List<Resource<ComponentResource>> componentResources = new ArrayList<>();
         for (Component component : components) {
-            HalResourceWidthEmbeddedResources<ComponentResource> componentResource = createHalComponentResource(component, user, false);
+            HalResource<ComponentResource> componentResource = createHalComponentResource(component, user, false);
             componentResources.add(componentResource);
         }
         Resources<Resource<ComponentResource>> resources = new Resources<>(componentResources);
@@ -78,7 +78,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
             @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
         User user = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         Component sw360Component = componentService.getComponentForUserById(id, user);
-        HalResourceWidthEmbeddedResources<ComponentResource> userHalResource = createHalComponentResource(sw360Component, user, true);
+        HalResource<ComponentResource> userHalResource = createHalComponentResource(sw360Component, user, true);
         return new ResponseEntity<>(userHalResource, HttpStatus.OK);
     }
 
@@ -90,7 +90,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
         User user = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         Component sw360Component = createComponentFromResource(componentResource);
         sw360Component = componentService.createComponent(sw360Component, user);
-        HalResourceWidthEmbeddedResources<ComponentResource> halResource = createHalComponentResource(sw360Component, user, true);
+        HalResource<ComponentResource> halResource = createHalComponentResource(sw360Component, user, true);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{id}")
@@ -105,7 +105,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
         return resource;
     }
 
-    private HalResourceWidthEmbeddedResources<ComponentResource> createHalComponentResource(Component sw360Component, User user, boolean verbose) {
+    private HalResource<ComponentResource> createHalComponentResource(Component sw360Component, User user, boolean verbose) {
         ComponentResource componentResource = new ComponentResource();
 
         componentResource.setComponentType(String.valueOf(sw360Component.getComponentType()));
@@ -113,12 +113,10 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
         componentResource.setCreatedOn(sw360Component.getCreatedOn());
         componentResource.setVendorNames(sw360Component.getVendorNames());
 
+        HalResource<ComponentResource> halComponentResource = new HalResource<>(componentResource);
         String componentUUID = sw360Component.getId();
         Link selfLink = linkTo(ComponentController.class).slash("api/components/" + componentUUID).withSelfRel();
-        componentResource.add(selfLink);
-
-
-        HalResourceWidthEmbeddedResources<ComponentResource> halComponentResource = new HalResourceWidthEmbeddedResources<>(componentResource);
+        halComponentResource.add(selfLink);
 
         if (verbose) {
             componentResource.setType(sw360Component.getType());

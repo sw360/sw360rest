@@ -14,7 +14,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.core.Relation;
 
 @Data
@@ -23,7 +22,7 @@ import org.springframework.hateoas.core.Relation;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Relation(collectionRelation = "releases")
-public class ReleaseResource extends ResourceSupport {
+public class ReleaseResource {
     private String version;
     private String componentId;
     private String name;
