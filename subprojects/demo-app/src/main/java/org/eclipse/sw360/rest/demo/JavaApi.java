@@ -7,22 +7,12 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-/*
- * Copyright Siemens AG, 2016. Part of the SW360 Portal Project.
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
-
 package org.eclipse.sw360.rest.demo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.sw360.datahandler.thrift.components.ClearingState;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentType;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectType;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -39,19 +29,17 @@ import java.util.Map;
 
 public class JavaApi {
 
-    // Currently assuming the all services running in docker containers
-    private static final String DOCKER_HOST = "http://192.168.99.100";
-    private static final String REST_SERVER_URL = DOCKER_HOST + ":8091";
-    private static final String AUTH_SERVER_URL = DOCKER_HOST + ":8090";
-
-    // to get test data, download
-    // https://repo.spring.io/release/org/springframework/spring/4.3.5.RELEASE/spring-framework-4.3.5.RELEASE-dist.zip
-    // and unzip it. SPRING_FRAMEWORK_DIST has to point to the unzipped distribution
-    private static final String SPRING_FRAMEWORK_DIST = "D:/downloads/spring-framework-4.3.5.RELEASE";
+    private final String REST_SERVER_URL;
+    private final String AUTH_SERVER_URL;
 
     private RestTemplate restTemplate = new RestTemplate();
     private ObjectMapper objectMapper = new ObjectMapper();
     private String accessToken;
+
+    public JavaApi(String dockerHost) {
+        REST_SERVER_URL = dockerHost + ":8091";
+        AUTH_SERVER_URL = dockerHost + ":8090";
+    }
 
     public void createProject(String name, String description) throws Exception {
         Map<String, String> project = new HashMap<>();
@@ -90,7 +78,6 @@ public class JavaApi {
         restTemplate.postForObject(REST_SERVER_URL + "/api/releases", httpEntity, String.class);
     }
 
-    @NotNull
     private HttpEntity<String> getHttpEntity(Map<String, String> component) throws IOException {
         String jsonBody = this.objectMapper.writeValueAsString(component);
         HttpHeaders headers = getHeadersWithBearerToken(getAccessToken());

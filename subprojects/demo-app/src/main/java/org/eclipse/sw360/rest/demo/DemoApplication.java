@@ -33,7 +33,7 @@ public class DemoApplication {
     // and unzip it. SPRING_FRAMEWORK_DIST has to point to the unzipped distribution
     private static final String SPRING_FRAMEWORK_DIST = "D:/downloads/spring-framework-4.3.5.RELEASE";
 
-    private JavaApi javaApi = new JavaApi();
+    private JavaApi javaApi = new JavaApi(DOCKER_HOST);
 
     private void checkAndCreateAdminUser() throws TException {
         THttpClient thriftClient = new THttpClient(THRIFT_SERVER_URL + "/users/thrift");
