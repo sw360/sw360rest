@@ -9,14 +9,12 @@
 
 package org.eclipse.sw360.rest.demo;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.sw360.datahandler.thrift.components.ClearingState;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentType;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectType;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -35,6 +33,9 @@ public class JavaApi {
     private RestTemplate restTemplate = new RestTemplate();
     private ObjectMapper objectMapper = new ObjectMapper();
     private String accessToken;
+    private String projectsUrl;
+    private String componentsUrl;
+    private String releasesUrl;
 
     public JavaApi(String dockerHost) {
         REST_SERVER_URL = dockerHost + ":8091";
@@ -49,7 +50,7 @@ public class JavaApi {
 
         HttpEntity<String> httpEntity = getHttpEntity(project);
 
-        restTemplate.postForObject(REST_SERVER_URL + "/api/projects", httpEntity, String.class);
+        restTemplate.postForObject(projectsUrl, httpEntity, String.class);
     }
 
     public String createComponent(String name) throws Exception {
@@ -60,7 +61,7 @@ public class JavaApi {
 
         HttpEntity<String> httpEntity = getHttpEntity(component);
 
-        URI location = restTemplate.postForLocation(REST_SERVER_URL + "/api/components", httpEntity);
+        URI location = restTemplate.postForLocation(componentsUrl, httpEntity);
         String path = location.getPath();
         String componentId = path.substring(path.lastIndexOf('/') + 1);
         return componentId;
@@ -75,7 +76,26 @@ public class JavaApi {
 
         HttpEntity<String> httpEntity = getHttpEntity(release);
 
-        restTemplate.postForObject(REST_SERVER_URL + "/api/releases", httpEntity, String.class);
+        restTemplate.postForObject(releasesUrl, httpEntity, String.class);
+    }
+
+    public void getLinksFromApiRoot() throws Exception {
+        Map<String, String> dummy = new HashMap<>();
+        HttpEntity<String> httpEntity = getHttpEntity(dummy);
+
+        ResponseEntity<String> response =
+                restTemplate.exchange(REST_SERVER_URL + "/api",
+                        HttpMethod.GET,
+                        httpEntity,
+                        String.class);
+
+        JsonNode responseNode = new ObjectMapper().readTree(response.getBody());
+
+        JsonNode linksNode = responseNode.get("_links");
+        String curieName = linksNode.get("curies").get(0).get("name").asText();
+        this.projectsUrl = linksNode.get(curieName + ":projects").get("href").asText();
+        this.componentsUrl = linksNode.get(curieName + ":components").get("href").asText();
+        this.releasesUrl = linksNode.get(curieName + ":releases").get("href").asText();
     }
 
     private HttpEntity<String> getHttpEntity(Map<String, String> component) throws IOException {
@@ -91,7 +111,8 @@ public class JavaApi {
 
             ResponseEntity<String> response =
                     restTemplate
-                            .postForEntity(AUTH_SERVER_URL + "/oauth/token?grant_type=password&username=admin@sw360.org&password=sw360-admin-password",
+                            .postForEntity(AUTH_SERVER_URL + "/oauth/token?"
+                                    + "grant_type=password&username=admin@sw360.org&password=sw360-admin-password",
                                     httpEntity,
                                     String.class);
 
@@ -104,7 +125,8 @@ public class JavaApi {
 
     private HttpHeaders getHeadersForAccessToken() throws UnsupportedEncodingException {
         String clientCredentials = "trusted-sw360-client:sw360-secret";
-        String base64ClientCredentials = Base64.getEncoder().encodeToString(clientCredentials.getBytes("utf-8"));
+        String base64ClientCredentials =
+                Base64.getEncoder().encodeToString(clientCredentials.getBytes("utf-8"));
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Basic " + base64ClientCredentials);

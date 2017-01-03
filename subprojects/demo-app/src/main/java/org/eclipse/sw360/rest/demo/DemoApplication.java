@@ -52,6 +52,7 @@ public class DemoApplication {
     }
 
     private void createSpringFramework() throws Exception {
+        javaApi.getLinksFromApiRoot();
         javaApi.createProject(
                 "Spring Framework",
                 "The Spring Framework provides a comprehensive programming"
