@@ -62,7 +62,7 @@ public class Sw360ProjectService {
                 project.setId(documentRequestSummary.getId());
                 return project;
             } else if (documentRequestSummary.getRequestStatus() == AddDocumentRequestStatus.DUPLICATE) {
-                throw new DataIntegrityViolationException("sw360 project with name '" + project.getName() + " already exists.");
+                throw new DataIntegrityViolationException("sw360 project with name '" + project.getName() + "' already exists.");
             }
         } catch (TException e) {
             throw new RuntimeException(e);

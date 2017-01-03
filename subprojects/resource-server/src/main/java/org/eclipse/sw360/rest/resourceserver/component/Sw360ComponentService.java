@@ -59,7 +59,7 @@ public class Sw360ComponentService {
                 component.setId(documentRequestSummary.getId());
                 return component;
             } else if (documentRequestSummary.getRequestStatus() == AddDocumentRequestStatus.DUPLICATE) {
-                throw new DataIntegrityViolationException("sw360 component with name '" + component.getName() + " already exists.");
+                throw new DataIntegrityViolationException("sw360 component with name '" + component.getName() + "' already exists.");
             }
         } catch (TException e) {
             throw new RuntimeException(e);

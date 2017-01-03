@@ -177,6 +177,5 @@ public class RestControllerHelper {
 
             halResource.addEmbeddedResource("attachments", halAttachmentResource);
         }
-
     }
 }

@@ -61,7 +61,7 @@ public class Sw360ReleaseService {
                 release.setId(documentRequestSummary.getId());
                 return release;
             } else if (documentRequestSummary.getRequestStatus() == AddDocumentRequestStatus.DUPLICATE) {
-                throw new DataIntegrityViolationException("sw360 release with name '" + release.getName() + " already exists.");
+                throw new DataIntegrityViolationException("sw360 release with name '" + release.getName() + "' already exists.");
             }
         } catch (TException e) {
             throw new RuntimeException(e);
