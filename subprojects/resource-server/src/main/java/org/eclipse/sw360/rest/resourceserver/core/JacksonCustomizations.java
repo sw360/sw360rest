@@ -234,7 +234,6 @@ class JacksonCustomizations {
                 "id",
                 "revision",
                 "permissions",
-                "componentId",
                 "createdBy",
                 "moderators",
                 "setAttachments",

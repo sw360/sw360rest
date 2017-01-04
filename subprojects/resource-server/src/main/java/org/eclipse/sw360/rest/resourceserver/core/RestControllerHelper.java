@@ -104,6 +104,7 @@ public class RestControllerHelper {
         Link componentLink = linkTo(ReleaseController.class)
                 .slash("api" + ComponentController.COMPONENTS_URL + "/" + release.getComponentId()).withRel("component");
         halRelease.add(componentLink);
+        release.setComponentId(null);
 
         if (verbose) {
             if (release.getModerators() != null) {
@@ -130,7 +131,6 @@ public class RestControllerHelper {
 
         halResource.addEmbeddedResource("releases", halRelease);
     }
-
 
     private void addEmbeddedAttachments(
             HalResource halResource,
