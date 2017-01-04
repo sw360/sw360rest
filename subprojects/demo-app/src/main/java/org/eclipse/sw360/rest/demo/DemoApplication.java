@@ -19,6 +19,7 @@ import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
 import org.eclipse.sw360.datahandler.thrift.users.UserService;
 import org.springframework.web.client.HttpServerErrorException;
 
+import java.net.URI;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -75,8 +76,8 @@ public class DemoApplication {
         String componentName = jarFile.substring(0, indexOfFirstDigit - 1);
         String componentVersion = jarFile.substring(indexOfFirstDigit, jarFile.length() - 4);
 
-        String componentId = javaApi.createComponent(componentName);
-        javaApi.createRelease(componentName, componentVersion, componentId);
+        URI componentURI = javaApi.createComponent(componentName);
+        javaApi.createRelease(componentName, componentVersion, componentURI);
     }
 
     public static void main(String[] args) throws Exception {

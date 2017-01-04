@@ -53,7 +53,7 @@ public class JavaApi {
         restTemplate.postForObject(projectsUrl, httpEntity, String.class);
     }
 
-    public String createComponent(String name) throws Exception {
+    public URI createComponent(String name) throws Exception {
         Map<String, String> component = new HashMap<>();
         component.put("name", name);
         component.put("description", name + " is part of the Spring framework");
@@ -62,15 +62,13 @@ public class JavaApi {
         HttpEntity<String> httpEntity = getHttpEntity(component);
 
         URI location = restTemplate.postForLocation(componentsUrl, httpEntity);
-        String path = location.getPath();
-        String componentId = path.substring(path.lastIndexOf('/') + 1);
-        return componentId;
+        return location;
     }
 
-    public void createRelease(String name, String version, String componentId) throws Exception {
+    public void createRelease(String name, String version, URI componentURI) throws Exception {
         Map<String, String> release = new HashMap<>();
         release.put("name", name);
-        release.put("componentId", componentId);
+        release.put("componentId", componentURI.toString());
         release.put("version", version);
         release.put("clearingState", ClearingState.APPROVED.toString());
 

@@ -30,6 +30,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,9 +77,14 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
     @RequestMapping(value = RELEASES_URL, method = RequestMethod.POST)
     public ResponseEntity<Resource<Release>> createRelease(
             OAuth2Authentication oAuth2Authentication,
-            @RequestBody Release releaseResource) {
+            @RequestBody Release release) throws URISyntaxException {
         User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
-        Release sw360Release = releaseService.createRelease(releaseResource, sw360User);
+        URI componentURI = new URI(release.getComponentId());
+        String path = componentURI.getPath();
+        String componentId = path.substring(path.lastIndexOf('/') + 1);
+        release.setComponentId(componentId);
+
+        Release sw360Release = releaseService.createRelease(release, sw360User);
         HalResource<Release> halResource = restControllerHelper.createHalReleaseResource(sw360Release, true);
         return new ResponseEntity<>(halResource, HttpStatus.CREATED);
     }
