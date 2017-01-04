@@ -25,6 +25,7 @@ import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.eclipse.sw360.rest.resourceserver.user.UserController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
+import org.springframework.hateoas.Resource;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.stereotype.Service;
 
@@ -83,18 +84,19 @@ public class RestControllerHelper {
     }
 
     public void addEmbeddedUser(HalResource halResource, User user, String relation) {
-        User userResource = new User();
-        HalResource<User> halUser = new HalResource<>(userResource);
+        User embeddedUser = new User();
+        Resource<User> embeddedUserResource = new Resource<>(embeddedUser);
         try {
-            userResource.setEmail(user.getEmail());
+            embeddedUser.setEmail(user.getEmail());
+            embeddedUser.setType(null);
             String userUUID = Base64.getEncoder().encodeToString(user.getEmail().getBytes("utf-8"));
             Link userLink = linkTo(UserController.class).slash("api/users/" + userUUID).withSelfRel();
-            halUser.add(userLink);
+            embeddedUserResource.add(userLink);
         } catch (Exception e) {
             log.error("cannot create embedded user with email: " + user.getEmail());
         }
 
-        halResource.addEmbeddedResource(relation, halUser);
+        halResource.addEmbeddedResource(relation, embeddedUserResource);
     }
 
 

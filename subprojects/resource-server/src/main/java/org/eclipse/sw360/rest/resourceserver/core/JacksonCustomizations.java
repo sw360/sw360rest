@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.springframework.context.annotation.Bean;
@@ -33,6 +34,7 @@ class JacksonCustomizations {
         public Sw360Module() {
             setMixInAnnotation(Project.class, Sw360Module.ProjectMixin.class);
             setMixInAnnotation(User.class, Sw360Module.UserMixin.class);
+            setMixInAnnotation(Component.class, Sw360Module.ComponentMixin.class);
         }
 
         @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -133,9 +135,94 @@ class JacksonCustomizations {
                 "setDepartment"
         })
         static abstract class UserMixin extends User {
-            @Override @JsonProperty("fullName") abstract public String getFullname();
-            @Override @JsonProperty("givenName") abstract public String getGivenname();
-            @Override @JsonProperty("lastName") abstract public String getLastname();
+            @Override
+            @JsonProperty("fullName")
+            abstract public String getFullname();
+
+            @Override
+            @JsonProperty("givenName")
+            abstract public String getGivenname();
+
+            @Override
+            @JsonProperty("lastName")
+            abstract public String getLastname();
+        }
+
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        @JsonIgnoreProperties({
+                "id",
+                "revision",
+                "attachments",
+                "createdBy",
+                "subscribers",
+                "moderators",
+                "releases",
+                "releaseIds",
+                "mainLicenseIds",
+                "categories",
+                "languages",
+                "softwarePlatforms",
+                "operatingSystems",
+                "homepage",
+                "mailinglist",
+                "wiki",
+                "blog",
+                "wikipedia",
+                "openHub",
+                "documentState",
+                "permissions",
+                "setId",
+                "setRevision",
+                "setType",
+                "setName",
+                "setDescription",
+                "setAttachments",
+                "setCreatedOn",
+                "setCreatedBy",
+                "setSubscribers",
+                "setModerators",
+                "releasesSize",
+                "setReleases",
+                "setReleaseIds",
+                "setCategories",
+                "languagesSize",
+                "setLanguages",
+                "setVendorNames",
+                "setHomepage",
+                "setMailinglist",
+                "setWiki",
+                "setBlog",
+                "setWikipedia",
+                "setOpenHub",
+                "setPermissions",
+                "attachmentsSize",
+                "attachmentsIterator",
+                "setComponentType",
+                "subscribersSize",
+                "subscribersIterator",
+                "moderatorsSize",
+                "moderatorsIterator",
+                "releasesIterator",
+                "releaseIdsSize",
+                "releaseIdsIterator",
+                "mainLicenseIdsSize",
+                "mainLicenseIdsIterator",
+                "setMainLicenseIds",
+                "categoriesSize",
+                "categoriesIterator",
+                "languagesIterator",
+                "softwarePlatformsSize",
+                "softwarePlatformsIterator",
+                "setSoftwarePlatforms",
+                "operatingSystemsSize",
+                "operatingSystemsIterator",
+                "setOperatingSystems",
+                "vendorNamesSize",
+                "vendorNamesIterator",
+                "setDocumentState",
+                "permissionsSize",
+        })
+        static abstract class ComponentMixin {
         }
     }
 }

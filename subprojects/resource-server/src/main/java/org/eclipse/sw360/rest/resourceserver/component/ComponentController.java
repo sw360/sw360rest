@@ -13,7 +13,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
-import org.eclipse.sw360.datahandler.thrift.components.ComponentType;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.rest.resourceserver.core.HalResource;
@@ -22,7 +21,9 @@ import org.eclipse.sw360.rest.resourceserver.release.Sw360ReleaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.data.rest.webmvc.RepositoryLinksResource;
-import org.springframework.hateoas.*;
+import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.ResourceProcessor;
+import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -55,42 +56,46 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
     @NonNull
     private final RestControllerHelper restControllerHelper;
 
-    protected final EntityLinks entityLinks;
-
-
     @RequestMapping(value = COMPONENTS_URL)
-    public ResponseEntity<Resources<Resource<ComponentResource>>> getComponents(OAuth2Authentication oAuth2Authentication) {
+    public ResponseEntity<Resources<Resource<Component>>> getComponents(OAuth2Authentication oAuth2Authentication) {
         User user = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         List<Component> components = componentService.getComponentsForUser(user);
 
-        List<Resource<ComponentResource>> componentResources = new ArrayList<>();
+        List<Resource<Component>> componentResources = new ArrayList<>();
         for (Component component : components) {
-            HalResource<ComponentResource> componentResource = createHalComponentResource(component, user, false);
+            // TODO Kai Tödter 2017-01-04
+            // Find better way to decrease details in list resources,
+            // e.g. apply projections or Jackson Mixins
+            component.setDescription(null);
+            component.setType(null);
+            component.setCreatedOn(null);
+            component.setVendorNames(null);
+
+            Resource<Component> componentResource = new Resource<>(component);
             componentResources.add(componentResource);
         }
-        Resources<Resource<ComponentResource>> resources = new Resources<>(componentResources);
+        Resources<Resource<Component>> resources = new Resources<>(componentResources);
 
         return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
     @RequestMapping(COMPONENTS_URL + "/{id}")
-    public ResponseEntity<Resource<ComponentResource>> getComponent(
+    public ResponseEntity<Resource<Component>> getComponent(
             @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
         User user = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         Component sw360Component = componentService.getComponentForUserById(id, user);
-        HalResource<ComponentResource> userHalResource = createHalComponentResource(sw360Component, user, true);
+        HalResource<Component> userHalResource = createHalComponent(sw360Component, user);
         return new ResponseEntity<>(userHalResource, HttpStatus.OK);
     }
 
     @RequestMapping(value = COMPONENTS_URL, method = RequestMethod.POST)
-    public ResponseEntity<Resource<ComponentResource>> createComponent(
+    public ResponseEntity<Resource<Component>> createComponent(
             OAuth2Authentication oAuth2Authentication,
-            @RequestBody ComponentResource componentResource) throws URISyntaxException {
+            @RequestBody Component component) throws URISyntaxException {
 
         User user = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
-        Component sw360Component = createComponentFromResource(componentResource);
-        sw360Component = componentService.createComponent(sw360Component, user);
-        HalResource<ComponentResource> halResource = createHalComponentResource(sw360Component, user, true);
+        Component sw360Component = componentService.createComponent(component, user);
+        HalResource<Component> halResource = createHalComponent(sw360Component, user);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{id}")
@@ -105,53 +110,26 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
         return resource;
     }
 
-    private HalResource<ComponentResource> createHalComponentResource(Component sw360Component, User user, boolean verbose) {
-        ComponentResource componentResource = new ComponentResource();
+    private HalResource<Component> createHalComponent(Component sw360Component, User user) {
+        HalResource<Component> halComponent = new HalResource<>(sw360Component);
 
-        componentResource.setComponentType(String.valueOf(sw360Component.getComponentType()));
-        componentResource.setName(sw360Component.getName());
-        componentResource.setCreatedOn(sw360Component.getCreatedOn());
-        componentResource.setVendorNames(sw360Component.getVendorNames());
-
-        HalResource<ComponentResource> halComponentResource = new HalResource<>(componentResource);
-        String componentUUID = sw360Component.getId();
-        Link selfLink = linkTo(ComponentController.class).slash("api/components/" + componentUUID).withSelfRel();
-        halComponentResource.add(selfLink);
-
-        if (verbose) {
-            componentResource.setType(sw360Component.getType());
-            componentResource.setDescription(sw360Component.getDescription());
-
-            if (sw360Component.getReleaseIds() != null) {
-                Set<String> releases = sw360Component.getReleaseIds();
-                restControllerHelper.addEmbeddedReleases(halComponentResource, releases, releaseService, user);
-            }
-
-            if (sw360Component.getReleases() != null) {
-                List<Release> releases = sw360Component.getReleases();
-                restControllerHelper.addEmbeddedReleases(halComponentResource, releases);
-            }
-
-            if (sw360Component.getModerators() != null) {
-                Set<String> moderators = sw360Component.getModerators();
-                restControllerHelper.addEmbeddedModerators(halComponentResource, moderators);
-            }
-
-            restControllerHelper.addEmbeddedUser(halComponentResource, user, "createdBy");
+        if (sw360Component.getReleaseIds() != null) {
+            Set<String> releases = sw360Component.getReleaseIds();
+            restControllerHelper.addEmbeddedReleases(halComponent, releases, releaseService, user);
         }
-        return halComponentResource;
+
+        if (sw360Component.getReleases() != null) {
+            List<Release> releases = sw360Component.getReleases();
+            restControllerHelper.addEmbeddedReleases(halComponent, releases);
+        }
+
+        if (sw360Component.getModerators() != null) {
+            Set<String> moderators = sw360Component.getModerators();
+            restControllerHelper.addEmbeddedModerators(halComponent, moderators);
+        }
+
+        restControllerHelper.addEmbeddedUser(halComponent, user, "createdBy");
+
+        return halComponent;
     }
-
-    private Component createComponentFromResource(ComponentResource componentResource) {
-        Component component = new Component();
-
-        component.setType(componentResource.getType());
-        component.setComponentType(ComponentType.valueOf(componentResource.getComponentType()));
-        component.setName(componentResource.getName());
-        component.setDescription(componentResource.getDescription());
-        component.setCreatedOn(componentResource.getCreatedOn());
-
-        return component;
-    }
-
 }
