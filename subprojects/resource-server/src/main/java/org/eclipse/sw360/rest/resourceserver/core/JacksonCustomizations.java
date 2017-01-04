@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.springframework.context.annotation.Bean;
@@ -35,6 +36,7 @@ class JacksonCustomizations {
             setMixInAnnotation(Project.class, Sw360Module.ProjectMixin.class);
             setMixInAnnotation(User.class, Sw360Module.UserMixin.class);
             setMixInAnnotation(Component.class, Sw360Module.ComponentMixin.class);
+            setMixInAnnotation(Release.class, Sw360Module.ReleaseMixin.class);
         }
 
         @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -223,6 +225,65 @@ class JacksonCustomizations {
                 "permissionsSize",
         })
         static abstract class ComponentMixin {
+        }
+
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        @JsonIgnoreProperties({
+                "id",
+                "revision",
+                "permissions",
+                "componentId",
+                "createdBy",
+                "moderators",
+                "setAttachments",
+                "setCreatedOn",
+                "setRepository",
+                "setFossologyId",
+                "setCreatedBy",
+                "setModerators",
+                "setSubscribers",
+                "setVendor",
+                "setVendorId",
+                "languagesSize",
+                "setLanguages",
+                "setCotsDetails",
+                "setDownloadurl",
+                "setPermissions",
+                "externalIdsSize",
+                "attachmentsSize",
+                "setMainlineState",
+                "setClearingState",
+                "setAttachmentInFossology",
+                "contributorsSize",
+                "setContributors",
+                "moderatorsSize",
+                "moderatorsIterator",
+                "subscribersSize",
+                "setClearingInformation",
+                "operatingSystemsSize",
+                "setOperatingSystems",
+                "mainLicenseIdsSize",
+                "setMainLicenseIds",
+                "releaseIdToRelationshipSize",
+                "setReleaseIdToRelationship",
+                "setDocumentState",
+                "permissionsSize",
+                "setId",
+                "setRevision",
+                "setType",
+                "setCpeid",
+                "setName",
+                "setVersion",
+                "setComponentId",
+                "setReleaseDate",
+                "setExternalIds",
+                "clearingTeamToFossologyStatusSize",
+                "setClearingTeamToFossologyStatus"
+        })
+        static abstract class ReleaseMixin extends Release {
+            @Override
+            @JsonProperty("cpeId")
+            abstract public String getCpeid();
         }
     }
 }

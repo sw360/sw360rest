@@ -19,7 +19,6 @@ import org.eclipse.sw360.rest.resourceserver.attachment.AttachmentController;
 import org.eclipse.sw360.rest.resourceserver.attachment.AttachmentResource;
 import org.eclipse.sw360.rest.resourceserver.component.ComponentController;
 import org.eclipse.sw360.rest.resourceserver.release.ReleaseController;
-import org.eclipse.sw360.rest.resourceserver.release.ReleaseResource;
 import org.eclipse.sw360.rest.resourceserver.release.Sw360ReleaseService;
 import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.eclipse.sw360.rest.resourceserver.user.UserController;
@@ -100,60 +99,37 @@ public class RestControllerHelper {
     }
 
 
-    public HalResource<ReleaseResource> createHalReleaseResource(Release release, boolean verbose) {
-        ReleaseResource releaseResource = new ReleaseResource();
-
-        releaseResource.setName(release.getName());
-        releaseResource.setCpeId(release.getCpeid());
-        releaseResource.setVersion(release.getVersion());
-        releaseResource.setReleaseDate(release.getReleaseDate());
-        if (release.getClearingState() != null) {
-            releaseResource.setClearingState(release.getClearingState().toString());
-        }
-
-        HalResource<ReleaseResource> halReleaseResource = new HalResource<>(releaseResource);
-        Link selfLink = linkTo(ReleaseController.class)
-                .slash("api" + ReleaseController.RELEASES_URL + "/" + release.getId()).withSelfRel();
-        halReleaseResource.add(selfLink);
+    public HalResource<Release> createHalReleaseResource(Release release, boolean verbose) {
+        HalResource<Release> halRelease = new HalResource<>(release);
 
         Link componentLink = linkTo(ReleaseController.class)
                 .slash("api" + ComponentController.COMPONENTS_URL + "/" + release.getComponentId()).withRel("component");
-        halReleaseResource.add(componentLink);
-
+        halRelease.add(componentLink);
 
         if (verbose) {
-            releaseResource.setType(release.getType());
             if (release.getModerators() != null) {
                 Set<String> moderators = release.getModerators();
-                this.addEmbeddedModerators(halReleaseResource, moderators);
+                this.addEmbeddedModerators(halRelease, moderators);
             }
             if (release.getAttachments() != null) {
                 Set<Attachment> attachments = release.getAttachments();
-                this.addEmbeddedAttachments(halReleaseResource, attachments);
+                this.addEmbeddedAttachments(halRelease, attachments);
             }
         }
-        return halReleaseResource;
+        return halRelease;
     }
 
     private void addEmbeddedRelease(HalResource halResource, Release release) {
-        ReleaseResource releaseResource = new ReleaseResource();
-        HalResource<ReleaseResource> halReleaseResource = new HalResource<>(releaseResource);
+        release.setType(null);
+        HalResource<Release> halRelease = new HalResource<>(release);
         try {
-            releaseResource.setVersion(release.getVersion());
-            if (release.getName() != null) {
-                releaseResource.setName(release.getName());
-            }
-            if (release.getClearingState() != null) {
-                releaseResource.setClearingState(release.getClearingState().toString());
-            }
-
             Link releaseLink = linkTo(ReleaseController.class).slash("api/releases/" + release.getId()).withSelfRel();
-            halReleaseResource.add(releaseLink);
+            halRelease.add(releaseLink);
         } catch (Exception e) {
             log.error("cannot create embedded release with id: " + release.getId());
         }
 
-        halResource.addEmbeddedResource("releases", halReleaseResource);
+        halResource.addEmbeddedResource("releases", halRelease);
     }
 
 
