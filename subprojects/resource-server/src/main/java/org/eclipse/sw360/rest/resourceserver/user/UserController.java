@@ -4,11 +4,13 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.eclipse.sw360.rest.resourceserver.core.HalResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.data.rest.webmvc.RepositoryLinksResource;
-import org.springframework.hateoas.*;
+import org.springframework.hateoas.EntityLinks;
+import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.ResourceProcessor;
+import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,27 +30,36 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
 
     protected final EntityLinks entityLinks;
 
-    private final String USERS_URL = "/users";
+    static final String USERS_URL = "/users";
 
     @NonNull
     private final Sw360UserService userService;
 
     @RequestMapping(USERS_URL)
-    public ResponseEntity<Resources<Resource<UserResource>>> getUsers() {
+    public ResponseEntity<Resources<Resource<User>>> getUsers() {
         List<User> sw360Users = userService.getAllUsers();
 
-        List<Resource<UserResource>> userResources = new ArrayList<>();
+        List<Resource<User>> userResources = new ArrayList<>();
         for (User sw360User : sw360Users) {
-            HalResource<UserResource> userHalResource = createHalUserResource(sw360User, false);
-            userResources.add(userHalResource);
+            // TODO Kai Tödter 2017-01-04
+            // Find better way to decrease details in list resources,
+            // e.g. apply projections or Jackson Mixins
+            sw360User.setType(null);
+            sw360User.setFullname(null);
+            sw360User.setGivenname(null);
+            sw360User.setLastname(null);
+            sw360User.setDepartment(null);
+
+            Resource<User> userResource = new Resource<>(sw360User);
+            userResources.add(userResource);
         }
-        Resources<Resource<UserResource>> resources = new Resources<>(userResources);
+        Resources<Resource<User>> resources = new Resources<>(userResources);
 
         return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
     @RequestMapping(USERS_URL + "/{id:.+}")
-    public ResponseEntity<Resource<UserResource>> getUser(
+    public ResponseEntity<Resource<User>> getUser(
             @PathVariable("id") String id) {
         byte[] base64decodedBytes = Base64.getDecoder().decode(id);
         String decodedId;
@@ -59,41 +70,13 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
         }
 
         User sw360User = userService.getUserByEmail(decodedId);
-        HalResource<UserResource> userHalResource = createHalUserResource(sw360User, true);
-        return new ResponseEntity<>(userHalResource, HttpStatus.OK);
+        Resource<User> userResource = new Resource<>(sw360User);
+        return new ResponseEntity<>(userResource, HttpStatus.OK);
     }
 
     @Override
     public RepositoryLinksResource process(RepositoryLinksResource resource) {
         resource.add(linkTo(UserController.class).slash("api/users").withRel("users"));
         return resource;
-    }
-
-    private HalResource<UserResource> createHalUserResource(User sw360User, boolean verbose) {
-        UserResource userResource = new UserResource();
-
-        userResource.setEmail(sw360User.getEmail());
-        if (sw360User.getUserGroup() != null) {
-            userResource.setUserGroup(sw360User.getUserGroup().toString());
-        }
-        userResource.setFullName(sw360User.getFullname());
-
-        HalResource<UserResource> halUserResource = new HalResource<>(userResource);
-        try {
-            String userUUID = Base64.getEncoder().encodeToString(userResource.getEmail().getBytes("utf-8"));
-            Link selfLink = linkTo(UserController.class).slash("api/users/" + userUUID).withSelfRel();
-            halUserResource.add(selfLink);
-        } catch (Exception e) {
-            log.error("cannot create self link");
-            return null;
-        }
-
-        if (verbose) {
-            userResource.setGivenName(sw360User.getGivenname());
-            userResource.setLastName(sw360User.getLastname());
-            userResource.setDepartment(sw360User.getDepartment());
-            userResource.setType(sw360User.getType());
-        }
-        return halUserResource;
     }
 }

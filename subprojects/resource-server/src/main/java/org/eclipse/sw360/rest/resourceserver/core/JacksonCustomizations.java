@@ -11,9 +11,11 @@ package org.eclipse.sw360.rest.resourceserver.core;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -30,6 +32,7 @@ class JacksonCustomizations {
 
         public Sw360Module() {
             setMixInAnnotation(Project.class, Sw360Module.ProjectMixin.class);
+            setMixInAnnotation(User.class, Sw360Module.UserMixin.class);
         }
 
         @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -107,8 +110,32 @@ class JacksonCustomizations {
                 "setWiki",
                 "setReleaseIds",
                 "setPermissions",
-                })
+        })
         static abstract class ProjectMixin {
+        }
+
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        @JsonIgnoreProperties({
+                "id",
+                "revision",
+                "externalid",
+                "wantsMailNotification",
+                "setWantsMailNotification",
+                "setId",
+                "setRevision",
+                "setType",
+                "setEmail",
+                "setUserGroup",
+                "setExternalid",
+                "setFullname",
+                "setGivenname",
+                "setLastname",
+                "setDepartment"
+        })
+        static abstract class UserMixin extends User {
+            @Override @JsonProperty("fullName") abstract public String getFullname();
+            @Override @JsonProperty("givenName") abstract public String getGivenname();
+            @Override @JsonProperty("lastName") abstract public String getLastname();
         }
     }
 }

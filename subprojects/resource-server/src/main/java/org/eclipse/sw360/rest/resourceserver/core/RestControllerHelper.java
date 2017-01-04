@@ -23,7 +23,6 @@ import org.eclipse.sw360.rest.resourceserver.release.ReleaseResource;
 import org.eclipse.sw360.rest.resourceserver.release.Sw360ReleaseService;
 import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.eclipse.sw360.rest.resourceserver.user.UserController;
-import org.eclipse.sw360.rest.resourceserver.user.UserResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -49,18 +48,18 @@ public class RestControllerHelper {
 
     public void addEmbeddedModerators(HalResource halResource, Set<String> moderators) {
         for (String moderatorEmail : moderators) {
-            UserResource userResource = new UserResource();
-            HalResource<UserResource> halUserResource = new HalResource<>(userResource);
+            User userResource = new User();
+            HalResource<User> halUser = new HalResource<>(userResource);
             userResource.setEmail(moderatorEmail);
             try {
                 String userUUID = Base64.getEncoder().encodeToString(moderatorEmail.getBytes("utf-8"));
                 Link moderatorSelfLink = linkTo(UserController.class).slash("api/users/" + userUUID).withSelfRel();
-                halUserResource.add(moderatorSelfLink);
+                halUser.add(moderatorSelfLink);
             } catch (Exception e) {
                 log.error("cannot create self link for moderator with email: " + moderatorEmail);
             }
 
-            halResource.addEmbeddedResource("moderators", halUserResource);
+            halResource.addEmbeddedResource("moderators", halUser);
         }
     }
 
@@ -84,18 +83,18 @@ public class RestControllerHelper {
     }
 
     public void addEmbeddedUser(HalResource halResource, User user, String relation) {
-        UserResource userResource = new UserResource();
-        HalResource<UserResource> halUserResource = new HalResource<>(userResource);
+        User userResource = new User();
+        HalResource<User> halUser = new HalResource<>(userResource);
         try {
             userResource.setEmail(user.getEmail());
             String userUUID = Base64.getEncoder().encodeToString(user.getEmail().getBytes("utf-8"));
             Link userLink = linkTo(UserController.class).slash("api/users/" + userUUID).withSelfRel();
-            halUserResource.add(userLink);
+            halUser.add(userLink);
         } catch (Exception e) {
             log.error("cannot create embedded user with email: " + user.getEmail());
         }
 
-        halResource.addEmbeddedResource(relation, halUserResource);
+        halResource.addEmbeddedResource(relation, halUser);
     }
 
 
