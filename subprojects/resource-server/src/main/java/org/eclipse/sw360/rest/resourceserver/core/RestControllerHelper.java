@@ -16,7 +16,6 @@ import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.rest.resourceserver.attachment.AttachmentController;
-import org.eclipse.sw360.rest.resourceserver.attachment.AttachmentResource;
 import org.eclipse.sw360.rest.resourceserver.component.ComponentController;
 import org.eclipse.sw360.rest.resourceserver.release.ReleaseController;
 import org.eclipse.sw360.rest.resourceserver.release.Sw360ReleaseService;
@@ -137,15 +136,9 @@ public class RestControllerHelper {
             HalResource halResource,
             Set<Attachment> attachments) {
         for (Attachment attachment : attachments) {
-            AttachmentResource attachmentResource = new AttachmentResource();
-            HalResource<AttachmentResource> halAttachmentResource = new HalResource<>(attachmentResource);
+
+            HalResource<Attachment> halAttachmentResource = new HalResource<>(attachment);
             try {
-                if (attachment.getAttachmentType() != null) {
-                    attachmentResource.setAttachmentType(attachment.getAttachmentType().toString());
-                }
-                if (attachment.getFilename() != null) {
-                    attachmentResource.setFilename(attachment.getFilename());
-                }
                 Link attachmentLink = linkTo(AttachmentController.class).slash("api/attachments/" + attachment.getAttachmentContentId()).withSelfRel();
                 halAttachmentResource.add(attachmentLink);
             } catch (Exception e) {

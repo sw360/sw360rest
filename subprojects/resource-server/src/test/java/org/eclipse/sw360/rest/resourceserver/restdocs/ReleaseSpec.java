@@ -131,6 +131,7 @@ public class ReleaseSpec extends RestDocsSpecBase {
                                 fieldWithPath("clearingState").description("The clearing of the release, possible values are " + Arrays.asList(ClearingState.values())),
                                 fieldWithPath("cpeId").description("The CPE id"),
                                 fieldWithPath("releaseDate").description("The date of this release"),
+                                fieldWithPath("createdOn").description("The creation date of the internal sw360 release"),
                                 fieldWithPath("type").description("is always 'release'"),
                                 fieldWithPath("_embedded.moderators").description("An array of all release moderators with email and link to their <<resources-user-get,User resource>>"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")

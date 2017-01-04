@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
@@ -37,6 +38,7 @@ class JacksonCustomizations {
             setMixInAnnotation(User.class, Sw360Module.UserMixin.class);
             setMixInAnnotation(Component.class, Sw360Module.ComponentMixin.class);
             setMixInAnnotation(Release.class, Sw360Module.ReleaseMixin.class);
+            setMixInAnnotation(Attachment.class, Sw360Module.AttachmentMixin.class);
         }
 
         @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -284,6 +286,29 @@ class JacksonCustomizations {
             @Override
             @JsonProperty("cpeId")
             abstract public String getCpeid();
+        }
+
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        @JsonIgnoreProperties({
+                "attachmentContentId",
+                "createdBy",
+                "setAttachmentContentId",
+                "setAttachmentType",
+                "setCreatedComment",
+                "setCheckedComment",
+                "uploadHistorySize",
+                "setUploadHistory",
+                "setFilename",
+                "setSha1",
+                "setCreatedBy",
+                "setCreatedTeam",
+                "setCreatedOn",
+                "setCheckedBy",
+                "setCheckedTeam",
+                "setCheckedOn",
+                "setCheckStatus"
+        })
+        static abstract class AttachmentMixin {
         }
     }
 }

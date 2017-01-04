@@ -47,15 +47,14 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
     private final RestControllerHelper restControllerHelper;
 
     @RequestMapping(value = ATTACHMENTS_URL, params = "sha1")
-    public ResponseEntity<Resource<AttachmentResource>> getAttachmentForSha1(
+    public ResponseEntity<Resource<Attachment>> getAttachmentForSha1(
             OAuth2Authentication oAuth2Authentication,
             @RequestParam String sha1) {
         try {
             User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
-            AttachmentInfo attachmentInfo =
-                    attachmentService.getAttachmentBySha1ForUser(sha1, sw360User);
-            HalResource<AttachmentResource> attachmentResource =
-                    createHalAttachmentResource(
+            AttachmentInfo attachmentInfo = attachmentService.getAttachmentBySha1ForUser(sha1, sw360User);
+            HalResource<Attachment> attachmentResource =
+                    createHalAttachment(
                             attachmentInfo.getAttachment(),
                             attachmentInfo.getRelease(),
                             sw360User);
@@ -67,7 +66,7 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
     }
 
     @RequestMapping(value = ATTACHMENTS_URL + "/{id}")
-    public ResponseEntity<Resource<AttachmentResource>> getAttachmentForId(
+    public ResponseEntity<Resource<Attachment>> getAttachmentForId(
             @PathVariable("id") String id,
             OAuth2Authentication oAuth2Authentication) {
         try {
@@ -75,8 +74,8 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
             AttachmentInfo attachmentInfo =
                     attachmentService.getAttachmentByIdForUser(id, sw360User);
 
-            HalResource<AttachmentResource> attachmentResource =
-                    createHalAttachmentResource(attachmentInfo.getAttachment(),
+            HalResource<Attachment> attachmentResource =
+                    createHalAttachment(attachmentInfo.getAttachment(),
                             attachmentInfo.getRelease(),
                             sw360User);
             return new ResponseEntity<>(attachmentResource, HttpStatus.OK);
@@ -86,36 +85,23 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
         return null;
     }
 
-    private HalResource<AttachmentResource> createHalAttachmentResource(
+    private HalResource<Attachment> createHalAttachment(
             Attachment sw360Attachment,
             Release sw360Release,
             User sw360User) {
-        AttachmentResource attachmentResource = new AttachmentResource();
 
-        attachmentResource.setFilename(sw360Attachment.getFilename());
-        attachmentResource.setSha1(sw360Attachment.getSha1());
-        attachmentResource.setAttachmentType(sw360Attachment.getAttachmentType().toString());
-        attachmentResource.setCreatedTeam(sw360Attachment.getCreatedTeam());
-        attachmentResource.setCreatedComment(sw360Attachment.getCreatedComment());
-        attachmentResource.setCreatedOn(sw360Attachment.getCreatedOn());
-        attachmentResource.setCheckedBy(sw360Attachment.getCheckedBy());
-        attachmentResource.setCheckedTeam(sw360Attachment.getCheckedTeam());
-        attachmentResource.setCheckedComment(sw360Attachment.getCheckedComment());
-        attachmentResource.setCheckedOn(sw360Attachment.getCheckedOn());
-        attachmentResource.setCheckStatus(sw360Attachment.getCheckStatus().toString());
-
-        HalResource<AttachmentResource> halAttachmentResource = new HalResource<>(attachmentResource);
+        HalResource<Attachment> halAttachment = new HalResource<>(sw360Attachment);
         String componentUUID = sw360Attachment.getAttachmentContentId();
         Link selfLink = linkTo(AttachmentController.class).slash("api/attachments/" + componentUUID).withSelfRel();
-        halAttachmentResource.add(selfLink);
+        halAttachment.add(selfLink);
 
         Link releaseLink = linkTo(AttachmentController.class).slash("api/releases/" + sw360Release.getId()).withRel("release");
-        halAttachmentResource.add(releaseLink);
+        halAttachment.add(releaseLink);
 
-        halAttachmentResource.addEmbeddedResource("release", restControllerHelper.createHalReleaseResource(sw360Release, false));
-        restControllerHelper.addEmbeddedUser(halAttachmentResource, sw360User, "createdBy");
+        halAttachment.addEmbeddedResource("release", restControllerHelper.createHalReleaseResource(sw360Release, false));
+        restControllerHelper.addEmbeddedUser(halAttachment, sw360User, "createdBy");
 
-        return halAttachmentResource;
+        return halAttachment;
     }
 
     @Override
