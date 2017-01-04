@@ -13,16 +13,13 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
-import org.eclipse.sw360.datahandler.thrift.projects.ProjectType;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.rest.resourceserver.core.HalResource;
 import org.eclipse.sw360.rest.resourceserver.core.RestControllerHelper;
 import org.eclipse.sw360.rest.resourceserver.release.Sw360ReleaseService;
-import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.data.rest.webmvc.RepositoryLinksResource;
-import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceProcessor;
 import org.springframework.hateoas.Resources;
@@ -42,52 +39,56 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ProjectController implements ResourceProcessor<RepositoryLinksResource> {
-    private final String PROJECTS_URL = "/projects";
+    static final String PROJECTS_URL = "/projects";
 
     @NonNull
-    private Sw360ProjectService projectService;
+    private final Sw360ProjectService projectService;
 
     @NonNull
-    private Sw360ReleaseService releaseService;
-
-    @NonNull
-    private Sw360UserService userService;
+    private final Sw360ReleaseService releaseService;
 
     @NonNull
     private final RestControllerHelper restControllerHelper;
 
     @RequestMapping(value = PROJECTS_URL, method = RequestMethod.GET)
-    public ResponseEntity<Resources<Resource<ProjectResource>>> getProjectsForUser(OAuth2Authentication oAuth2Authentication) {
+    public ResponseEntity<Resources<Resource<Project>>> getProjectsForUser(OAuth2Authentication oAuth2Authentication) {
         User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         List<Project> projects = projectService.getProjectsForUser(sw360User);
-        List<Resource<ProjectResource>> projectResources = new ArrayList<>();
-        for (Project sw360Project : projects) {
-            User sw360ProjectUser = userService.getUserByEmail(sw360Project.getCreatedBy());
-            HalResource<ProjectResource> projectResource = createHalProjectResource(sw360Project, sw360ProjectUser, false);
+
+        List<Resource<Project>> projectResources = new ArrayList<>();
+        for (Project project : projects) {
+            // TODO Kai Tödter 2017-01-04
+            // Find better way to decrease details in list resources,
+            // e.g. apply projections or Jackson Mixins
+            project.setDescription(null);
+            project.setType(null);
+            project.setCreatedOn(null);
+            project.setCreatedBy(null);
+
+            Resource<Project> projectResource = new Resource<>(project);
             projectResources.add(projectResource);
         }
-        Resources<Resource<ProjectResource>> resources = new Resources<>(projectResources);
+        Resources<Resource<Project>> resources = new Resources<>(projectResources);
 
         return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
     @RequestMapping(PROJECTS_URL + "/{id}")
-    public ResponseEntity<Resource<ProjectResource>> getProject(
+    public ResponseEntity<Resource<Project>> getProject(
             @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
         User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         Project sw360Project = projectService.getProjectForUserById(id, sw360User);
-        HalResource<ProjectResource> userHalResource = createHalProjectResource(sw360Project, sw360User, true);
+        HalResource<Project> userHalResource = createHalProject(sw360Project, sw360User);
         return new ResponseEntity<>(userHalResource, HttpStatus.OK);
     }
 
     @RequestMapping(value = PROJECTS_URL, method = RequestMethod.POST)
     public ResponseEntity createProject(
             OAuth2Authentication oAuth2Authentication,
-            @RequestBody ProjectResource projectResource) {
+            @RequestBody Project project) {
         User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
-        Project sw360Project = createProjectFromResource(projectResource);
-        sw360Project = projectService.createProject(sw360Project, sw360User);
-        HalResource<ProjectResource> halResource = createHalProjectResource(sw360Project, sw360User, true);
+        project = projectService.createProject(project, sw360User);
+        HalResource<Project> halResource = createHalProject(project, sw360User);
         return new ResponseEntity<>(halResource, HttpStatus.CREATED);
     }
 
@@ -97,50 +98,27 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
         return resource;
     }
 
-    private Project createProjectFromResource(ProjectResource projectResource) {
-        Project project = new Project();
+    private HalResource<Project> createHalProject(Project sw360Project, User sw360User) {
 
-        project.setName(projectResource.getName());
-        project.setDescription(projectResource.getDescription());
-        project.setProjectType(ProjectType.valueOf(projectResource.getProjectType()));
+        HalResource<Project> halProject = new HalResource<>(sw360Project);
 
-        return project;
-    }
-
-    private HalResource<ProjectResource> createHalProjectResource(Project sw360Project, User sw360User, boolean verbose) {
-        ProjectResource projectResource = new ProjectResource();
-
-        projectResource.setProjectType(String.valueOf(sw360Project.getProjectType()));
-        projectResource.setName(sw360Project.getName());
-
-        HalResource<ProjectResource> halProjectResource = new HalResource<>(projectResource);
-
-        String projectUUID = sw360Project.getId();
-        Link selfLink = linkTo(ProjectController.class).slash("api" + PROJECTS_URL + "/" + projectUUID).withSelfRel();
-        halProjectResource.add(selfLink);
-
-        if (verbose) {
-            projectResource.setCreatedOn(sw360Project.getCreatedOn());
-            restControllerHelper.addEmbeddedUser(halProjectResource, sw360User, "createdBy");
-            projectResource.setType(sw360Project.getType());
-            projectResource.setDescription(sw360Project.getDescription());
-            Set<String> releaseIds = new HashSet<>();
-            if (sw360Project.getReleaseIdToUsage() != null) {
-                Map<String, String> releaseIdToUsage = sw360Project.getReleaseIdToUsage();
-                for(String releaseId: releaseIdToUsage.keySet()) {
-                    // TODO kai Toedter 2016-12-29: Is there a constant for "contained"
-                    if(releaseIdToUsage.get(releaseId).equals("contained")) {
-                        releaseIds.add(releaseId);
-                    }
+        restControllerHelper.addEmbeddedUser(halProject, sw360User, "createdBy");
+        Set<String> releaseIds = new HashSet<>();
+        if (sw360Project.getReleaseIdToUsage() != null) {
+            Map<String, String> releaseIdToUsage = sw360Project.getReleaseIdToUsage();
+            for (String releaseId : releaseIdToUsage.keySet()) {
+                // TODO kai Toedter 2016-12-29: Is there a constant for "contained"
+                if (releaseIdToUsage.get(releaseId).equals("contained")) {
+                    releaseIds.add(releaseId);
                 }
-                restControllerHelper.addEmbeddedReleases(halProjectResource, releaseIds, releaseService, sw360User);
             }
-            if (sw360Project.getModerators() != null) {
-                Set<String> moderators = sw360Project.getModerators();
-                restControllerHelper.addEmbeddedModerators(halProjectResource, moderators);
-            }
+            restControllerHelper.addEmbeddedReleases(halProject, releaseIds, releaseService, sw360User);
+        }
+        if (sw360Project.getModerators() != null) {
+            Set<String> moderators = sw360Project.getModerators();
+            restControllerHelper.addEmbeddedModerators(halProject, moderators);
         }
 
-        return halProjectResource;
+        return halProject;
     }
 }
