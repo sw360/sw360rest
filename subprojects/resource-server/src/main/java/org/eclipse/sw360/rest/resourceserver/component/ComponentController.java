@@ -70,6 +70,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
             component.setType(null);
             component.setCreatedOn(null);
             component.setVendorNames(null);
+            component.setReleaseIds(null);
 
             Resource<Component> componentResource = new Resource<>(component);
             componentResources.add(componentResource);
