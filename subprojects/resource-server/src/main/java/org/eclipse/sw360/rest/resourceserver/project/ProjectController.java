@@ -13,6 +13,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.rest.resourceserver.core.HalResource;
 import org.eclipse.sw360.rest.resourceserver.core.RestControllerHelper;
@@ -30,7 +31,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -63,6 +67,8 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
             project.setDescription(null);
             project.setType(null);
             project.setCreatedOn(null);
+            project.setReleaseIds(null);
+            project.setReleaseIdToUsage(null);
 
             Resource<Project> projectResource = new Resource<>(project);
             projectResources.add(projectResource);
@@ -84,11 +90,60 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
     @RequestMapping(value = PROJECTS_URL, method = RequestMethod.POST)
     public ResponseEntity createProject(
             OAuth2Authentication oAuth2Authentication,
-            @RequestBody Project project) {
+            @RequestBody Project project) throws URISyntaxException {
+        if(project.getReleaseIds() != null) {
+            Set<String> releaseIds = new HashSet<>();
+            for (String releaseURIString : project.getReleaseIds()) {
+                URI releaseURI = new URI(releaseURIString);
+                String path = releaseURI.getPath();
+                String releaseId = path.substring(path.lastIndexOf('/') + 1);
+                releaseIds.add(releaseId);
+            }
+            project.setReleaseIds(releaseIds);
+        }
+
+        if(project.getReleaseIdToUsage() != null) {
+
+            Map<String, String> releaseIdToUsage = new HashMap<>();
+            Map<String, String> oriReleaseIdToUsage = project.getReleaseIdToUsage();
+            for (String releaseURIString : oriReleaseIdToUsage.keySet()) {
+                URI releaseURI = new URI(releaseURIString);
+                String path = releaseURI.getPath();
+                String releaseId = path.substring(path.lastIndexOf('/') + 1);
+                releaseIdToUsage.put(releaseId, oriReleaseIdToUsage.get(releaseURIString));
+            }
+            project.setReleaseIdToUsage(releaseIdToUsage);
+        }
+
         User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         project = projectService.createProject(project, sw360User);
         HalResource<Project> halResource = createHalProject(project, sw360User);
-        return new ResponseEntity<>(halResource, HttpStatus.CREATED);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest().path("/{id}")
+                .buildAndExpand(project.getId()).toUri();
+
+        return ResponseEntity.created(location).body(halResource);
+    }
+
+    @RequestMapping(value = PROJECTS_URL + "/{id}/Releases", method = RequestMethod.POST)
+    public ResponseEntity createReleases(
+            @PathVariable("id") String id,
+            OAuth2Authentication oAuth2Authentication,
+            @RequestBody List<String> releaseURIs) throws URISyntaxException {
+        User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+        Project project = projectService.getProjectForUserById(id, sw360User);
+        Set<String> releases = new HashSet<>();
+        for (String releaseURIString : releaseURIs) {
+            URI releaseURI = new URI(releaseURIString);
+            String path = releaseURI.getPath();
+            String releaseId = path.substring(path.lastIndexOf('/') + 1);
+            releases.add(releaseId);
+        }
+        project.setReleaseIds(releases);
+        projectService.updateProject(project, sw360User);
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @Override
@@ -103,15 +158,16 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
 
         restControllerHelper.addEmbeddedUser(halProject, sw360User, "createdBy");
         Set<String> releaseIds = new HashSet<>();
+        sw360Project.setReleaseIds(null);
         if (sw360Project.getReleaseIdToUsage() != null) {
             Map<String, String> releaseIdToUsage = sw360Project.getReleaseIdToUsage();
             for (String releaseId : releaseIdToUsage.keySet()) {
-                // TODO kai Toedter 2016-12-29: Is there a constant for "contained"
-                if (releaseIdToUsage.get(releaseId).equals("contained")) {
+                if (releaseIdToUsage.get(releaseId).equalsIgnoreCase(ProjectRelationship.CONTAINED.toString())) {
                     releaseIds.add(releaseId);
                 }
             }
-            restControllerHelper.addEmbeddedReleases(halProject, releaseIds, releaseService, sw360User);
+            restControllerHelper.addEmbeddedReleases(halProject, releaseIds, releaseService, sw360User, "containedReleases");
+            sw360Project.setReleaseIdToUsage(null);
         }
         if (sw360Project.getModerators() != null) {
             Set<String> moderators = sw360Project.getModerators();

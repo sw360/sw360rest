@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -86,7 +87,12 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
 
         Release sw360Release = releaseService.createRelease(release, sw360User);
         HalResource<Release> halResource = restControllerHelper.createHalReleaseResource(sw360Release, true);
-        return new ResponseEntity<>(halResource, HttpStatus.CREATED);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest().path("/{id}")
+                .buildAndExpand(sw360Release.getId()).toUri();
+
+        return ResponseEntity.created(location).body(halResource);
     }
 
     @Override

@@ -20,10 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class JavaApi {
 
@@ -38,23 +35,42 @@ public class JavaApi {
     private String releasesUrl;
 
     public JavaApi(String dockerHost) {
-        REST_SERVER_URL = dockerHost + ":8091";
+        REST_SERVER_URL = "http://localhost" + ":8091";
         AUTH_SERVER_URL = dockerHost + ":8090";
     }
 
-    public void createProject(String name, String description) throws Exception {
-        Map<String, String> project = new HashMap<>();
+    public URI createProject(String name, String description, List<URI> releaseURIs) throws Exception {
+        Map<String,String> releaseIdToUsage = new HashMap<>();
+        Set<String> releaseIds = new HashSet<>();
+        for(URI uri: releaseURIs) {
+            releaseIdToUsage.put(uri.getPath(), "CONTAINED");
+            releaseIds.add((uri.getPath()));
+        }
+
+        Map<String, Object> project = new HashMap<>();
         project.put("name", name);
         project.put("description", description);
         project.put("projectType", ProjectType.PRODUCT.toString());
+        project.put("releaseIdToUsage", releaseIdToUsage);
+        project.put("releaseIds", releaseIds);
 
         HttpEntity<String> httpEntity = getHttpEntity(project);
 
-        restTemplate.postForObject(projectsUrl, httpEntity, String.class);
+        URI location = restTemplate.postForLocation(projectsUrl, httpEntity);
+        return location;
+    }
+
+    public void addReleasesToProject(List<URI> releaseURIs, URI projectURI) throws Exception {
+        String jsonBody = this.objectMapper.writeValueAsString(releaseURIs);
+        HttpHeaders headers = getHeadersWithBearerToken(getAccessToken());
+
+        HttpEntity<String> httpEntity = new HttpEntity<>(jsonBody, headers);
+
+        restTemplate.postForObject(projectURI, httpEntity, String.class);
     }
 
     public URI createComponent(String name) throws Exception {
-        Map<String, String> component = new HashMap<>();
+        Map<String, Object> component = new HashMap<>();
         component.put("name", name);
         component.put("description", name + " is part of the Spring framework");
         component.put("componentType", ComponentType.OSS.toString());
@@ -65,8 +81,8 @@ public class JavaApi {
         return location;
     }
 
-    public void createRelease(String name, String version, URI componentURI) throws Exception {
-        Map<String, String> release = new HashMap<>();
+    public URI createRelease(String name, String version, URI componentURI) throws Exception {
+        Map<String, Object> release = new HashMap<>();
         release.put("name", name);
         release.put("componentId", componentURI.toString());
         release.put("version", version);
@@ -74,11 +90,12 @@ public class JavaApi {
 
         HttpEntity<String> httpEntity = getHttpEntity(release);
 
-        restTemplate.postForObject(releasesUrl, httpEntity, String.class);
+        URI location = restTemplate.postForLocation(releasesUrl, httpEntity);
+        return location;
     }
 
     public void getLinksFromApiRoot() throws Exception {
-        Map<String, String> dummy = new HashMap<>();
+        Map<String, Object> dummy = new HashMap<>();
         HttpEntity<String> httpEntity = getHttpEntity(dummy);
 
         ResponseEntity<String> response =
@@ -96,7 +113,7 @@ public class JavaApi {
         this.releasesUrl = linksNode.get(curieName + ":releases").get("href").asText();
     }
 
-    private HttpEntity<String> getHttpEntity(Map<String, String> component) throws IOException {
+    private HttpEntity<String> getHttpEntity(Map<String, Object> component) throws IOException {
         String jsonBody = this.objectMapper.writeValueAsString(component);
         HttpHeaders headers = getHeadersWithBearerToken(getAccessToken());
         return new HttpEntity<>(jsonBody, headers);
@@ -110,7 +127,7 @@ public class JavaApi {
             ResponseEntity<String> response =
                     restTemplate
                             .postForEntity(AUTH_SERVER_URL + "/oauth/token?"
-                                    + "grant_type=password&username=admin@sw360.org&password=sw360-admin-password",
+                                            + "grant_type=password&username=admin@sw360.org&password=sw360-admin-password",
                                     httpEntity,
                                     String.class);
 

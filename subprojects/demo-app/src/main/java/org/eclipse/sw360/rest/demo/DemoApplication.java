@@ -24,6 +24,8 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DemoApplication {
     private static final String DOCKER_HOST = "http://192.168.99.100";
@@ -35,6 +37,7 @@ public class DemoApplication {
     private static final String SPRING_FRAMEWORK_DIST = "D:/downloads/spring-framework-4.3.5.RELEASE";
 
     private JavaApi javaApi = new JavaApi(DOCKER_HOST);
+    private List<URI> releaseURIs = new ArrayList<>();
 
     private void checkAndCreateAdminUser() throws TException {
         THttpClient thriftClient = new THttpClient(THRIFT_SERVER_URL + "/users/thrift");
@@ -54,16 +57,17 @@ public class DemoApplication {
 
     private void createSpringFramework() throws Exception {
         javaApi.getLinksFromApiRoot();
-        javaApi.createProject(
-                "Spring Framework",
-                "The Spring Framework provides a comprehensive programming"
-                        + " and configuration model for modern Java-based enterprise applications.");
-
         Path dir = Paths.get(SPRING_FRAMEWORK_DIST + "/libs");
         DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.jar");
         for (Path path : stream) {
             addComponent(path.getFileName().toString());
         }
+
+        URI projectURI = javaApi.createProject(
+                "Spring Framework",
+                "The Spring Framework provides a comprehensive programming"
+                        + " and configuration model for modern Java-based enterprise applications.",
+                releaseURIs);
     }
 
     private void addComponent(String jarFile) throws Exception {
@@ -77,7 +81,8 @@ public class DemoApplication {
         String componentVersion = jarFile.substring(indexOfFirstDigit, jarFile.length() - 4);
 
         URI componentURI = javaApi.createComponent(componentName);
-        javaApi.createRelease(componentName, componentVersion, componentURI);
+        URI releaseURI = javaApi.createRelease(componentName, componentVersion, componentURI);
+        releaseURIs.add(releaseURI);
     }
 
     public static void main(String[] args) throws Exception {

@@ -70,6 +70,19 @@ public class Sw360ProjectService {
         return null;
     }
 
+    public void updateProject(Project project, User sw360User) {
+        try {
+            ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
+            RequestStatus requestStatus = sw360ProjectClient.updateProject(project, sw360User);
+            if (requestStatus == RequestStatus.SUCCESS) {
+                return;
+            }
+            throw new RuntimeException("sw360 project with name '" + project.getName() + " cannot be updated.");
+        } catch (TException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void deleteProject(Project project, User sw360User) {
         try {
             ProjectService.Iface sw360ProjectClient = getThriftProjectClient();

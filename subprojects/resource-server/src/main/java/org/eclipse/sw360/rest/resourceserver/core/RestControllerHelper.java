@@ -66,10 +66,11 @@ public class RestControllerHelper {
             HalResource halResource,
             Set<String> releases,
             Sw360ReleaseService sw360ReleaseService,
-            User user) {
+            User user,
+            String linkRelation) {
         for (String releaseId : releases) {
             final Release release = sw360ReleaseService.getReleaseForUserById(releaseId, user);
-            addEmbeddedRelease(halResource, release);
+            addEmbeddedRelease(halResource, release, linkRelation);
         }
     }
 
@@ -77,7 +78,7 @@ public class RestControllerHelper {
             HalResource halResource,
             List<Release> releases) {
         for (Release release : releases) {
-            addEmbeddedRelease(halResource, release);
+            addEmbeddedRelease(halResource, release, "releases");
         }
     }
 
@@ -119,7 +120,7 @@ public class RestControllerHelper {
         return halRelease;
     }
 
-    private void addEmbeddedRelease(HalResource halResource, Release release) {
+    private void addEmbeddedRelease(HalResource halResource, Release release, String linkRelation) {
         release.setType(null);
         HalResource<Release> halRelease = new HalResource<>(release);
         try {
@@ -129,7 +130,7 @@ public class RestControllerHelper {
             log.error("cannot create embedded release with id: " + release.getId());
         }
 
-        halResource.addEmbeddedResource("releases", halRelease);
+        halResource.addEmbeddedResource(linkRelation, halRelease);
     }
 
     private void addEmbeddedAttachments(
