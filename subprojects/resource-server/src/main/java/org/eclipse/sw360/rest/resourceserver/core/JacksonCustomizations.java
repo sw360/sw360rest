@@ -114,6 +114,7 @@ class JacksonCustomizations {
                 "setWiki",
                 "setReleaseIds",
                 "setPermissions",
+                "setClearingState"
         })
         static abstract class ProjectMixin {
         }
