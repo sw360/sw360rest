@@ -122,6 +122,8 @@ public class RestControllerHelper {
 
     private void addEmbeddedRelease(HalResource halResource, Release release, String linkRelation) {
         release.setType(null);
+        release.setComponentId(null);
+        release.setCreatedOn(null);
         HalResource<Release> halRelease = new HalResource<>(release);
         try {
             Link releaseLink = linkTo(ReleaseController.class).slash("api/releases/" + release.getId()).withSelfRel();
