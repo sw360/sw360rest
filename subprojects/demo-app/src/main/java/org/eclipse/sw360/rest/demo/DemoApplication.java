@@ -59,7 +59,7 @@ public class DemoApplication {
     private void createSpringFramework() throws Exception {
         javaApi.getLinksFromApiRoot();
 
-        URI vendorUri = javaApi.createVendor("Pivotal", "Pivotal", new URL("https://pivotal.io/"));
+        URI vendorUri = javaApi.createVendor("Pivotal Software, Inc.", "Pivotal", new URL("https://pivotal.io/"));
 
         Path dir = Paths.get(SPRING_FRAMEWORK_DIST + "/libs");
         DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.jar");
