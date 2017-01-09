@@ -12,11 +12,8 @@ package org.eclipse.sw360.rest.resourceserver.vendor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.eclipse.sw360.rest.resourceserver.core.HalResource;
-import org.eclipse.sw360.rest.resourceserver.core.RestControllerHelper;
-import org.eclipse.sw360.rest.resourceserver.release.Sw360ReleaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.data.rest.webmvc.RepositoryLinksResource;
@@ -48,15 +45,8 @@ public class VendorController implements ResourceProcessor<RepositoryLinksResour
     @NonNull
     private final Sw360VendorService vendorService;
 
-    @NonNull
-    private final Sw360ReleaseService releaseService;
-
-    @NonNull
-    private final RestControllerHelper restControllerHelper;
-
     @RequestMapping(value = VENDORS_URL, method = RequestMethod.GET)
-    public ResponseEntity<Resources<Resource<Vendor>>> getVendorsForUser(OAuth2Authentication oAuth2Authentication) {
-        User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+    public ResponseEntity<Resources<Resource<Vendor>>> getVendors(OAuth2Authentication oAuth2Authentication) {
         List<Vendor> vendors = vendorService.getVendors();
 
         List<Resource<Vendor>> vendorResources = new ArrayList<>();
