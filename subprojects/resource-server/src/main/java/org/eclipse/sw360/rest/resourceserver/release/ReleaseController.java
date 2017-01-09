@@ -58,7 +58,7 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
 
         for (Release release : releases) {
             release.setComponentId(null);
-            Resource<Release> releaseResource = new Resource(release);
+            Resource<Release> releaseResource = new Resource<>(release);
             releaseResources.add(releaseResource);
         }
         Resources<Resource> resources = new Resources<>(releaseResources);
