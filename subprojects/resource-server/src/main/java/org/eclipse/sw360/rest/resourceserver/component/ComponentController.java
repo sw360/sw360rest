@@ -15,9 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.eclipse.sw360.rest.resourceserver.core.HalResource;
 import org.eclipse.sw360.rest.resourceserver.core.RestControllerHelper;
 import org.eclipse.sw360.rest.resourceserver.release.Sw360ReleaseService;
+import org.eclipse.sw360.rest.resourceserver.vendor.Sw360VendorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.data.rest.webmvc.RepositoryLinksResource;
@@ -36,6 +38,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -52,6 +55,9 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
 
     @NonNull
     private final Sw360ReleaseService releaseService;
+
+    @NonNull
+    private final Sw360VendorService vendorService;
 
     @NonNull
     private final RestControllerHelper restControllerHelper;
@@ -95,6 +101,20 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
             @RequestBody Component component) throws URISyntaxException {
 
         User user = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+
+        if(component.getVendorNames() != null) {
+            Set<String> vendors = new HashSet<>();
+            for (String vendorUriString : component.getVendorNames()) {
+                URI vendorURI = new URI(vendorUriString);
+                String path = vendorURI.getPath();
+                String vendorId = path.substring(path.lastIndexOf('/') + 1);
+                Vendor vendor = vendorService.getVendorById(vendorId);
+                String vendorFullName = vendor.getFullname();
+                vendors.add(vendorFullName);
+            }
+            component.setVendorNames(vendors);
+        }
+
         Component sw360Component = componentService.createComponent(component, user);
         HalResource<Component> halResource = createHalComponent(sw360Component, user);
 
@@ -127,6 +147,12 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
         if (sw360Component.getModerators() != null) {
             Set<String> moderators = sw360Component.getModerators();
             restControllerHelper.addEmbeddedModerators(halComponent, moderators);
+        }
+
+        if (sw360Component.getVendorNames() != null) {
+            Set<String> vendors = sw360Component.getVendorNames();
+            restControllerHelper.addEmbeddedVendors(halComponent, vendors);
+            sw360Component.setVendorNames(null);
         }
 
         restControllerHelper.addEmbeddedUser(halComponent, user, "createdBy");

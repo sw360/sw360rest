@@ -20,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URL;
 import java.util.*;
 
 public class JavaApi {
@@ -33,9 +34,10 @@ public class JavaApi {
     private String projectsUrl;
     private String componentsUrl;
     private String releasesUrl;
+    private String vendorsUrl;
 
     public JavaApi(String dockerHost) {
-        REST_SERVER_URL = "http://localhost" + ":8091";
+        REST_SERVER_URL = dockerHost + ":8091";
         AUTH_SERVER_URL = dockerHost + ":8090";
     }
 
@@ -69,11 +71,12 @@ public class JavaApi {
         restTemplate.postForObject(projectURI, httpEntity, String.class);
     }
 
-    public URI createComponent(String name) throws Exception {
+    public URI createComponent(String name, URI vendorUri) throws Exception {
         Map<String, Object> component = new HashMap<>();
         component.put("name", name);
         component.put("description", name + " is part of the Spring framework");
         component.put("componentType", ComponentType.OSS.toString());
+        component.put("vendors", Collections.singletonList(vendorUri));
 
         HttpEntity<String> httpEntity = getHttpEntity(component);
 
@@ -94,6 +97,18 @@ public class JavaApi {
         return location;
     }
 
+    public URI createVendor(String fullName, String shortName, URL url) throws Exception {
+        Map<String, Object> vendor = new HashMap<>();
+        vendor.put("fullName", fullName);
+        vendor.put("shortName", shortName);
+        vendor.put("url", url);
+
+        HttpEntity<String> httpEntity = getHttpEntity(vendor);
+
+        URI location = restTemplate.postForLocation(vendorsUrl, httpEntity);
+        return location;
+    }
+
     public void getLinksFromApiRoot() throws Exception {
         Map<String, Object> dummy = new HashMap<>();
         HttpEntity<String> httpEntity = getHttpEntity(dummy);
@@ -111,6 +126,7 @@ public class JavaApi {
         this.projectsUrl = linksNode.get(curieName + ":projects").get("href").asText();
         this.componentsUrl = linksNode.get(curieName + ":components").get("href").asText();
         this.releasesUrl = linksNode.get(curieName + ":releases").get("href").asText();
+        this.vendorsUrl = linksNode.get(curieName + ":vendors").get("href").asText();
     }
 
     private HttpEntity<String> getHttpEntity(Map<String, Object> component) throws IOException {

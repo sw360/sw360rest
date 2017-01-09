@@ -13,14 +13,18 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.eclipse.sw360.rest.resourceserver.attachment.AttachmentController;
 import org.eclipse.sw360.rest.resourceserver.component.ComponentController;
 import org.eclipse.sw360.rest.resourceserver.release.ReleaseController;
 import org.eclipse.sw360.rest.resourceserver.release.Sw360ReleaseService;
 import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.eclipse.sw360.rest.resourceserver.user.UserController;
+import org.eclipse.sw360.rest.resourceserver.vendor.Sw360VendorService;
+import org.eclipse.sw360.rest.resourceserver.vendor.VendorController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
@@ -38,7 +42,10 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class RestControllerHelper {
     @NonNull
-    private Sw360UserService userService;
+    private final Sw360UserService userService;
+
+    @NonNull
+    private final Sw360VendorService vendorService;
 
     public User getSw360UserFromAuthentication(OAuth2Authentication oAuth2Authentication) {
         String userId = oAuth2Authentication.getName();
@@ -99,6 +106,26 @@ public class RestControllerHelper {
     }
 
 
+    public void addEmbeddedVendors(HalResource<Component> halComponent, Set<String> vendors) {
+        for (String vendorFullName : vendors) {
+            Vendor vendor = new Vendor();
+            HalResource<Vendor> halVendor = new HalResource<>(vendor);
+            vendor.setFullname(vendorFullName);
+            vendor.setType(null);
+            try {
+                Vendor vendorByFullName = vendorService.getVendorByFullName(vendorFullName);
+                Link vendorSelfLink = linkTo(UserController.class)
+                        .slash("api" + VendorController.VENDORS_URL + "/" + vendorByFullName.getId()).withSelfRel();
+                halVendor.add(vendorSelfLink);
+            } catch (Exception e) {
+                log.error("cannot create self link for vendor with full name: " + vendorFullName);
+            }
+
+            halComponent.addEmbeddedResource("vendors", halVendor);
+        }
+
+    }
+
     public HalResource<Release> createHalReleaseResource(Release release, boolean verbose) {
         HalResource<Release> halRelease = new HalResource<>(release);
 
@@ -142,7 +169,8 @@ public class RestControllerHelper {
 
             HalResource<Attachment> halAttachmentResource = new HalResource<>(attachment);
             try {
-                Link attachmentLink = linkTo(AttachmentController.class).slash("api/attachments/" + attachment.getAttachmentContentId()).withSelfRel();
+                Link attachmentLink = linkTo(AttachmentController.class)
+                        .slash("api/attachments/" + attachment.getAttachmentContentId()).withSelfRel();
                 halAttachmentResource.add(attachmentLink);
             } catch (Exception e) {
                 log.error("cannot create embedded attachment with content id: " + attachment.getAttachmentContentId());

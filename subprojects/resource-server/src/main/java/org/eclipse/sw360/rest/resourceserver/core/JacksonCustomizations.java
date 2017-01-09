@@ -19,8 +19,11 @@ import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Set;
 
 @Configuration
 class JacksonCustomizations {
@@ -39,6 +42,7 @@ class JacksonCustomizations {
             setMixInAnnotation(Component.class, Sw360Module.ComponentMixin.class);
             setMixInAnnotation(Release.class, Sw360Module.ReleaseMixin.class);
             setMixInAnnotation(Attachment.class, Sw360Module.AttachmentMixin.class);
+            setMixInAnnotation(Vendor.class, Sw360Module.VendorMixin.class);
         }
 
         @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -224,7 +228,10 @@ class JacksonCustomizations {
                 "setDocumentState",
                 "permissionsSize",
         })
-        static abstract class ComponentMixin {
+        static abstract class ComponentMixin extends Component {
+            @Override
+            @JsonProperty("vendors")
+            abstract public Set<String> getVendorNames();
         }
 
         @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -307,5 +314,29 @@ class JacksonCustomizations {
         })
         static abstract class AttachmentMixin {
         }
+
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        @JsonIgnoreProperties({
+                "id",
+                "revision",
+                "permissionsSize",
+                "setId",
+                "setRevision",
+                "setType",
+                "setPermissions",
+                "setFullname",
+                "setShortname",
+                "setUrl"
+                })
+        static abstract class VendorMixin extends Vendor {
+            @Override
+            @JsonProperty("fullName")
+            abstract public String getFullname();
+
+            @Override
+            @JsonProperty("shortName")
+            abstract public String getShortname();
+        }
+
     }
 }

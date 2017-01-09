@@ -20,6 +20,7 @@ import org.eclipse.sw360.datahandler.thrift.users.UserService;
 import org.springframework.web.client.HttpServerErrorException;
 
 import java.net.URI;
+import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -57,10 +58,13 @@ public class DemoApplication {
 
     private void createSpringFramework() throws Exception {
         javaApi.getLinksFromApiRoot();
+
+        URI vendorUri = javaApi.createVendor("Pivotal", "Pivotal", new URL("https://pivotal.io/"));
+
         Path dir = Paths.get(SPRING_FRAMEWORK_DIST + "/libs");
         DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.jar");
         for (Path path : stream) {
-            addComponent(path.getFileName().toString());
+            addComponent(path.getFileName().toString(), vendorUri);
         }
 
         URI projectURI = javaApi.createProject(
@@ -70,7 +74,7 @@ public class DemoApplication {
                 releaseURIs);
     }
 
-    private void addComponent(String jarFile) throws Exception {
+    private void addComponent(String jarFile, URI vendorUri) throws Exception {
         if (jarFile.contains("javadoc") || jarFile.contains("sources")) {
             return;
         }
@@ -80,7 +84,7 @@ public class DemoApplication {
         String componentName = jarFile.substring(0, indexOfFirstDigit - 1);
         String componentVersion = jarFile.substring(indexOfFirstDigit, jarFile.length() - 4);
 
-        URI componentURI = javaApi.createComponent(componentName);
+        URI componentURI = javaApi.createComponent(componentName, vendorUri);
         URI releaseURI = javaApi.createRelease(componentName, componentVersion, componentURI);
         releaseURIs.add(releaseURI);
     }
