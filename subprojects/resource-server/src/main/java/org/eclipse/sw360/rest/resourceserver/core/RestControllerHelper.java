@@ -54,18 +54,9 @@ public class RestControllerHelper {
 
     public void addEmbeddedModerators(HalResource halResource, Set<String> moderators) {
         for (String moderatorEmail : moderators) {
-            User userResource = new User();
-            HalResource<User> halUser = new HalResource<>(userResource);
-            userResource.setEmail(moderatorEmail);
-            try {
-                String userUUID = Base64.getEncoder().encodeToString(moderatorEmail.getBytes("utf-8"));
-                Link moderatorSelfLink = linkTo(UserController.class).slash("api/users/" + userUUID).withSelfRel();
-                halUser.add(moderatorSelfLink);
-            } catch (Exception e) {
-                log.error("cannot create self link for moderator with email: " + moderatorEmail);
-            }
-
-            halResource.addEmbeddedResource("moderators", halUser);
+            User user = new User();
+            user.setEmail(moderatorEmail);
+            addEmbeddedUser(halResource, user, "moderators");
         }
     }
 
@@ -138,19 +129,30 @@ public class RestControllerHelper {
             if (release.getModerators() != null) {
                 Set<String> moderators = release.getModerators();
                 this.addEmbeddedModerators(halRelease, moderators);
+                release.setModerators(null);
             }
             if (release.getAttachments() != null) {
                 Set<Attachment> attachments = release.getAttachments();
                 this.addEmbeddedAttachments(halRelease, attachments);
+                release.setAttachments(null);
             }
         }
         return halRelease;
     }
 
-    private void addEmbeddedRelease(HalResource halResource, Release release, String linkRelation) {
+    public void addEmbeddedRelease(HalResource halResource, Release release, String linkRelation) {
         release.setType(null);
         release.setComponentId(null);
         release.setCreatedOn(null);
+        release.setAttachments(null);
+        release.setReleaseDate(null);
+        release.setMainlineState(null);
+        release.setCpeid(null);
+        release.setExternalIds(null);
+        release.setClearingInformation(null);
+        release.setDownloadurl(null);
+        release.setAttachments(null);
+        release.setVendor(null);
         HalResource<Release> halRelease = new HalResource<>(release);
         try {
             Link releaseLink = linkTo(ReleaseController.class).slash("api/releases/" + release.getId()).withSelfRel();
@@ -166,6 +168,14 @@ public class RestControllerHelper {
             HalResource halResource,
             Set<Attachment> attachments) {
         for (Attachment attachment : attachments) {
+            attachment.setCreatedTeam(null);
+            attachment.setCreatedComment(null);
+            attachment.setCreatedOn(null);
+            attachment.setCheckedBy(null);
+            attachment.setCheckedOn(null);
+            attachment.setCheckedTeam(null);
+            attachment.setCheckedComment(null);
+            attachment.setCheckStatus(null);
 
             HalResource<Attachment> halAttachmentResource = new HalResource<>(attachment);
             try {

@@ -92,13 +92,11 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
 
         HalResource<Attachment> halAttachment = new HalResource<>(sw360Attachment);
         String componentUUID = sw360Attachment.getAttachmentContentId();
-        Link selfLink = linkTo(AttachmentController.class).slash("api/attachments/" + componentUUID).withSelfRel();
-        halAttachment.add(selfLink);
 
         Link releaseLink = linkTo(AttachmentController.class).slash("api/releases/" + sw360Release.getId()).withRel("release");
         halAttachment.add(releaseLink);
 
-        halAttachment.addEmbeddedResource("release", restControllerHelper.createHalReleaseResource(sw360Release, false));
+        restControllerHelper.addEmbeddedRelease(halAttachment, sw360Release, "release");
         restControllerHelper.addEmbeddedUser(halAttachment, sw360User, "createdBy");
 
         return halAttachment;
