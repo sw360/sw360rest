@@ -33,17 +33,33 @@ public class HalResource<T> extends Resource<T> {
         if (embeddedMap == null) {
             embeddedMap = new HashMap<>();
         }
+
         Object embeddedResources = embeddedMap.get(relation);
-        if (embeddedResources == null) {
-            embeddedResources = embeddedResource;
+        boolean isPluralRelation = relation.endsWith("s");
+
+
+
+        // if a relation is plural, the content will always be rendered as an array
+        if(isPluralRelation) {
+            if (embeddedResources == null) {
+                embeddedResources = new ArrayList<>();
+            }
+            ((List<Object>) embeddedResources).add(embeddedResource);
+
+        // if a relation is singular, it would be a single object if there is only one object available
+        // Otherwise it would be rendered as array
         } else {
-            if (embeddedResources instanceof List) {
-                ((List<Object>) embeddedResources).add(embeddedResource);
+            if (embeddedResources == null) {
+                embeddedResources = embeddedResource;
             } else {
-                List<Object> embeddedResourcesList = new ArrayList<>();
-                embeddedResourcesList.add(embeddedResources);
-                embeddedResourcesList.add(embeddedResource);
-                embeddedResources = embeddedResourcesList;
+                if (embeddedResources instanceof List) {
+                    ((List<Object>) embeddedResources).add(embeddedResource);
+                } else {
+                    List<Object> embeddedResourcesList = new ArrayList<>();
+                    embeddedResourcesList.add(embeddedResources);
+                    embeddedResourcesList.add(embeddedResource);
+                    embeddedResources = embeddedResourcesList;
+                }
             }
         }
         embeddedMap.put(relation, embeddedResources);
