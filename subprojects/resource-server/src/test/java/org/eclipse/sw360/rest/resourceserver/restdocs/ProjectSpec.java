@@ -52,6 +52,7 @@ public class ProjectSpec  extends RestDocsSpecBase {
         project.setName("Emerald Web");
         project.setType("project");
         project.setProjectType(ProjectType.PRODUCT);
+        project.setVersion("1.0.2");
         project.setDescription("Emerald Web provides a suite of components for Critical Infrastructures.");
         project.setCreatedOn("2016-12-15");
         project.setCreatedBy("admin@sw360.org");
@@ -61,6 +62,7 @@ public class ProjectSpec  extends RestDocsSpecBase {
         Project project2 = new Project();
         project2.setId("376576");
         project2.setName("Orange Web");
+        project2.setVersion("2.0.1");
         project2.setType("project");
         project2.setProjectType(ProjectType.PRODUCT);
         project2.setDescription("Orange Web provides a suite of components for documentation.");
@@ -110,6 +112,7 @@ public class ProjectSpec  extends RestDocsSpecBase {
                         responseFields(
                                 fieldWithPath("name").description("The name of the project"),
                                 fieldWithPath("description").description("The project description"),
+                                fieldWithPath("version").description("The project version"),
                                 fieldWithPath("createdOn").description("The date the project was created"),
                                 fieldWithPath("type").description("is always 'project'"),
                                 fieldWithPath("projectType").description("The project type, possible values are: " + Arrays.asList(ProjectType.values())),

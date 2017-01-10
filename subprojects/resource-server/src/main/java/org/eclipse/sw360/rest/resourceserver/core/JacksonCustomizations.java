@@ -49,7 +49,6 @@ class JacksonCustomizations {
         @JsonIgnoreProperties({
                 "id",
                 "revision",
-                "version",
                 "externalIds",
                 "attachments",
                 "businessUnit",
