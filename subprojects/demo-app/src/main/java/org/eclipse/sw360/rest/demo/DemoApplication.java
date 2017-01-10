@@ -102,7 +102,7 @@ public class DemoApplication {
     public static void main(String[] args) throws Exception {
         String restServerURL = getEnv("SW360DEMO_REST_SERVER_URL", "http://localhost:8091");
         String authServerURL = getEnv("SW360DEMO_AUTH_SERVER_URL", "http://localhost:8090");
-        String thriftServerURL = getEnv("SW360DEMO_THRIFT_SERVER_URL", "http://localhost:8000");
+        String thriftServerURL = getEnv("SW360DEMO_THRIFT_SERVER_URL", "http://localhost:8080");
         String springDistLocation = getEnv("SW360DEMO_SPRING_DIST_LOCATION",
                 System.getProperty("user.home") + "/spring-framework-4.3.5.RELEASE");
 
@@ -127,7 +127,7 @@ public class DemoApplication {
 
     private static String getEnv(String key, String defaultValue) {
         String value = System.getenv(key);
-        if(key != null ) {
+        if(value != null ) {
             return value;
         }
         return defaultValue;
