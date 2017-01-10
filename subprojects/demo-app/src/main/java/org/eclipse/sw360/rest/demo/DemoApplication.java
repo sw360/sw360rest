@@ -29,23 +29,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DemoApplication {
-    private static final String DOCKER_HOST = "http://192.168.99.100";
-    private static final String THRIFT_SERVER_URL = DOCKER_HOST + ":8080";
+    private String thriftServerUrl;
 
     // to get test data, download
     // https://repo.spring.io/release/org/springframework/spring/4.3.5.RELEASE/spring-framework-4.3.5.RELEASE-dist.zip
-    // and unzip it. SPRING_FRAMEWORK_DIST has to point to the unzipped distribution
-    private static final String SPRING_FRAMEWORK_DIST = "D:/downloads/spring-framework-4.3.5.RELEASE";
+    // and unzip it. springFrameworkDist has to point to the unzipped distribution
+    private String springFrameworkDist;
 
-    private JavaApi javaApi = new JavaApi(DOCKER_HOST);
+    private JavaApi javaApi;
     private List<URI> releaseURIs = new ArrayList<>();
 
+    public DemoApplication(String restServerUrl, String authServerUrl, String thriftServerUrl, String springFrameworkDist) {
+        this.thriftServerUrl = thriftServerUrl;
+        this.springFrameworkDist = springFrameworkDist;
+
+        javaApi = new JavaApi(restServerUrl,authServerUrl);
+    }
+
     private void checkAndCreateAdminUser() throws TException {
-        THttpClient thriftClient = new THttpClient(THRIFT_SERVER_URL + "/users/thrift");
+        THttpClient thriftClient = new THttpClient(thriftServerUrl + "/users/thrift");
         TProtocol protocol = new TCompactProtocol(thriftClient);
         UserService.Iface userClient = new UserService.Client(protocol);
 
         User admin = new User("admin", "admin@sw360.org", "SW360 Administration");
+        admin.setFullname("John Doe");
+        admin.setGivenname("John");
+        admin.setLastname("Doe");
         admin.setUserGroup(UserGroup.ADMIN);
 
         try {
@@ -61,7 +70,7 @@ public class DemoApplication {
 
         URI vendorUri = javaApi.createVendor("Pivotal Software, Inc.", "Pivotal", new URL("https://pivotal.io/"));
 
-        Path dir = Paths.get(SPRING_FRAMEWORK_DIST + "/libs");
+        Path dir = Paths.get(springFrameworkDist + "/libs");
         DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.jar");
         for (Path path : stream) {
             addComponent(path.getFileName().toString(), vendorUri);
@@ -71,6 +80,7 @@ public class DemoApplication {
                 "Spring Framework",
                 "The Spring Framework provides a comprehensive programming"
                         + " and configuration model for modern Java-based enterprise applications.",
+                "4.3.5.RELEASE",
                 releaseURIs);
     }
 
@@ -90,7 +100,13 @@ public class DemoApplication {
     }
 
     public static void main(String[] args) throws Exception {
-        DemoApplication demoClient = new DemoApplication();
+        String restServerURL = getEnv("SW360DEMO_REST_SERVER_URL", "http://localhost:8091");
+        String authServerURL = getEnv("SW360DEMO_AUTH_SERVER_URL", "http://localhost:8090");
+        String thriftServerURL = getEnv("SW360DEMO_THRIFT_SERVER_URL", "http://localhost:8000");
+        String springDistLocation = getEnv("SW360DEMO_SPRING_DIST_LOCATION",
+                System.getProperty("user.home") + "/spring-framework-4.3.5.RELEASE");
+
+        DemoApplication demoClient = new DemoApplication(restServerURL, authServerURL, thriftServerURL, springDistLocation);
         try {
             demoClient.checkAndCreateAdminUser();
             demoClient.createSpringFramework();
@@ -107,6 +123,14 @@ public class DemoApplication {
                 System.out.println(e.getMessage());
             }
         }
+    }
+
+    private static String getEnv(String key, String defaultValue) {
+        String value = System.getenv(key);
+        if(key != null ) {
+            return value;
+        }
+        return defaultValue;
     }
 
 }

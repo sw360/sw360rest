@@ -36,12 +36,12 @@ public class JavaApi {
     private String releasesUrl;
     private String vendorsUrl;
 
-    public JavaApi(String dockerHost) {
-        REST_SERVER_URL = dockerHost + ":8091";
-        AUTH_SERVER_URL = dockerHost + ":8090";
+    public JavaApi(String restServerURL, String authServerUrl) {
+        REST_SERVER_URL = restServerURL;
+        AUTH_SERVER_URL = authServerUrl;
     }
 
-    public URI createProject(String name, String description, List<URI> releaseURIs) throws Exception {
+    public URI createProject(String name, String description, String version, List<URI> releaseURIs) throws Exception {
         Map<String,String> releaseIdToUsage = new HashMap<>();
         Set<String> releaseIds = new HashSet<>();
         for(URI uri: releaseURIs) {
@@ -51,6 +51,7 @@ public class JavaApi {
 
         Map<String, Object> project = new HashMap<>();
         project.put("name", name);
+        project.put("version", version);
         project.put("description", description);
         project.put("projectType", ProjectType.PRODUCT.toString());
         project.put("releaseIdToUsage", releaseIdToUsage);
@@ -60,15 +61,6 @@ public class JavaApi {
 
         URI location = restTemplate.postForLocation(projectsUrl, httpEntity);
         return location;
-    }
-
-    public void addReleasesToProject(List<URI> releaseURIs, URI projectURI) throws Exception {
-        String jsonBody = this.objectMapper.writeValueAsString(releaseURIs);
-        HttpHeaders headers = getHeadersWithBearerToken(getAccessToken());
-
-        HttpEntity<String> httpEntity = new HttpEntity<>(jsonBody, headers);
-
-        restTemplate.postForObject(projectURI, httpEntity, String.class);
     }
 
     public URI createComponent(String name, URI vendorUri) throws Exception {
