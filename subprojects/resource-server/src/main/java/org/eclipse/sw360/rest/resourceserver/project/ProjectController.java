@@ -69,6 +69,8 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
             project.setCreatedOn(null);
             project.setReleaseIds(null);
             project.setReleaseIdToUsage(null);
+            project.setExternalIds(null);
+            project.setBusinessUnit(null);
 
             Resource<Project> projectResource = new Resource<>(project);
             projectResources.add(projectResource);

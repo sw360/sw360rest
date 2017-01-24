@@ -58,6 +58,10 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
 
         for (Release release : releases) {
             release.setComponentId(null);
+            release.setType(null);
+            release.setAttachments(null);
+            release.setReleaseDate(null);
+            release.setVendor(null);
             Resource<Release> releaseResource = new Resource<>(release);
             releaseResources.add(releaseResource);
         }
@@ -80,10 +84,16 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
             OAuth2Authentication oAuth2Authentication,
             @RequestBody Release release) throws URISyntaxException {
         User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+
         URI componentURI = new URI(release.getComponentId());
         String path = componentURI.getPath();
         String componentId = path.substring(path.lastIndexOf('/') + 1);
         release.setComponentId(componentId);
+
+        URI vendorURI = new URI(release.getVendorId());
+        path = vendorURI.getPath();
+        String vendorId = path.substring(path.lastIndexOf('/') + 1);
+        release.setVendorId(vendorId);
 
         Release sw360Release = releaseService.createRelease(release, sw360User);
         HalResource<Release> halResource = restControllerHelper.createHalReleaseResource(sw360Release, true);

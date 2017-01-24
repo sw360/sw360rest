@@ -41,7 +41,12 @@ public class JavaApi {
         AUTH_SERVER_URL = authServerUrl;
     }
 
-    public URI createProject(String name, String description, String version, List<URI> releaseURIs) throws Exception {
+    public URI createProject(String name,
+                             String description,
+                             String version,
+                             List<URI> releaseURIs,
+                             String businessUnit,
+                             Map<String, String> externalIds) throws Exception {
         Map<String,String> releaseIdToUsage = new HashMap<>();
         Set<String> releaseIds = new HashSet<>();
         for(URI uri: releaseURIs) {
@@ -54,8 +59,10 @@ public class JavaApi {
         project.put("version", version);
         project.put("description", description);
         project.put("projectType", ProjectType.PRODUCT.toString());
+        project.put("businessUnit", businessUnit);
         project.put("releaseIdToUsage", releaseIdToUsage);
         project.put("releaseIds", releaseIds);
+        project.put("externalIds", externalIds);
 
         HttpEntity<String> httpEntity = getHttpEntity(project);
 
@@ -76,12 +83,18 @@ public class JavaApi {
         return location;
     }
 
-    public URI createRelease(String name, String version, URI componentURI) throws Exception {
+    public URI createRelease(String name,
+                             String version,
+                             URI componentURI,
+                             URI vendorUri,
+                             Map<String, String> externalIds) throws Exception {
         Map<String, Object> release = new HashMap<>();
         release.put("name", name);
         release.put("componentId", componentURI.toString());
+        release.put("vendorId", vendorUri.toString());
         release.put("version", version);
         release.put("clearingState", ClearingState.APPROVED.toString());
+        release.put("externalIds", externalIds);
 
         HttpEntity<String> httpEntity = getHttpEntity(release);
 

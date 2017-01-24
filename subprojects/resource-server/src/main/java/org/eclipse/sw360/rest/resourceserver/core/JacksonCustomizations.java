@@ -49,9 +49,7 @@ class JacksonCustomizations {
         @JsonIgnoreProperties({
                 "id",
                 "revision",
-                "externalIds",
                 "attachments",
-                "businessUnit",
                 "createdBy",
                 "state",
                 "tag",
@@ -242,7 +240,6 @@ class JacksonCustomizations {
                 "moderators",
                 "clearingInformation",
                 "mainlineState",
-                "externalIds",
                 "downloadurl",
                 "setAttachments",
                 "setCreatedOn",

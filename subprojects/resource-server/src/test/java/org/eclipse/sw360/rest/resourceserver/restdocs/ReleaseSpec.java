@@ -68,6 +68,7 @@ public class ReleaseSpec extends RestDocsSpecBase {
         release.setModerators(new HashSet<>(Arrays.asList("admin@sw360.org", "jane@sw360.org")));
         release.setComponentId(component.getId());
         release.setClearingState(ClearingState.APPROVED);
+        release.setExternalIds(Collections.singletonMap("mainline-id-component", "1432"));
         releaseList.add(release);
 
         Release release2 = new Release();
@@ -82,6 +83,7 @@ public class ReleaseSpec extends RestDocsSpecBase {
         release2.setModerators(new HashSet<>(Arrays.asList("admin@sw360.org", "jane@sw360.org")));
         release2.setComponentId(component.getId());
         release2.setClearingState(ClearingState.APPROVED);
+        release2.setExternalIds(Collections.singletonMap("mainline-id-component", "4876"));
         releaseList.add(release2);
 
         given(this.releaseServiceMock.getReleasesForUser(anyObject())).willReturn(releaseList);
@@ -133,6 +135,7 @@ public class ReleaseSpec extends RestDocsSpecBase {
                                 fieldWithPath("releaseDate").description("The date of this release"),
                                 fieldWithPath("createdOn").description("The creation date of the internal sw360 release"),
                                 fieldWithPath("type").description("is always 'release'"),
+                                fieldWithPath("externalIds").description("When releases are imported from other tools, the external ids can be stored here"),
                                 fieldWithPath("_embedded.moderators").description("An array of all release moderators with email and link to their <<resources-user-get,User resource>>"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));

@@ -20,10 +20,7 @@ import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.*;
@@ -57,6 +54,8 @@ public class ProjectSpec  extends RestDocsSpecBase {
         project.setCreatedOn("2016-12-15");
         project.setCreatedBy("admin@sw360.org");
         project.setModerators(new HashSet<>(Arrays.asList("admin@sw360.org", "jane@sw360.org")));
+        project.setBusinessUnit("sw360 AR");
+        project.setExternalIds(Collections.singletonMap("mainline-id-project", "515432"));
         projectList.add(project);
 
         Project project2 = new Project();
@@ -68,6 +67,8 @@ public class ProjectSpec  extends RestDocsSpecBase {
         project2.setDescription("Orange Web provides a suite of components for documentation.");
         project2.setCreatedOn("2016-12-17");
         project2.setCreatedBy("john@sw360.org");
+        project2.setBusinessUnit("sw360 EX DF");
+        project2.setExternalIds(Collections.singletonMap("mainline-id-project", "7657"));
         projectList.add(project2);
 
         given(this.projectServiceMock.getProjectsForUser(anyObject())).willReturn(projectList);
@@ -116,6 +117,8 @@ public class ProjectSpec  extends RestDocsSpecBase {
                                 fieldWithPath("createdOn").description("The date the project was created"),
                                 fieldWithPath("type").description("is always 'project'"),
                                 fieldWithPath("projectType").description("The project type, possible values are: " + Arrays.asList(ProjectType.values())),
+                                fieldWithPath("businessUnit").description("The business unit this project belongs to"),
+                                fieldWithPath("externalIds").description("When projects are imported from other tools, the external ids can be stored here"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources"),
                                 fieldWithPath("_embedded.createdBy").description("The user who created this project"),
                                 fieldWithPath("_embedded.moderators").description("An array of all project moderators with email and link to their <<resources-user-get,User resource>>")

@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class DemoApplication {
@@ -81,7 +82,9 @@ public class DemoApplication {
                 "The Spring Framework provides a comprehensive programming"
                         + " and configuration model for modern Java-based enterprise applications.",
                 "4.3.5.RELEASE",
-                releaseURIs);
+                releaseURIs,
+                "sw360 AP DX" /* currently this has no effect, the creating user's department is used instead */,
+                Collections.singletonMap("mainline-id-project", "25432"));
     }
 
     private void addComponent(String jarFile, URI vendorUri) throws Exception {
@@ -95,7 +98,8 @@ public class DemoApplication {
         String componentVersion = jarFile.substring(indexOfFirstDigit, jarFile.length() - 4);
 
         URI componentURI = javaApi.createComponent(componentName, vendorUri);
-        URI releaseURI = javaApi.createRelease(componentName, componentVersion, componentURI);
+        URI releaseURI = javaApi.createRelease(componentName, componentVersion,
+                componentURI, vendorUri, Collections.singletonMap("mainline-id-component", "1432"));
         releaseURIs.add(releaseURI);
     }
 

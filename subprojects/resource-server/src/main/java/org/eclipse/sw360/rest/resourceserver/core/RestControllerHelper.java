@@ -99,22 +99,27 @@ public class RestControllerHelper {
 
     public void addEmbeddedVendors(HalResource<Component> halComponent, Set<String> vendors) {
         for (String vendorFullName : vendors) {
-            Vendor vendor = new Vendor();
-            HalResource<Vendor> halVendor = new HalResource<>(vendor);
-            vendor.setFullname(vendorFullName);
-            vendor.setType(null);
-            try {
-                Vendor vendorByFullName = vendorService.getVendorByFullName(vendorFullName);
-                Link vendorSelfLink = linkTo(UserController.class)
-                        .slash("api" + VendorController.VENDORS_URL + "/" + vendorByFullName.getId()).withSelfRel();
-                halVendor.add(vendorSelfLink);
-            } catch (Exception e) {
-                log.error("cannot create self link for vendor with full name: " + vendorFullName);
-            }
-
-            halComponent.addEmbeddedResource("vendors", halVendor);
+            HalResource<Vendor> vendorHalResource = addEmbeddedVendor(vendorFullName);
+            halComponent.addEmbeddedResource("vendors", vendorHalResource);
         }
 
+    }
+
+    private HalResource<Vendor> addEmbeddedVendor(String vendorFullName) {
+        Vendor vendor = new Vendor();
+        HalResource<Vendor> halVendor = new HalResource<>(vendor);
+        vendor.setFullname(vendorFullName);
+        vendor.setType(null);
+        try {
+            Vendor vendorByFullName = vendorService.getVendorByFullName(vendorFullName);
+            Link vendorSelfLink = linkTo(UserController.class)
+                    .slash("api" + VendorController.VENDORS_URL + "/" + vendorByFullName.getId()).withSelfRel();
+            halVendor.add(vendorSelfLink);
+            return halVendor;
+        } catch (Exception e) {
+            log.error("cannot create self link for vendor with full name: " + vendorFullName);
+        }
+        return null;
     }
 
     public HalResource<Release> createHalReleaseResource(Release release, boolean verbose) {
@@ -135,6 +140,12 @@ public class RestControllerHelper {
                 Set<Attachment> attachments = release.getAttachments();
                 this.addEmbeddedAttachments(halRelease, attachments);
                 release.setAttachments(null);
+            }
+            if (release.getVendor() != null) {
+                Vendor vendor = release.getVendor();
+                HalResource<Vendor> vendorHalResource = this.addEmbeddedVendor(vendor.getFullname());
+                halRelease.addEmbeddedResource("vendor", vendorHalResource);
+                release.setVendor(null);
             }
         }
         return halRelease;
