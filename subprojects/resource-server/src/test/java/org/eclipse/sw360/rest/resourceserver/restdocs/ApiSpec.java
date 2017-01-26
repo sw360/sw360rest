@@ -86,6 +86,7 @@ public class ApiSpec extends RestDocsSpecBase {
                                 linkWithRel("sw360:releases").description("The <<resources-releases,Releases resource>>"),
                                 linkWithRel("sw360:attachments").description("The <<resources-attachments,Attachments resource>>"),
                                 linkWithRel("sw360:vendors").description("The <<resources-vendors,Vendors resource>>"),
+                                linkWithRel("sw360:licenses").description("The <<resources-licenses,Licenses resource>>"),
                                 linkWithRel("curies").description("The Curies for documentation"),
                                 linkWithRel("profile").description("The profiles of the REST resources")
                         ),

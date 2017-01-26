@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.licenses.License;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
@@ -43,6 +44,7 @@ class JacksonCustomizations {
             setMixInAnnotation(Release.class, Sw360Module.ReleaseMixin.class);
             setMixInAnnotation(Attachment.class, Sw360Module.AttachmentMixin.class);
             setMixInAnnotation(Vendor.class, Sw360Module.VendorMixin.class);
+            setMixInAnnotation(License.class, Sw360Module.LicenseMixin.class);
         }
 
         @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -329,8 +331,67 @@ class JacksonCustomizations {
                 "setFullname",
                 "setShortname",
                 "setUrl"
-                })
+        })
         static abstract class VendorMixin extends Vendor {
+            @Override
+            @JsonProperty("fullName")
+            abstract public String getFullname();
+
+            @Override
+            @JsonProperty("shortName")
+            abstract public String getShortname();
+        }
+
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        @JsonIgnoreProperties({
+                "id",
+                "revision",
+                "licenseType",
+                "licenseTypeDatabaseId",
+                "externalLicenseLink",
+                "GPLv2Compat",
+                "GPLv3Compat",
+                "reviewdate",
+                "todos",
+                "todoDatabaseIds",
+                "risks",
+                "riskDatabaseIds",
+                "documentState",
+                "permissions",
+                "setId",
+                "setRevision",
+                "setType",
+                "setExternalIds",
+                "externalIdsSize",
+                "setDocumentState",
+                "permissionsSize",
+                "setLicenseTypeDatabaseId",
+                "setExternalLicenseLink",
+                "todoDatabaseIdsSize",
+                "todoDatabaseIdsIterator",
+                "setTodoDatabaseIds",
+                "riskDatabaseIdsSize",
+                "riskDatabaseIdsIterator",
+                "setRiskDatabaseIds",
+                "setPermissions",
+                "setFullname",
+                "setShortname",
+                "setLicenseType",
+                "gplv2Compat",
+                "setGPLv2Compat",
+                "gplv3Compat",
+                "setGPLv3Compat",
+                "setReviewdate",
+                "todosSize",
+                "todosIterator",
+                "setTodos",
+                "risksSize",
+                "risksIterator",
+                "setRisks",
+                "setText",
+                "mainLicenseIdsIterator"
+                })
+        static abstract class LicenseMixin extends License {
             @Override
             @JsonProperty("fullName")
             abstract public String getFullname();

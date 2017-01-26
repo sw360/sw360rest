@@ -70,11 +70,12 @@ public class DemoApplication {
         javaApi.getLinksFromApiRoot();
 
         URI vendorUri = javaApi.createVendor("Pivotal Software, Inc.", "Pivotal", new URL("https://pivotal.io/"));
+        URI licenseUri = javaApi.createLicense("Apache License 2.0", "apache20", "Placeholder for Apache 2.0 license text.");
 
         Path dir = Paths.get(springFrameworkDist + "/libs");
         DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.jar");
         for (Path path : stream) {
-            addComponent(path.getFileName().toString(), vendorUri);
+            addComponent(path.getFileName().toString(), vendorUri, licenseUri);
         }
 
         URI projectURI = javaApi.createProject(
@@ -87,7 +88,7 @@ public class DemoApplication {
                 Collections.singletonMap("mainline-id-project", "25432"));
     }
 
-    private void addComponent(String jarFile, URI vendorUri) throws Exception {
+    private void addComponent(String jarFile, URI vendorUri, URI licenseUri) throws Exception {
         if (jarFile.contains("javadoc") || jarFile.contains("sources")) {
             return;
         }
@@ -99,7 +100,8 @@ public class DemoApplication {
 
         URI componentURI = javaApi.createComponent(componentName, vendorUri);
         URI releaseURI = javaApi.createRelease(componentName, componentVersion,
-                componentURI, vendorUri, Collections.singletonMap("mainline-id-component", "1432"));
+                componentURI, vendorUri, Collections.singletonList(licenseUri),
+                Collections.singletonMap("mainline-id-component", "1432"));
         releaseURIs.add(releaseURI);
     }
 

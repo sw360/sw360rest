@@ -35,6 +35,7 @@ public class JavaApi {
     private String componentsUrl;
     private String releasesUrl;
     private String vendorsUrl;
+    private String licensesUrl;
 
     public JavaApi(String restServerURL, String authServerUrl) {
         REST_SERVER_URL = restServerURL;
@@ -87,6 +88,7 @@ public class JavaApi {
                              String version,
                              URI componentURI,
                              URI vendorUri,
+                             List<URI> licenseUris,
                              Map<String, String> externalIds) throws Exception {
         Map<String, Object> release = new HashMap<>();
         release.put("name", name);
@@ -95,6 +97,7 @@ public class JavaApi {
         release.put("version", version);
         release.put("clearingState", ClearingState.APPROVED.toString());
         release.put("externalIds", externalIds);
+        release.put("mainLicenseIds", licenseUris);
 
         HttpEntity<String> httpEntity = getHttpEntity(release);
 
@@ -111,6 +114,18 @@ public class JavaApi {
         HttpEntity<String> httpEntity = getHttpEntity(vendor);
 
         URI location = restTemplate.postForLocation(vendorsUrl, httpEntity);
+        return location;
+    }
+
+    public URI createLicense(String fullName, String shortName, String text) throws Exception {
+        Map<String, Object> license = new HashMap<>();
+        license.put("fullName", fullName);
+        license.put("shortName", shortName);
+        license.put("text", text);
+
+        HttpEntity<String> httpEntity = getHttpEntity(license);
+
+        URI location = restTemplate.postForLocation(licensesUrl, httpEntity);
         return location;
     }
 
@@ -132,6 +147,7 @@ public class JavaApi {
         this.componentsUrl = linksNode.get(curieName + ":components").get("href").asText();
         this.releasesUrl = linksNode.get(curieName + ":releases").get("href").asText();
         this.vendorsUrl = linksNode.get(curieName + ":vendors").get("href").asText();
+        this.licensesUrl = linksNode.get(curieName + ":licenses").get("href").asText();
     }
 
     private HttpEntity<String> getHttpEntity(Map<String, Object> component) throws IOException {

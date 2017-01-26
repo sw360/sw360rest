@@ -15,10 +15,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.licenses.License;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.eclipse.sw360.rest.resourceserver.attachment.AttachmentController;
 import org.eclipse.sw360.rest.resourceserver.component.ComponentController;
+import org.eclipse.sw360.rest.resourceserver.license.LicenseController;
+import org.eclipse.sw360.rest.resourceserver.license.Sw360LicenseService;
 import org.eclipse.sw360.rest.resourceserver.release.ReleaseController;
 import org.eclipse.sw360.rest.resourceserver.release.Sw360ReleaseService;
 import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
@@ -46,6 +49,9 @@ public class RestControllerHelper {
 
     @NonNull
     private final Sw360VendorService vendorService;
+
+    @NonNull
+    private final Sw360LicenseService licenseService;
 
     public User getSw360UserFromAuthentication(OAuth2Authentication oAuth2Authentication) {
         String userId = oAuth2Authentication.getName();
@@ -122,6 +128,32 @@ public class RestControllerHelper {
         return null;
     }
 
+    public void addEmbeddedLicenses(HalResource<Release> halComponent, Set<String> licenseIds) {
+        for (String licenseId : licenseIds) {
+            HalResource<License> licenseHalResource = addEmbeddedLicense(licenseId);
+            halComponent.addEmbeddedResource("licenses", licenseHalResource);
+        }
+
+    }
+
+    private HalResource<License> addEmbeddedLicense(String licenseId) {
+        License license = new License();
+        HalResource<License> halLicense = new HalResource<>(license);
+        license.setId(licenseId);
+        license.setType(null);
+        try {
+            License licenseById = licenseService.getLicenseById(licenseId);
+            license.setFullname(licenseById.getFullname());
+            Link licenseSelfLink = linkTo(UserController.class)
+                    .slash("api" + LicenseController.LICENSES_URL + "/" + licenseById.getId()).withSelfRel();
+            halLicense.add(licenseSelfLink);
+            return halLicense;
+        } catch (Exception e) {
+            log.error("cannot create self link for license with id: " + licenseId);
+        }
+        return null;
+    }
+
     public HalResource<Release> createHalReleaseResource(Release release, boolean verbose) {
         HalResource<Release> halRelease = new HalResource<>(release);
 
@@ -146,6 +178,10 @@ public class RestControllerHelper {
                 HalResource<Vendor> vendorHalResource = this.addEmbeddedVendor(vendor.getFullname());
                 halRelease.addEmbeddedResource("vendor", vendorHalResource);
                 release.setVendor(null);
+            }
+            if (release.getMainLicenseIds() != null) {
+                this.addEmbeddedLicenses(halRelease, release.getMainLicenseIds());
+                release.setMainLicenseIds(null);
             }
         }
         return halRelease;

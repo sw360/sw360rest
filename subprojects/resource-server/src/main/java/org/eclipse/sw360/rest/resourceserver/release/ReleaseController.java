@@ -33,8 +33,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
@@ -62,6 +61,7 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
             release.setAttachments(null);
             release.setReleaseDate(null);
             release.setVendor(null);
+            release.setMainLicenseIds(null);
             Resource<Release> releaseResource = new Resource<>(release);
             releaseResources.add(releaseResource);
         }
@@ -94,6 +94,18 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
         path = vendorURI.getPath();
         String vendorId = path.substring(path.lastIndexOf('/') + 1);
         release.setVendorId(vendorId);
+
+        if(release.getMainLicenseIds() != null) {
+            Set<String> mainLicenseIds = new HashSet<>();
+            Set<String> mainLicenseUris = release.getMainLicenseIds();
+            for (String licenseURIString : mainLicenseUris.toArray(new String[mainLicenseUris.size()])) {
+                URI licenseURI = new URI(licenseURIString);
+                path = licenseURI.getPath();
+                String licenseId = path.substring(path.lastIndexOf('/') + 1);
+                mainLicenseIds.add(licenseId);
+            }
+            release.setMainLicenseIds(mainLicenseIds);
+        }
 
         Release sw360Release = releaseService.createRelease(release, sw360User);
         HalResource<Release> halResource = restControllerHelper.createHalReleaseResource(sw360Release, true);
