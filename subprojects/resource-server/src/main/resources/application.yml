@@ -1,5 +1,5 @@
 #
-# Copyright Siemens AG, 2016. Part of the SW360 Portal ProjectResource.
+# Copyright Siemens AG, 2017. Part of the SW360 Portal ProjectResource.
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -32,5 +32,5 @@ security:
           -----END PUBLIC KEY-----
 
 sw360:
-  thrift-server-url: ${SW360_THRIFT_SERVER_URL:http://192.168.99.100:8080}
+  thrift-server-url: ${SW360_THRIFT_SERVER_URL:http://localhost:8080}
 #  thrift-server-url: http://localhost:8080

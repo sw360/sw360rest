@@ -1,5 +1,5 @@
 #
-# Copyright Siemens AG, 2016. Part of the SW360 Portal Project.
+# Copyright Siemens AG, 2017. Part of the SW360 Portal Project.
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
