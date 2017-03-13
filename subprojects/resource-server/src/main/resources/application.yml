@@ -19,6 +19,7 @@ security:
   oauth2:
     resource:
       id: sw360-REST-API
+      filter-order: 3
       jwt:
         keyValue: |
           -----BEGIN PUBLIC KEY-----
