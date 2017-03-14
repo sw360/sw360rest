@@ -117,7 +117,11 @@ class JacksonCustomizations {
                 "setWiki",
                 "setReleaseIds",
                 "setPermissions",
-                "setClearingState"
+                "setClearingState",
+                "securityResponsibles",
+                "securityResponsiblesSize",
+                "securityResponsiblesIterator",
+                "setSecurityResponsibles"
         })
         static abstract class ProjectMixin {
         }
@@ -286,7 +290,8 @@ class JacksonCustomizations {
                 "setReleaseDate",
                 "setExternalIds",
                 "clearingTeamToFossologyStatusSize",
-                "setClearingTeamToFossologyStatus"
+                "setClearingTeamToFossologyStatus",
+                "setEccInformation"
         })
         static abstract class ReleaseMixin extends Release {
             @Override
