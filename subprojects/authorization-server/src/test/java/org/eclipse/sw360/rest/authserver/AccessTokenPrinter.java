@@ -9,8 +9,11 @@
 
 package org.eclipse.sw360.rest.authserver;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.io.ClassPathResource;
@@ -30,16 +33,20 @@ public class AccessTokenPrinter {
     }
 
     public static void main(String[] args) throws IOException {
+        Logger rootLogger = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
+        rootLogger.setLevel(Level.ERROR);
+
+        if(args.length != 3) {
+            System.out.println("usage: ./gradlew printAccessToken <auth server URL> <user> <password>");
+            return;
+        }
+
         AccessTokenPrinter accessTokenPrinter = new AccessTokenPrinter();
-        accessTokenPrinter.printAccessToken();
+        accessTokenPrinter.printAccessToken(args[0], args[1], args[2]);
     }
 
-    private void printAccessToken() throws IOException {
-        Properties properties = getPropertiesFromApplicationYml();
-        String testUserId = properties.get("sw360.test-user-id").toString();
-        String testUserPassword = properties.get("sw360.test-user-password").toString();
-
-        String url = "http://localhost:8090/oauth/token?grant_type=password&username=" + testUserId + "&password=" + testUserPassword;
+    private void printAccessToken(String authServerURL, String userId, String userPassword) throws IOException {
+        String url = authServerURL + "/oauth/token?grant_type=password&username=" + userId + "&password=" + userPassword;
 
         ResponseEntity<String> responseEntity =  new TestRestTemplate(
                 "trusted-sw360-client",
@@ -53,7 +60,6 @@ public class AccessTokenPrinter {
         assertThat(responseBodyJsonNode.has("access_token"), is(true));
 
         String accessToken = responseBodyJsonNode.get("access_token").asText();
-        System.out.println("-----------------------------------------");
         System.out.println("Authorization: Bearer " + accessToken);
     }
 }

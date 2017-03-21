@@ -17,6 +17,8 @@ services:
     build: subprojects/authorization-server
     ports:
       - 8090:8090
+    environment:
+      - SW360_AUTHORIZATION_SERVER_ARGS=-Dspring.profiles.active=dev
 
   sw360-resource-server:
     build: subprojects/resource-server

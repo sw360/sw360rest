@@ -40,7 +40,7 @@ public class ResourceOwnerCredentialsGrantTest extends IntegrationTestBase {
 
     @Test
     public void should_connect_to_authorization_server_with_resource_owner_credentials() {
-        assertThat(HttpStatus.OK, is(responseEntity.getStatusCode()));
+        assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
     }
 
 

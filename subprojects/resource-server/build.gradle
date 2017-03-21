@@ -14,7 +14,7 @@ plugins {
 apply plugin: 'org.springframework.boot'
 
 jar {
-	baseName = 'sw360-rest-authorization-server'
+	baseName = 'sw360-rest-resource-server'
 }
 apply from: "$rootDir/gradle/prepareDocker.gradle"
 

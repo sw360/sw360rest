@@ -14,7 +14,7 @@ Please stay tuned...
 This project provides a REST API infrastructure for sw360, including
 
 * OAuth2 Authorisation Server (subproject authorization-server)
-** This is just for having an oauth2 provider for testing authorization
+** This is for having an oauth2 provider authorization
 ** Might be replaced in the future
 * REST API Gateway (subproject resource-server)
 ** Currently in experimental phase to find out what the best mapping to the existing sw360 domain model would be
@@ -223,23 +223,11 @@ This is currently work in progress and will be easier in the future.
 
 The precondition for browsing the real sw360 data using the REST API is that you
 have all the sw360 Thrift services running. You could change the Thrift services URL by
-setting the environment variable SW360_THRIFT_SERVER_URL to your local sw360 thrift server,
-e.g. http://localhost:8080 or you could edit
-edit subprojects/resource-server/src/main/resources/application.yml. The default configuration is:
+setting the following 3 environment variables:
 
-[source, yml]
-sw360:
-  thrift-server-url: ${SW360_THRIFT_SERVER_URL:http://localhost:8080}
-
-Furthermore you need to configure the hardcoded sw360 user id in
-the authorization server to match the id/email of an existing sw360 user.
-To do that, edit the values for sw360.test-user-id
-in subprojects/authorization-server/src/main/resources/application.yml. The defaults are:
-
-[source, yml]
-sw360:
-  test-user-id: admin@sw360.org
-  test-user-password: sw360-admin-password
+* SW360_THRIFT_SERVER_URL to your local sw360 thrift server, including port, e.g. http://localhost:8080,
+* SW360_PORTAL_SERVER_URL to your local sw360 LifeRay portal server, including port, e.g. http://localhost:8080
+* SW360_LIFERAY_COMPANY_ID to the company id used in the LifeRay Portal
 
 Right now you have to start both the authorization server as well as the resource server in 2 separate console windows:
 
@@ -250,14 +238,15 @@ Right now you have to start both the authorization server as well as the resourc
 
 Then get an oauth2 token from the authorization server by running
 
-* ./gradlew printAccessToken
+* ./gradlew printAccessToken -Psw360args="<auth server URL>,<user>,<password>"
+* e.g. ./gradlew printAccessToken -Psw360args="http://192.168.99.100:8090,admin@sw360.org,sw360-admin-password"
 
 At the end of the console output you will get something like:
 [source]
 Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic3czNjAtUkVTVC1BUEkiXSwidXNlcl9uYW1lIjoic3czNjAtdXNlciIsInNjb3BlIjpbInN3MzYwLnJlYWQiLCJzdzM2MC53cml0ZSJdLCJleHAiOjE0ODE2MjQyOTYsImF1dGhvcml0aWVzIjpbIlJPTEVfU1czNjBfVVNFUiJdLCJqdGkiOiIzMDgyMDM5ZS0xY2ViLTQ5ZDktYWM1My0xMzIxMTNhMWQwMDQiLCJjbGllbnRfaWQiOiJ0cnVzdGVkLXN3MzYwLWNsaWVudCJ9.Exm2Yc-XaTff6FrGRTL4lXhBvbAD05XH8sTFC1kPRuqPkWqW2T0IgMgOs7iNDFwREvnqhAP4ZkCEFWYy-kiGU63HDlobDntJkJqvZjLTBlv4jOlXXJQ0TZWm6c-ochNWMkKI2tYO8EeDLqHj0jW1DWQ1I3o6cVtYdJ-etwOuIAP0uC9sykHlJkL_-TjvGpxpPXj_gTzeuvvOtqqhgF10uOpN-BBq5nLyRP4Zgrd1NhE-E6osb8xZrzn0WjtHA5ja62lmJ-a40sQ2kaXP8pik4pq3hmv2yNDK0TExjvvDXS_aEEavUv1p2-LmlyTua2UizHHxLxFjqptE2FqMZlmqkQ
 
 Then open the following URL in a web browser:
-http://localhost:8091/api/browser/index.html#/api
+http://<REST server URL>/api/browser/index.html#/api
 
 Now you should see an API browser (Hal-Browser), but you are not authorized yet.
 Copy the whole token (including "Authorization: Bearer") into the "Custom Request Headers" field in the HAL-Browser and click on the "Go!" button.
