@@ -51,7 +51,6 @@ public class Sw360AuthenticationProvider implements AuthenticationProvider {
         String password = authentication.getCredentials().toString();
 
         boolean isDev = environment.getActiveProfiles().length == 1 && environment.getActiveProfiles()[0].equals("dev");
-        System.out.println("is dev: " + isDev);
 
         if (isDev && testUserId != null && testUserPassword != null) {
             // For easy testing without having a Liferay portal running,

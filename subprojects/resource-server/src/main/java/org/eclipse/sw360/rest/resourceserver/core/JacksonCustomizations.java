@@ -291,7 +291,8 @@ class JacksonCustomizations {
                 "setExternalIds",
                 "clearingTeamToFossologyStatusSize",
                 "setClearingTeamToFossologyStatus",
-                "setEccInformation"
+                "setEccInformation",
+                "eccInformation"
         })
         static abstract class ReleaseMixin extends Release {
             @Override
