@@ -133,7 +133,6 @@ public class RestControllerHelper {
             HalResource<License> licenseHalResource = addEmbeddedLicense(licenseId);
             halComponent.addEmbeddedResource("licenses", licenseHalResource);
         }
-
     }
 
     private HalResource<License> addEmbeddedLicense(String licenseId) {
@@ -200,6 +199,7 @@ public class RestControllerHelper {
         release.setDownloadurl(null);
         release.setAttachments(null);
         release.setVendor(null);
+        release.setEccInformation(null);
         HalResource<Release> halRelease = new HalResource<>(release);
         try {
             Link releaseLink = linkTo(ReleaseController.class).slash("api/releases/" + release.getId()).withSelfRel();
