@@ -20,6 +20,8 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -36,7 +38,7 @@ public class AccessTokenPrinter {
         Logger rootLogger = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
         rootLogger.setLevel(Level.ERROR);
 
-        if(args.length != 3) {
+        if (args.length != 3) {
             System.out.println("usage: ./gradlew printAccessToken <auth server URL> <user> <password>");
             return;
         }
@@ -46,9 +48,16 @@ public class AccessTokenPrinter {
     }
 
     private void printAccessToken(String authServerURL, String userId, String userPassword) throws IOException {
-        String url = authServerURL + "/oauth/token?grant_type=password&username=" + userId + "&password=" + userPassword;
+        String encodedPassword = null;
+        try {
+            encodedPassword = URLEncoder.encode(userPassword, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return;
+        }
 
-        ResponseEntity<String> responseEntity =  new TestRestTemplate(
+        String url = authServerURL + "/oauth/token?grant_type=password&username=" + userId + "&password=" + encodedPassword;
+
+        ResponseEntity<String> responseEntity = new TestRestTemplate(
                 "trusted-sw360-client",
                 "sw360-secret")
                 .postForEntity(url,
