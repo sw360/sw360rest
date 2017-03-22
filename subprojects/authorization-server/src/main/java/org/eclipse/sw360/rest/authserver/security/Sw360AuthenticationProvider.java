@@ -53,7 +53,7 @@ public class Sw360AuthenticationProvider implements AuthenticationProvider {
         boolean isDev = environment.getActiveProfiles().length == 1 && environment.getActiveProfiles()[0].equals("dev");
 
         if (isDev && testUserId != null && testUserPassword != null) {
-            // For easy testing without having a Liferay portal running,
+            // For easy testing without having a LifeRay portal running,
             // we mock an existing sw360 user
             if (name.equals(testUserId) && password.equals(testUserPassword)) {
                 return createAuthenticationToken(name, password);
@@ -66,7 +66,6 @@ public class Sw360AuthenticationProvider implements AuthenticationProvider {
             String encodedPassword = null;
             try {
                 encodedPassword = URLDecoder.decode(password, "US-ASCII");
-                // encodedPassword = new String(password.getBytes(), "US-ASCII");
             } catch (UnsupportedEncodingException e) {
                 return null;
             }
