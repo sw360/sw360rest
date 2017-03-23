@@ -200,6 +200,10 @@ public class RestControllerHelper {
         release.setAttachments(null);
         release.setVendor(null);
         release.setEccInformation(null);
+        release.setOperatingSystems(null);
+        release.setMainLicenseIds(null);
+        release.setOperatingSystems(null);
+        release.setLanguages(null);
         HalResource<Release> halRelease = new HalResource<>(release);
         try {
             Link releaseLink = linkTo(ReleaseController.class).slash("api/releases/" + release.getId()).withSelfRel();

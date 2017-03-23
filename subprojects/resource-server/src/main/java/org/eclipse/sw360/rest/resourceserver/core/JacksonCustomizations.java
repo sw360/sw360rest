@@ -292,7 +292,16 @@ class JacksonCustomizations {
                 "clearingTeamToFossologyStatusSize",
                 "setClearingTeamToFossologyStatus",
                 "setEccInformation",
-                "eccInformation"
+                "eccInformation",
+                "languages",
+                "operatingSystems",
+                "languagesIterator",
+                "operatingSystemsIterator",
+                "cotsDetails",
+                "releaseIdToRelationship",
+                "documentState",
+                "contributorsIterator"
+
         })
         static abstract class ReleaseMixin extends Release {
             @Override
