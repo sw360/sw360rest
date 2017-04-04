@@ -56,6 +56,9 @@ public abstract class RestDocsSpecBase {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context)
                 .addFilter(springSecurityFilterChain)
                 .apply(documentationConfiguration(this.restDocumentation))
+                .apply(documentationConfiguration(this.restDocumentation).uris()
+                        .withScheme("https")
+                        .withHost("sw360.org"))
                 .alwaysDo(this.documentationHandler)
                 .build();
     }
