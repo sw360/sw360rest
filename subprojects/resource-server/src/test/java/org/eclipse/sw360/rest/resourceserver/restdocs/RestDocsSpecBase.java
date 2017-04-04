@@ -58,7 +58,8 @@ public abstract class RestDocsSpecBase {
                 .apply(documentationConfiguration(this.restDocumentation))
                 .apply(documentationConfiguration(this.restDocumentation).uris()
                         .withScheme("https")
-                        .withHost("sw360.org"))
+                        .withHost("sw360.org")
+                        .withPort(443))
                 .alwaysDo(this.documentationHandler)
                 .build();
     }
