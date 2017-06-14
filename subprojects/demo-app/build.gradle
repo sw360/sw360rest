@@ -9,7 +9,7 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-core:2.8.4'
     compile 'org.projectlombok:lombok:1.16.12'
     compile 'org.apache.thrift:libthrift:0.9.3'
-    compile ('org.eclipse.sw360:datahandler:1.6.0-SNAPSHOT') {
+    compile ('org.eclipse.sw360:datahandler:2.1.0-SNAPSHOT') {
         exclude group:'org.slf4j'
     }
 }

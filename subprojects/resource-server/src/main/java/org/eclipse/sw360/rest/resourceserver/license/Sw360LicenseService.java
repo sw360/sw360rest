@@ -17,6 +17,7 @@ import org.apache.thrift.transport.THttpClient;
 import org.apache.thrift.transport.TTransportException;
 import org.eclipse.sw360.datahandler.thrift.licenses.License;
 import org.eclipse.sw360.datahandler.thrift.licenses.LicenseService;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -50,11 +51,11 @@ public class Sw360LicenseService {
         }
     }
 
-    public License createLicense(License license) {
+    public License createLicense(License license, User sw360User) {
         try {
             LicenseService.Iface sw360LicenseClient = getThriftLicenseClient();
             license.setId(license.getShortname());
-            List<License> licenses = sw360LicenseClient.addLicenses(Collections.singletonList(license));
+            List<License> licenses = sw360LicenseClient.addLicenses(Collections.singletonList(license), sw360User);
             for(License newlicense: licenses) {
                 if(license.getFullname().equals(newlicense.getFullname())) {
                     return  newlicense;

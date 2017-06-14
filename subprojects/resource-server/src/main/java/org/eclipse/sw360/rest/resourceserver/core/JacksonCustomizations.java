@@ -121,8 +121,13 @@ class JacksonCustomizations {
                 "securityResponsibles",
                 "securityResponsiblesSize",
                 "securityResponsiblesIterator",
-                "setSecurityResponsibles"
-        })
+                "setSecurityResponsibles",
+                "setOwnerGroup",
+                "rolesSize",
+                "setRoles",
+                "setOwnerAccountingUnit",
+                "setProjectOwner"
+                })
         static abstract class ProjectMixin {
         }
 
@@ -230,7 +235,12 @@ class JacksonCustomizations {
                 "vendorNamesIterator",
                 "setDocumentState",
                 "permissionsSize",
-        })
+                "setComponentOwner",
+                "setOwnerAccountingUnit",
+                "setOwnerGroup",
+                "rolesSize",
+                "setRoles"
+                })
         static abstract class ComponentMixin extends Component {
             @Override
             @JsonProperty("vendors")
@@ -300,8 +310,10 @@ class JacksonCustomizations {
                 "cotsDetails",
                 "releaseIdToRelationship",
                 "documentState",
-                "contributorsIterator"
-
+                "contributorsIterator",
+                "rolesSize",
+                "setRoles",
+                "setCreatorDepartment"
         })
         static abstract class ReleaseMixin extends Release {
             @Override

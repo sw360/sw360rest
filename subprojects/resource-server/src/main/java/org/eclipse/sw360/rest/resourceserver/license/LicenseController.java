@@ -13,6 +13,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.licenses.License;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.rest.resourceserver.core.HalResource;
 import org.eclipse.sw360.rest.resourceserver.core.RestControllerHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,7 +82,8 @@ public class LicenseController implements ResourceProcessor<RepositoryLinksResou
     public ResponseEntity<Resource<License>> createLicense(
             OAuth2Authentication oAuth2Authentication,
             @RequestBody License license) throws URISyntaxException {
-        license = licenseService.createLicense(license);
+        User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+        license = licenseService.createLicense(license, sw360User);
         HalResource<License> halResource = createHalLicense(license);
 
         URI location = ServletUriComponentsBuilder

@@ -12,8 +12,10 @@ package org.eclipse.sw360.rest.resourceserver.project;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.sw360.datahandler.thrift.MainlineState;
+import org.eclipse.sw360.datahandler.thrift.ProjectReleaseRelationship;
+import org.eclipse.sw360.datahandler.thrift.ReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
-import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.rest.resourceserver.core.HalResource;
 import org.eclipse.sw360.rest.resourceserver.core.RestControllerHelper;
@@ -67,7 +69,6 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
             project.setDescription(null);
             project.setType(null);
             project.setCreatedOn(null);
-            project.setReleaseIds(null);
             project.setReleaseIdToUsage(null);
             project.setExternalIds(null);
             project.setBusinessUnit(null);
@@ -93,21 +94,10 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
     public ResponseEntity createProject(
             OAuth2Authentication oAuth2Authentication,
             @RequestBody Project project) throws URISyntaxException {
-        if(project.getReleaseIds() != null) {
-            Set<String> releaseIds = new HashSet<>();
-            for (String releaseURIString : project.getReleaseIds()) {
-                URI releaseURI = new URI(releaseURIString);
-                String path = releaseURI.getPath();
-                String releaseId = path.substring(path.lastIndexOf('/') + 1);
-                releaseIds.add(releaseId);
-            }
-            project.setReleaseIds(releaseIds);
-        }
+        if (project.getReleaseIdToUsage() != null) {
 
-        if(project.getReleaseIdToUsage() != null) {
-
-            Map<String, String> releaseIdToUsage = new HashMap<>();
-            Map<String, String> oriReleaseIdToUsage = project.getReleaseIdToUsage();
+            Map<String, ProjectReleaseRelationship> releaseIdToUsage = new HashMap<>();
+            Map<String, ProjectReleaseRelationship> oriReleaseIdToUsage = project.getReleaseIdToUsage();
             for (String releaseURIString : oriReleaseIdToUsage.keySet()) {
                 URI releaseURI = new URI(releaseURIString);
                 String path = releaseURI.getPath();
@@ -135,14 +125,15 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
             @RequestBody List<String> releaseURIs) throws URISyntaxException {
         User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         Project project = projectService.getProjectForUserById(id, sw360User);
-        Set<String> releases = new HashSet<>();
+        Map<String, ProjectReleaseRelationship> releaseIdToUsage = new HashMap<>();
         for (String releaseURIString : releaseURIs) {
             URI releaseURI = new URI(releaseURIString);
             String path = releaseURI.getPath();
             String releaseId = path.substring(path.lastIndexOf('/') + 1);
-            releases.add(releaseId);
+            releaseIdToUsage.put(releaseId,
+                    new ProjectReleaseRelationship(ReleaseRelationship.CONTAINED, MainlineState.MAINLINE));
         }
-        project.setReleaseIds(releases);
+        project.setReleaseIdToUsage(releaseIdToUsage);
         projectService.updateProject(project, sw360User);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
@@ -160,11 +151,10 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
 
         restControllerHelper.addEmbeddedUser(halProject, sw360User, "createdBy");
         Set<String> releaseIds = new HashSet<>();
-        sw360Project.setReleaseIds(null);
         if (sw360Project.getReleaseIdToUsage() != null) {
-            Map<String, String> releaseIdToUsage = sw360Project.getReleaseIdToUsage();
+            Map<String, ProjectReleaseRelationship> releaseIdToUsage = sw360Project.getReleaseIdToUsage();
             for (String releaseId : releaseIdToUsage.keySet()) {
-                if (releaseIdToUsage.get(releaseId).equalsIgnoreCase(ProjectRelationship.CONTAINED.toString())) {
+                if (releaseIdToUsage.get(releaseId).releaseRelation.equals(ReleaseRelationship.CONTAINED)) {
                     releaseIds.add(releaseId);
                 }
             }

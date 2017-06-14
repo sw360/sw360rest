@@ -6,7 +6,7 @@ repositories {
 }
 
 ext {
-    sw360Version = '1.6.0-SNAPSHOT'
+    sw360Version = '2.1.0-SNAPSHOT'
 }
 
 configurations {

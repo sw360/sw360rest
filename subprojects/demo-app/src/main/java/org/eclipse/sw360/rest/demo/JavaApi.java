@@ -11,6 +11,9 @@ package org.eclipse.sw360.rest.demo;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.eclipse.sw360.datahandler.thrift.MainlineState;
+import org.eclipse.sw360.datahandler.thrift.ProjectReleaseRelationship;
+import org.eclipse.sw360.datahandler.thrift.ReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.components.ClearingState;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentType;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectType;
@@ -48,11 +51,10 @@ public class JavaApi {
                              List<URI> releaseURIs,
                              String businessUnit,
                              Map<String, String> externalIds) throws Exception {
-        Map<String,String> releaseIdToUsage = new HashMap<>();
-        Set<String> releaseIds = new HashSet<>();
+        Map<String,ProjectReleaseRelationship> releaseIdToUsage = new HashMap<>();
         for(URI uri: releaseURIs) {
-            releaseIdToUsage.put(uri.getPath(), "CONTAINED");
-            releaseIds.add((uri.getPath()));
+            releaseIdToUsage.put(uri.getPath(),
+                    new ProjectReleaseRelationship(ReleaseRelationship.CONTAINED, MainlineState.MAINLINE));
         }
 
         Map<String, Object> project = new HashMap<>();
@@ -62,7 +64,6 @@ public class JavaApi {
         project.put("projectType", ProjectType.PRODUCT.toString());
         project.put("businessUnit", businessUnit);
         project.put("releaseIdToUsage", releaseIdToUsage);
-        project.put("releaseIds", releaseIds);
         project.put("externalIds", externalIds);
 
         HttpEntity<String> httpEntity = getHttpEntity(project);
