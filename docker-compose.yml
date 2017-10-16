@@ -8,6 +8,7 @@ services:
 
   sw360-thrift-server:
     build: subprojects/docker-sandbox
+    image: sw360rest-thrift-server
     ports:
       - 8080:8080
     links:
@@ -15,6 +16,7 @@ services:
 
   sw360-authorization-server:
     build: subprojects/authorization-server
+    image: sw360rest-authorization-server
     ports:
       - 8090:8090
     environment:
@@ -22,6 +24,7 @@ services:
 
   sw360-resource-server:
     build: subprojects/resource-server
+    image: sw360rest-resource-server
     ports:
       - 8091:8091
     links:
