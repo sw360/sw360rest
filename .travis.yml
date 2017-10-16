@@ -18,8 +18,8 @@ services:
   - docker
 
 before_install:
-  - curl -o datahandler-2.1.0-SNAPSHOT.jar https://s3.amazonaws.com/sw360restdoc/datahandler-2.1.0-SNAPSHOT.jar
-  - mvn install:install-file -Dfile=datahandler-2.1.0-SNAPSHOT.jar -DgroupId=org.eclipse.sw360 -DartifactId=datahandler -Dversion=2.1.0-SNAPSHOT -Dpackaging=jar
+  - curl -o datahandler-3.1.0-SNAPSHOT.jar https://s3.amazonaws.com/sw360restdoc/datahandler-3.1.0-SNAPSHOT.jar
+  - mvn install:install-file -Dfile=datahandler-3.1.0-SNAPSHOT.jar -DgroupId=org.eclipse.sw360 -DartifactId=datahandler -Dversion=3.1.0-SNAPSHOT -Dpackaging=jar
 
 install: true
 

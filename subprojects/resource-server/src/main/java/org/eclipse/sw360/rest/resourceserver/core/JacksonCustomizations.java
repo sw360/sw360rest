@@ -126,7 +126,9 @@ class JacksonCustomizations {
                 "rolesSize",
                 "setRoles",
                 "setOwnerAccountingUnit",
-                "setProjectOwner"
+                "setProjectOwner",
+                "enableSvm",
+                "setEnableSvm"
                 })
         static abstract class ProjectMixin {
         }
@@ -147,7 +149,10 @@ class JacksonCustomizations {
                 "setFullname",
                 "setGivenname",
                 "setLastname",
-                "setDepartment"
+                "setDepartment",
+                "notificationPreferencesSize",
+                "setNotificationPreferences",
+                "setCommentMadeDuringModerationRequest"
         })
         static abstract class UserMixin extends User {
             @Override

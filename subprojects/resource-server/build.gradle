@@ -30,7 +30,7 @@ dependencies {
 	compile 'org.springframework.data:spring-data-rest-hal-browser'
 
 	compile 'org.apache.thrift:libthrift:0.9.3'
-	compile ("org.eclipse.sw360:datahandler:2.1.0-SNAPSHOT") {
+	compile ("org.eclipse.sw360:datahandler:3.1.0-SNAPSHOT") {
         exclude group:"org.slf4j"
     }
 
