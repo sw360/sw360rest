@@ -5,9 +5,12 @@ image:http://img.shields.io/badge/license-EPL-blue.svg["EPL", link="http://www.e
 
 == Disclaimer
 
-This project is in a very early stage, mainly starting a proof of concept for a possible REST API for the sw360 portal.
+This project is will not longer continued here.
+Both the authorization server as well as the resource server
+are already integrated into the main portal project,
+see https://github.com/sw360/sw360portal/tree/master/rest
 
-Please stay tuned...
+The client demo will probably also being integrated into the portal project later.
 
 == Overview
 
